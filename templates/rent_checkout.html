@@ -1,0 +1,963 @@
+{% extends "base.html" %}
+
+{% block title %}Rental Checkout - {{ rental.brand }} {{ rental.model }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Main Container */
+    .checkout-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    /* Page Header */
+    .checkout-header {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .checkout-header::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    
+    .checkout-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        left: -30px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+    
+    .checkout-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .checkout-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Back Button */
+    .back-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 2;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .back-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateX(-3px);
+    }
+    
+    /* Vehicle Summary Card */
+    .vehicle-summary-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* FIXED: Changed to black/dark colors for better visibility */
+    .vehicle-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #000000; /* Changed to black */
+        margin-bottom: 4px;
+    }
+    
+    .vehicle-subtitle {
+        font-size: 14px;
+        color: #333333; /* Changed to dark gray */
+        margin-bottom: 1rem;
+    }
+    
+    .vehicle-price {
+        font-size: 28px;
+        font-weight: 800;
+        color: #194ab4ff;
+        margin-bottom: 0;
+    }
+    
+    .price-label {
+        font-size: 12px;
+        color: #333333; /* Changed to dark gray */
+        font-weight: 500;
+    }
+    
+    /* Main Form Sections */
+    .form-section {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .section-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 1.25rem 1.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #000000; /* Changed to black */
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-body {
+        padding: 1.75rem;
+    }
+    
+    /* Form Labels - FIXED for better visibility */
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #000000; /* Changed to black */
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        padding: 12px 16px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        color: #000000; /* Added black text for input */
+    }
+    
+    .form-control::placeholder {
+        color: #666666; /* Darker placeholder */
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        color: #000000;
+    }
+    
+    /* Payment Options */
+    .payment-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+        .payment-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    
+    .payment-option {
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .payment-option:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        transform: translateY(-3px);
+    }
+    
+    .payment-option.selected {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+    }
+    
+    .payment-icon {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        border-radius: 10px;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .payment-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #000000; /* Changed to black */
+        margin: 0;
+    }
+    
+    /* Rental Type Options */
+    .rental-type-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+        .rental-type-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    
+    .rental-option {
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .rental-option:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        transform: translateY(-3px);
+    }
+    
+    .rental-option.selected {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+    }
+    
+    .rental-type-icon {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        border-radius: 10px;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .rental-type-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #000000; /* Changed to black */
+        margin: 0;
+    }
+    
+    .rental-price {
+        font-size: 18px;
+        font-weight: 800;
+        color: #194ab4ff;
+        margin: 5px 0 0 0;
+    }
+    
+    .rental-period {
+        font-size: 12px;
+        color: #333333; /* Changed to dark gray */
+        margin: 0;
+    }
+    
+    /* Date Inputs */
+    .date-inputs {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+        .date-inputs {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    
+    /* Help text styling - FIXED for better visibility */
+    .form-text {
+        color: #333333; /* Changed to dark gray */
+        font-size: 13px;
+    }
+    
+    /* Price Summary - FIXED for better visibility */
+    .price-breakdown {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .price-row:last-child {
+        border-bottom: none;
+    }
+    
+    .price-label {
+        font-size: 14px;
+        color: #000000; /* Changed to black */
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .price-label .info-icon {
+        color: #333333; /* Changed to dark gray */
+        cursor: help;
+    }
+    
+    .price-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #000000; /* Changed to black */
+    }
+    
+    .total-row {
+        padding-top: 15px;
+        border-top: 2px solid #e5e7eb;
+        margin-top: 10px;
+    }
+    
+    .total-label {
+        font-size: 18px;
+        font-weight: 700;
+        color: #000000; /* Changed to black */
+    }
+    
+    .total-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #194ab4ff;
+    }
+    
+    /* Service Fee Breakdown - FIXED for better visibility */
+    .service-fee-breakdown {
+        background: #eff6ff;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+        border: 1px solid #dbeafe;
+    }
+    
+    .service-fee-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #000000; /* Changed to black */
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .service-fee-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .service-fee-list li {
+        font-size: 12px;
+        color: #000000; /* Changed to black */
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .service-fee-list li:before {
+        content: "✓";
+        color: #059669; /* Changed to green for better visibility */
+        font-weight: bold;
+    }
+    
+    /* Submit Button */
+    .submit-btn {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        border: none;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 18px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 2rem;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(25, 74, 180, 0.3);
+        background: linear-gradient(135deg, #1047bdff 0%, #0d3a8cff 100%);
+    }
+    
+    .submit-btn:active {
+        transform: translateY(-1px);
+    }
+    
+    /* Summary Card */
+    .summary-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .summary-header {
+        font-size: 18px;
+        font-weight: 700;
+        color: #000000; /* Changed to black */
+        margin-bottom: 1.25rem;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    /* FIXED: Alert text colors for better visibility */
+    .alert {
+        color: #000000; /* Default alert text to black */
+    }
+    
+    .alert-info {
+        background-color: #e0f2fe;
+        border-color: #bae6fd;
+        color: #000000; /* Changed to black */
+    }
+    
+    .alert-info h6 {
+        color: #000000; /* Changed to black */
+    }
+    
+    /* FIXED: Badge text colors */
+    .badge {
+        color: #000000 !important; /* Changed badge text to black */
+    }
+    
+    .badge.bg-primary {
+        background-color: rgba(59, 130, 246, 0.15) !important;
+    }
+    
+    .badge.text-primary {
+        color: #1e40af !important; /* Keep primary color for contrast */
+    }
+    
+    /* FIXED: Small text visibility */
+    small, .small {
+        color: #333333 !important; /* Changed to dark gray */
+    }
+    
+    .text-muted {
+        color: #333333 !important; /* Changed to dark gray */
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .checkout-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .checkout-title {
+            font-size: 24px;
+        }
+        
+        .vehicle-price {
+            font-size: 24px;
+        }
+        
+        .payment-grid, .rental-type-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .section-body {
+            padding: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .checkout-header {
+            padding: 1.5rem;
+        }
+        
+        .payment-grid, .rental-type-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .section-body {
+            padding: 1.25rem;
+        }
+        
+        .vehicle-summary-card, .summary-card {
+            padding: 1.5rem;
+        }
+        
+        .date-inputs {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="checkout-container">
+    <div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+        <div class="d-flex align-items-center gap-3">
+            <div>
+                <h1 class="text-white mb-1">Complete Your Rental Booking</h1>
+                <p class="text-white-80 mb-0">Secure checkout for {{ rental.brand }} {{ rental.model }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicle Summary -->
+    <div class="vehicle-summary-card">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h3 class="vehicle-title">{{ rental.brand }} {{ rental.model }}</h3>
+                <p class="vehicle-subtitle">
+                    <i class="fas fa-calendar-alt me-1" style="color: #333;"></i>{{ rental.year }} • 
+                    <i class="fas fa-gas-pump me-1" style="color: #333;"></i>{{ rental.fuel_type }} • 
+                    <i class="fas fa-cog me-1" style="color: #333;"></i>{{ rental.transmission }}
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
+                        <i class="fas fa-car me-1"></i>{{ rental.body_type }}
+                    </span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
+                        <i class="fas fa-palette me-1"></i>{{ rental.color }}
+                    </span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary py-2 px-3">
+                        <i class="fas fa-users me-1"></i>{{ rental.seats }} Seats
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="price-label">Security Deposit</div>
+                <div class="vehicle-price">₹{{ "{:,.0f}".format(rental.security_deposit) }}</div>
+                <small class="text-muted">Refundable upon safe return</small>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" id="checkoutForm">
+        <!-- Rental Details Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h4 class="section-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    Rental Details
+                </h4>
+            </div>
+            <div class="section-body">
+                <!-- Rental Type Selection -->
+                <div class="mb-4">
+                    <label class="form-label mb-3">Select Rental Type</label>
+                    <div class="rental-type-grid">
+                        {% if rental.hourly_rate %}
+                        <div class="rental-option" onclick="selectRentalType('hourly')">
+                            <input type="radio" name="rental_type" value="hourly" class="d-none">
+                            <div class="rental-type-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <p class="rental-type-name">Hourly</p>
+                            <p class="rental-price">₹{{ "{:,.0f}".format(rental.hourly_rate) }}</p>
+                            <p class="rental-period">per hour</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="rental-option selected" onclick="selectRentalType('daily')">
+                            <input type="radio" name="rental_type" value="daily" class="d-none" checked>
+                            <div class="rental-type-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <p class="rental-type-name">Daily</p>
+                            <p class="rental-price">₹{{ "{:,.0f}".format(rental.daily_rate) }}</p>
+                            <p class="rental-period">per day</p>
+                        </div>
+                        
+                        <div class="rental-option" onclick="selectRentalType('weekly')">
+                            <input type="radio" name="rental_type" value="weekly" class="d-none">
+                            <div class="rental-type-icon">
+                                <i class="fas fa-calendar-week"></i>
+                            </div>
+                            <p class="rental-type-name">Weekly</p>
+                            <p class="rental-price">₹{{ "{:,.0f}".format(rental.weekly_rate) }}</p>
+                            <p class="rental-period">per week</p>
+                        </div>
+                        
+                        <div class="rental-option" onclick="selectRentalType('monthly')">
+                            <input type="radio" name="rental_type" value="monthly" class="d-none">
+                            <div class="rental-type-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <p class="rental-type-name">Monthly</p>
+                            <p class="rental-price">₹{{ "{:,.0f}".format(rental.monthly_rate) }}</p>
+                            <p class="rental-period">per month</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date Selection -->
+                <div class="mb-4">
+                    <label class="form-label mb-3">Select Dates</label>
+                    <div class="date-inputs">
+                        <div>
+                            <label class="form-label">Pick-up Date</label>
+                            <input type="date" name="start_date" class="form-control" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Return Date</label>
+                            <input type="date" name="end_date" class="form-control" required>
+                        </div>
+                    </div>
+                    <small class="form-text mt-2 d-block">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Minimum rental period is 1 day
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Method Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h4 class="section-title">
+                    <i class="fas fa-credit-card"></i>
+                    Select Payment Method
+                </h4>
+            </div>
+            <div class="section-body">
+                <div class="payment-grid">
+                    <div class="payment-option selected" onclick="selectPayment('CARD')">
+                        <input type="radio" name="payment_method" value="CARD" class="d-none" checked>
+                        <div class="payment-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <p class="payment-name">Card</p>
+                    </div>
+                    
+                    <div class="payment-option" onclick="selectPayment('UPI')">
+                        <input type="radio" name="payment_method" value="UPI" class="d-none">
+                        <div class="payment-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <p class="payment-name">UPI</p>
+                    </div>
+                    
+                    <div class="payment-option" onclick="selectPayment('NETBANKING')">
+                        <input type="radio" name="payment_method" value="NETBANKING" class="d-none">
+                        <div class="payment-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <p class="payment-name">Net Banking</p>
+                    </div>
+                    
+                    <div class="payment-option" onclick="selectPayment('CASH')">
+                        <input type="radio" name="payment_method" value="CASH" class="d-none">
+                        <div class="payment-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <p class="payment-name">Cash</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Summary Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h4 class="section-title">
+                    <i class="fas fa-calculator"></i>
+                    Price Breakdown
+                </h4>
+            </div>
+            <div class="section-body">
+                <div class="price-breakdown">
+                    <!-- Rental Type Selection -->
+                    <div class="price-row">
+                        <span class="price-label">
+                            Selected Plan
+                            <i class="fas fa-info-circle info-icon" 
+                               title="Your selected rental plan type"></i>
+                        </span>
+                        <span class="price-value" id="selectedPlan">Daily</span>
+                    </div>
+                    
+                    <!-- Rental Rate -->
+                    <div class="price-row">
+                        <span class="price-label">
+                            Rental Rate
+                            <i class="fas fa-info-circle info-icon" 
+                               title="Base rental rate for selected plan"></i>
+                        </span>
+                        <span class="price-value" id="rentalRate">₹{{ "{:,.0f}".format(rental.daily_rate) }}/day</span>
+                    </div>
+                    
+                    <!-- Number of Days -->
+                    <div class="price-row">
+                        <span class="price-label">
+                            Rental Duration
+                            <i class="fas fa-info-circle info-icon" 
+                               title="Calculated based on selected dates"></i>
+                        </span>
+                        <span class="price-value" id="rentalDuration">1 Day</span>
+                    </div>
+                    
+                    <!-- Subtotal -->
+                    <div class="price-row">
+                        <span class="price-label">
+                            Rental Subtotal
+                            <i class="fas fa-info-circle info-icon" 
+                               title="Rental rate × duration"></i>
+                        </span>
+                        <span class="price-value" id="rentalSubtotal">₹{{ "{:,.0f}".format(rental.daily_rate) }}</span>
+                    </div>
+                    
+                    <!-- Platform Fee -->
+                    <div class="price-row">
+                        <span class="price-label">
+                            Platform Service Fee @5%
+                            <i class="fas fa-info-circle info-icon" 
+                               title="Service charge for secure transaction and platform services"></i>
+                        </span>
+                        <span class="price-value" id="platformFee">₹{{ "{:,.0f}".format(rental.daily_rate * 0.05) }}</span>
+                    </div>
+                    
+                    <!-- Security Deposit -->
+                    <div class="price-row">
+                        <span class="price-label">
+                            Security Deposit
+                            <i class="fas fa-info-circle info-icon" 
+                               title="Refundable deposit for vehicle safety"></i>
+                        </span>
+                        <span class="price-value">₹{{ "{:,.0f}".format(rental.security_deposit) }}</span>
+                    </div>
+                    
+                    <!-- Total -->
+                    <div class="price-row total-row">
+                        <span class="total-label">Total Amount Payable</span>
+                        <span class="total-value" id="totalAmount">₹{{ "{:,.0f}".format(rental.daily_rate + (rental.daily_rate * 0.05) + rental.security_deposit) }}</span>
+                    </div>
+                </div>
+                
+                <!-- Service Fee Explanation -->
+                <div class="service-fee-breakdown">
+                    <div class="service-fee-title">
+                        <i class="fas fa-check-circle" style="color: #059669;"></i>
+                        Your 5% Platform Service Fee Includes:
+                    </div>
+                    <ul class="service-fee-list">
+                        <li>24/7 Roadside Assistance & Support</li>
+                        <li>Comprehensive Insurance Coverage</li>
+                        <li>Vehicle Maintenance & Quality Check</li>
+                        <li>Secure Payment Processing</li>
+                        <li>Customer Support & Dispute Resolution</li>
+                    </ul>
+                </div>
+                
+                <!-- Security Note - FIXED text colors -->
+                <div class="alert alert-info mt-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-shield-alt me-3 fa-lg" style="color: #1e40af;"></i>
+                        <div>
+                            <h6 class="mb-1">Secure Booking & Refund Policy</h6>
+                            <p class="mb-0 small">• Security deposit fully refundable within 7 days of vehicle return • Free cancellation up to 24 hours before pickup • Comprehensive insurance included</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn">
+            <i class="fas fa-lock me-2"></i>
+            Confirm & Book Now
+        </button>
+    </form>
+</div>
+
+<script>
+// Rental type selection
+function selectRentalType(type) {
+    // Remove selected class from all options
+    document.querySelectorAll('.rental-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked option
+    event.currentTarget.classList.add('selected');
+    
+    // Update the radio button
+    const radio = event.currentTarget.querySelector('input[type="radio"]');
+    radio.checked = true;
+    
+    // Update price breakdown
+    updatePriceBreakdown(type);
+}
+
+// Payment method selection
+function selectPayment(method) {
+    // Remove selected class from all options
+    document.querySelectorAll('.payment-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked option
+    event.currentTarget.classList.add('selected');
+    
+    // Update the radio button
+    const radio = event.currentTarget.querySelector('input[type="radio"]');
+    radio.checked = true;
+}
+
+// Date picker functionality
+const today = new Date().toISOString().split("T")[0];
+const start = document.querySelector("input[name='start_date']");
+const end = document.querySelector("input[name='end_date']");
+
+// Set minimum start date to today
+start.min = today;
+start.value = today;
+
+// Calculate minimum end date (start date + 1 day)
+start.addEventListener("change", function() {
+    let d = new Date(this.value);
+    d.setDate(d.getDate() + 1);
+    let minEnd = d.toISOString().split("T")[0];
+    end.min = minEnd;
+    end.value = minEnd;
+    calculateDuration();
+});
+
+end.addEventListener("change", calculateDuration);
+
+// Calculate duration between dates
+function calculateDuration() {
+    if (start.value && end.value) {
+        const startDate = new Date(start.value);
+        const endDate = new Date(end.value);
+        const diffTime = Math.abs(endDate - startDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Update duration display
+        document.getElementById('rentalDuration').textContent = `${diffDays} Day${diffDays > 1 ? 's' : ''}`;
+        
+        // Update price breakdown
+        const selectedType = document.querySelector('.rental-option.selected input[name="rental_type"]').value;
+        updatePriceBreakdown(selectedType, diffDays);
+    }
+}
+
+// Update price breakdown based on rental type and duration
+function updatePriceBreakdown(type, days = 1) {
+    let rate = 0;
+    let rateText = '';
+    let planText = '';
+    
+    switch(type) {
+        case 'hourly':
+            rate = {{ rental.hourly_rate|default(0) }};
+            rateText = '₹' + rate.toLocaleString('en-IN') + '/hour';
+            planText = 'Hourly';
+            break;
+        case 'daily':
+            rate = {{ rental.daily_rate }};
+            rateText = '₹' + rate.toLocaleString('en-IN') + '/day';
+            planText = 'Daily';
+            break;
+        case 'weekly':
+            rate = {{ rental.weekly_rate }};
+            rateText = '₹' + rate.toLocaleString('en-IN') + '/week';
+            planText = 'Weekly';
+            days = Math.ceil(days / 7); // Convert days to weeks
+            break;
+        case 'monthly':
+            rate = {{ rental.monthly_rate }};
+            rateText = '₹' + rate.toLocaleString('en-IN') + '/month';
+            planText = 'Monthly';
+            days = Math.ceil(days / 30); // Convert days to months (approximate)
+            break;
+    }
+    
+    const subtotal = rate * days;
+    const platformFee = subtotal * 0.05;
+    const securityDeposit = {{ rental.security_deposit }};
+    const total = subtotal + platformFee + securityDeposit;
+    
+    // Update display
+    document.getElementById('selectedPlan').textContent = planText;
+    document.getElementById('rentalRate').textContent = rateText;
+    document.getElementById('rentalSubtotal').textContent = '₹' + subtotal.toLocaleString('en-IN');
+    document.getElementById('platformFee').textContent = '₹' + platformFee.toLocaleString('en-IN');
+    document.getElementById('totalAmount').textContent = '₹' + total.toLocaleString('en-IN');
+    
+    // Update duration if not passed
+    if (start.value && end.value && !days) {
+        calculateDuration();
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default dates
+    if (start.value) {
+        let d = new Date(start.value);
+        d.setDate(d.getDate() + 1);
+        let minEnd = d.toISOString().split("T")[0];
+        end.min = minEnd;
+        end.value = minEnd;
+    }
+    
+    // Initialize tooltips
+    const tooltipTriggerList = document.querySelectorAll('[title]');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Calculate initial duration
+    calculateDuration();
+});
+</script>
+{% endblock %}

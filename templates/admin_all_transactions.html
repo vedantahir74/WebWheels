@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}All Transactions - Admin{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1"><i class="fas fa-exchange-alt me-2"></i>All Transactions</h1>
+            <p class="text-white-80 mb-0">View all transactions in the system</p>
+        </div>
+    </div>
+</div>
+
+{% if transactions %}
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="stat-number">{{ transactions|length }}</div>
+            <div class="stat-label">Total Transactions</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div class="stat-number">₹{{ "{:,.0f}".format(transactions|sum(attribute='amount')) }}</div>
+            <div class="stat-label">Total Amount</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-number">₹{{ "{:,.0f}".format(transactions|sum(attribute='commission_amount')) }}</div>
+            <div class="stat-label">Total Commission</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-card {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .table {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .table thead tr:first-child {
+        border-radius: 12px 12px 0 0;
+    }
+    .table tbody tr:last-child {
+        border-radius: 0 0 12px 12px;
+    }
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    .table tbody tr:hover {
+        background-color: #f8fafc !important;
+    }
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
+
+<div class="custom-card">
+    <div class="custom-card-header">
+        <i class="fas fa-list me-2"></i>Transaction List
+    </div>
+    <div class="custom-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="border-radius: 12px;">
+                <thead style="background: linear-gradient(135deg, #dbeafe, #93c5fd);">
+                    <tr>
+                        <th class="border-0 py-3"><i class="fas fa-hashtag me-1"></i>ID</th>
+                        <th class="border-0 py-3"><i class="fas fa-user me-1"></i>User</th>
+                        <th class="border-0 py-3"><i class="fas fa-car me-1"></i>Vehicle</th>
+                        <th class="border-0 py-3"><i class="fas fa-rupee-sign me-1"></i>Amount</th>
+                        <th class="border-0 py-3"><i class="fas fa-tag me-1"></i>Type</th>
+                        <th class="border-0 py-3"><i class="fas fa-percentage me-1"></i>Commission</th>
+                        <th class="border-0 py-3"><i class="fas fa-calendar me-1"></i>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td><code class="bg-light px-2 py-1 rounded" style="background: linear-gradient(135deg, #dbeafe, #93c5fd) !important; color: #2563eb;">{{ transaction.id }}</code></td>
+                        <td>{{ transaction.username }}</td>
+                        <td>
+                            <strong style="color: #1e40af;">{{ transaction.brand }} {{ transaction.model }}</strong>
+                            <br><small class="text-muted">{{ transaction.year }}</small>
+                        </td>
+                        <td>
+                            <strong style="color: #2563eb;">₹{{ "{:,.2f}".format(transaction.amount) }}</strong>
+                        </td>
+                        <td>
+                            {% if transaction.transaction_type == 'SELL' %}
+                                <span class="badge bg-primary"><i class="fas fa-shopping-cart me-1"></i>Sale</span>
+                            {% else %}
+                                <span class="badge" style="background: linear-gradient(135deg, #60a5fa, #3b82f6);"><i class="fas fa-key me-1"></i>Rent</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if transaction.commission_amount %}
+                                ₹{{ "{:,.2f}".format(transaction.commission_amount) }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td><small class="text-muted">{{ transaction.transaction_date[:19] }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="custom-card">
+    <div class="custom-card-body text-center py-5">
+        <i class="fas fa-exchange-alt fa-4x text-muted mb-3"></i>
+        <h4 class="mb-2">No Transactions Yet</h4>
+        <p class="text-muted">No transactions have been made in the system.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

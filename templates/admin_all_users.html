@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}All Users - Admin{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1"><i class="fas fa-users me-2"></i>All Users</h1>
+            <p class="text-white-80 mb-0">View all registered users </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-card {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .table {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .table thead tr:first-child {
+        border-radius: 12px 12px 0 0;
+    }
+    .table tbody tr:last-child {
+        border-radius: 0 0 12px 12px;
+    }
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    .table tbody tr:hover {
+        background-color: #f8fafc !important;
+    }
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
+
+<div class="custom-card">
+    <div class="custom-card-header">
+        <i class="fas fa-users me-2"></i>User List
+    </div>
+    <div class="custom-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="border-radius: 12px;">
+                <thead style="background: linear-gradient(135deg, #dbeafe, #93c5fd);">
+                    <tr>
+                        <th class="border-0 py-3"><i class="fas fa-hashtag me-1"></i>ID</th>
+                        <th class="border-0 py-3"><i class="fas fa-user me-1"></i>Username</th>
+                        <th class="border-0 py-3"><i class="fas fa-envelope me-1"></i>Email</th>
+                        <th class="border-0 py-3"><i class="fas fa-phone me-1"></i>Phone</th>
+                        <th class="border-0 py-3"><i class="fas fa-id-card me-1"></i>Full Name</th>
+                        <th class="border-0 py-3"><i class="fas fa-user-tag me-1"></i>Role</th>
+                        <th class="border-0 py-3"><i class="fas fa-calendar me-1"></i>Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td><code class="bg-light px-2 py-1 rounded" style="background: linear-gradient(135deg, #dbeafe, #93c5fd) !important; color: #2563eb;">{{ user.id }}</code></td>
+                        <td><strong style="color: #1e40af;">{{ user.username }}</strong></td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.phone }}</td>
+                        <td>{{ user.full_name }}</td>
+                        <td>
+                            {% if user.role == 'ADMIN' %}
+                                <span class="badge bg-primary"><i class="fas fa-shield-alt me-1"></i>ADMIN</span>
+                            {% else %}
+                                <span class="badge bg-primary"><i class="fas fa-user me-1"></i>USER</span>
+                            {% endif %}
+                        </td>
+                        <td><small class="text-muted">{{ user.created_at[:10] }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

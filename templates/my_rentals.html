@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}My Rentals{% endblock %}
+
+{% block content %}
+
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div>
+                            <h1 class="text-white mb-1">My Rentals</h1>
+                            <p class="text-white-80 mb-0">View your rental history</p>
+                        </div>
+                    </div>
+                </div>
+
+{% if rentals %}
+<div class="custom-card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-hashtag me-1"></i>#</th>
+                    <th><i class="fas fa-car me-1"></i>Vehicle</th>
+                    <th><i class="fas fa-clock me-1"></i>Days</th>
+                    <th><i class="fas fa-rupee-sign me-1"></i>Total Amount</th>
+                    <th><i class="fas fa-info-circle me-1"></i>Status</th>
+                    <th><i class="fas fa-calendar me-1"></i>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rentals %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <strong>{{ r.brand }} {{ r.model }}</strong>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">
+                            <i class="fas fa-calendar-day me-1"></i>{{ r.rental_days }} days
+                        </span>
+                    </td>
+                    <td>
+                        <strong class="text-primary">₹{{ "{:,.2f}".format(r.total_amount) }}</strong>
+                    </td>
+                    <td>
+                        {% if r.status == "RENTED" %}
+                            <span class="badge bg-primary">
+                                <i class="fas fa-check-circle me-1"></i>{{ r.status }}
+                            </span>
+                        {% elif r.status == "RETURNED" %}
+                            <span class="badge bg-secondary">
+                                <i class="fas fa-undo me-1"></i>{{ r.status }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-clock me-1"></i>{{ r.status }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <small class="text-muted">{{ r.created_at[:10] }}</small>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="row g-4 mt-2">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-history"></i>
+            </div>
+            <div class="stat-number">{{ rentals|length }}</div>
+            <div class="stat-label">Total Rentals</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div class="stat-number">₹{{ "{:,.0f}".format(rentals|sum(attribute='total_amount')) }}</div>
+            <div class="stat-label">Total Spent</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-number">{{ rentals|sum(attribute='rental_days') }}</div>
+            <div class="stat-label">Total Days</div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="custom-card">
+    <div class="custom-card-body text-center py-5">
+        <i class="fas fa-key fa-4x text-muted mb-3"></i>
+        <h4 class="mb-2">No Rentals Yet</h4>
+        <p class="text-muted mb-4">You haven't rented any vehicles yet.</p>
+        <a href="{{ url_for('browse_vehicles', type='rent') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-search me-2"></i>Browse Rentals
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

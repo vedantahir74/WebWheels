@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-2">
+
+    <!-- HEADER -->
+    <div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 2rem;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+            <div>
+                <h1 class="text-white mb-1">WebWheels AI Assistant</h1>
+                <p class="text-white-80 mb-0">Smart Vehicle Buying • Selling • Renting • Financing Guidance</p>
+            </div>
+            <div class="badge ai-badge">
+                <i class="fas fa-brain me-1"></i> AI Powered
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT CARD -->
+    <div class="card border-0 shadow-lg rounded-4">
+        <div class="card-body p-3">
+
+            <!-- CHAT AREA -->
+            <div class="chat-container mb-1" id="chatBox">
+                <!-- Initial AI message (if no conversation yet) -->
+                <div class="chat-bubble ai-bubble" id="initialMessage">
+                    <strong>WebWheels AI</strong>
+                    <p class="mb-0">
+                        👋 Hello! Ask me anything about buying, selling, renting vehicles.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FORM (AJAX) -->
+            <form id="aiForm">
+                <div class="input-group shadow-sm rounded-4 overflow-hidden">
+                    <textarea name="query" id="query"
+                        class="form-control border-0 p-3"
+                        rows="2"
+                        placeholder="Ask anything..."
+                        required></textarea>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<style>
+/* CHAT AREA */
+.chat-container {
+    min-height: 500px;
+    max-height: 600px;
+    overflow-y: auto;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.chat-bubble {
+    padding: 15px 20px;
+    border-radius: 18px;
+    margin-bottom: 15px;
+    max-width: 80%;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.ai-bubble {
+    background: #e0ecff;
+    border-left: 4px solid #2563eb;
+}
+
+.user-bubble {
+    background: #2563eb;
+    color: white;
+    text-align: right;
+    border-radius: 18px 18px 0 18px;
+}
+
+/* Typing Animation */
+.typing {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.typing span {
+    width: 8px;
+    height: 8px;
+    background: #2563eb;
+    border-radius: 50%;
+    animation: blink 1.4s infinite both;
+}
+
+.typing span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.typing span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes blink {
+    0% { opacity: 0.2; }
+    20% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+</style>
+
+<script>
+const form = document.getElementById('aiForm');
+const chatBox = document.getElementById('chatBox');
+const textarea = document.getElementById('query');
+const initialMessage = document.getElementById('initialMessage');
+
+// Scroll to bottom on page load
+window.onload = function() {
+    chatBox.scrollTop = chatBox.scrollHeight;
+    textarea.focus();
+};
+
+// Handle form submission with AJAX
+form.addEventListener('submit', async function(e) {
+    e.preventDefault();  // ❗️ PREVENT PAGE RELOAD
+
+    const message = textarea.value.trim();
+    if (!message) return;
+
+    // 1️⃣ Remove initial AI message if it's still there (first question)
+    if (initialMessage) {
+        initialMessage.remove();
+    }
+
+    // 2️⃣ Append user message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'chat-bubble user-bubble ms-auto';
+    userDiv.innerHTML = `<strong>You</strong><p class="mb-0">${escapeHtml(message)}</p>`;
+    chatBox.appendChild(userDiv);
+
+    // 3️⃣ Show typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'chat-bubble ai-bubble';
+    typingDiv.id = 'typingBubble';
+    typingDiv.innerHTML = `
+        <strong>WebWheels AI</strong>
+        <div class="typing mt-2">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    `;
+    chatBox.appendChild(typingDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Clear textarea immediately
+    textarea.value = '';
+    textarea.focus();
+
+    try {
+        // 4️⃣ Send AJAX request
+        const response = await fetch('{{ url_for("ai_assistant") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'  // Tell Flask it's AJAX
+            },
+            body: new URLSearchParams({ query: message })
+        });
+
+        const data = await response.json();
+
+        // 5️⃣ Remove typing indicator
+        const typing = document.getElementById('typingBubble');
+        if (typing) typing.remove();
+
+        // 6️⃣ Append AI response
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'chat-bubble ai-bubble';
+        aiDiv.innerHTML = `<strong>WebWheels AI</strong><p class="mb-0">${escapeHtml(data.response)}</p>`;
+        chatBox.appendChild(aiDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch (error) {
+        console.error('Error:', error);
+        // Remove typing indicator
+        const typing = document.getElementById('typingBubble');
+        if (typing) typing.remove();
+
+        // Show error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'chat-bubble ai-bubble';
+        errorDiv.innerHTML = `<strong>WebWheels AI</strong><p class="mb-0 text-danger">Sorry, something went wrong. Please try again.</p>`;
+        chatBox.appendChild(errorDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+});
+
+// Simple escape function to prevent XSS
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Press Enter to send (Shift+Enter for new line)
+textarea.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        form.requestSubmit();
+    }
+});
+</script>
+
+{% endblock %}

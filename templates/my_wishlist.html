@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist - Web Wheels{% endblock %}
+
+{% block content %}
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">My Wishlist</h1>
+            <p class="text-white-80 mb-0">Saved vehicles you like</p>
+        </div>
+    </div>
+</div>
+
+{% if wishlist_items %}
+<div class="row g-3">
+    {% for item in wishlist_items %}
+    {# Get the first image from the comma-separated list #}
+    {% set images = item.images.split(',') if item.images else [] %}
+    {% set first_image = images[0] if images else None %}
+    <div class="col-lg-4 col-md-6">
+        <div class="vehicle-card h-100">
+            <div class="vehicle-image position-relative" style="background: #f8fafc; min-height: 160px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                {% if item.vehicle_type == 'SELL' %}
+                <span class="position-absolute top-0 start-0 m-2 badge bg-primary" style="font-size: 0.7rem; z-index: 2;">
+                    <i class="fas fa-tag me-1"></i>Sale
+                </span>
+                {% else %}
+                <span class="position-absolute top-0 start-0 m-2 badge bg-info text-dark" style="font-size: 0.7rem; z-index: 2;">
+                    <i class="fas fa-key me-1"></i>Rent
+                </span>
+                {% endif %}
+
+                {% if first_image %}
+                    <img src="{{ url_for('static', filename='uploads/' + first_image) }}"
+                         alt="{{ item.brand }} {{ item.model }}"
+                         class="img-fluid"
+                         style="width: 100%; height: 160px; object-fit: cover;">
+                {% else %}
+                    <i class="fas fa-car fa-3x" style="color: #3b82f6;"></i>
+                {% endif %}
+            </div>
+            <div class="vehicle-content" style="padding: 0.75rem;">
+                <h6 class="vehicle-title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">{{ item.brand }} {{ item.model }}</h6>
+                <p class="text-muted mb-2" style="font-size: 0.75rem;">
+                    <i class="fas fa-calendar me-1"></i>{{ item.year }} • 
+                    <i class="fas fa-palette me-1"></i>{{ item.color }}
+                </p>
+                
+                <div class="vehicle-price mb-2" style="font-size: 1rem; font-weight: 700; color:#1e40af;">
+                    {% if item.vehicle_type == 'SELL' %}
+                        ₹{{ "{:,.0f}".format(item.display_price) }}
+                    {% else %}
+                        ₹{{ "{:,.0f}".format(item.display_price) }}/day
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <!-- Dynamic link based on vehicle type -->
+                    <a href="{% if item.vehicle_type == 'SELL' %}{{ url_for('buy_vehicle_detail', vehicle_id=item.id) }}{% else %}{{ url_for('rent_vehicle_detail', vehicle_id=item.id) }}{% endif %}" 
+                       class="btn btn-primary flex-grow-1 btn-sm" style="font-size: 0.75rem; padding: 0.4rem 0.75rem;">
+                        <i class="fas fa-eye me-1"></i>View
+                    </a>
+                    <button class="btn btn-outline-primary btn-sm" 
+                            onclick="removeFromWishlist({{ item.id }})" style="padding: 0.4rem 0.6rem;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="custom-card">
+    <div class="custom-card-body text-center py-5">
+        <i class="fas fa-heart fa-4x text-muted mb-3"></i>
+        <h4 class="mb-2">Your Wishlist is Empty</h4>
+        <p class="text-muted mb-4">Start browsing and save vehicles you like!</p>
+        <a href="{{ url_for('browse_vehicles') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-search me-2"></i>Browse Vehicles
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function addToWishlist(vehicleId) {
+    fetch(`/api/add-to-wishlist/${vehicleId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Added to wishlist!');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Something went wrong.');
+    });
+}
+
+function removeFromWishlist(vehicleId) {
+    fetch(`/api/remove-from-wishlist/${vehicleId}`, {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        location.reload();
+    });
+}
+</script>
+{% endblock %}

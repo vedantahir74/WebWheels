@@ -1,0 +1,851 @@
+{% extends "base.html" %}
+{% block title %}Accept Custom Price - VehicleHub{% endblock %}
+
+{% block content %}
+<style>
+    /* ===== MAIN CONTAINER ===== */
+    .accept-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* ===== HERO HEADER ===== */
+    .hero-header {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    
+    .hero-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -20%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+    }
+    
+    .hero-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-subtitle {
+        font-size: 13px;
+        opacity: 0.9;
+        font-weight: 400;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Back Button */
+    .back-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 2;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .back-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateX(-3px);
+    }
+    
+    /* ===== PRICE DISPLAY CARD ===== */
+    .price-display-card {
+        background: white;
+        border-radius: 16px;
+        border: 2px solid #194ab4ff;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(25, 74, 180, 0.1);
+        text-align: center;
+    }
+    
+    .price-label {
+        font-size: 14px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    
+    .price-amount {
+        font-size: 48px;
+        font-weight: 800;
+        color: #194ab4ff;
+        margin-bottom: 8px;
+        line-height: 1;
+    }
+    
+    .price-note {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 0;
+    }
+    
+    /* ===== VEHICLE SUMMARY CARD ===== */
+    .vehicle-summary-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .vehicle-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    /* ===== SPEC GRID ===== */
+    .specs-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .spec-card {
+        background: #f9fafb;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .spec-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #194ab4ff, #3b82f6);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .spec-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        border-color: #bfdbfe;
+    }
+    
+    .spec-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .spec-label {
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+    
+    .spec-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+    
+    /* ===== FEATURES ===== */
+    .features-container {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .features-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 12px;
+    }
+    
+    .features-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .feature-badge {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 1px solid #bfdbfe;
+        border-radius: 20px;
+        font-size: 11px;
+        color: #194ab4ff;
+        font-weight: 600;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .feature-badge:hover {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(25, 74, 180, 0.15);
+    }
+    
+    .feature-badge::before {
+        content: '✓';
+        margin-right: 6px;
+        font-weight: bold;
+    }
+    
+    /* ===== FORM SECTIONS ===== */
+    .form-section {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .section-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 1.25rem 1.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-body {
+        padding: 1.75rem;
+    }
+    
+    /* ===== FORM ELEMENTS ===== */
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        padding: 12px 16px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #194ab4ff;
+        box-shadow: 0 0 0 3px rgba(25, 74, 180, 0.1);
+    }
+    
+    .form-hint {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+    
+    /* ===== TERMS & CONDITIONS ===== */
+    .terms-section {
+        background: #eff6ff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        border: 1px solid #dbeafe;
+    }
+    
+    .terms-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .terms-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .terms-list li {
+        font-size: 13px;
+        color: #4b5563;
+        margin-bottom: 8px;
+        padding-left: 24px;
+        position: relative;
+        line-height: 1.5;
+    }
+    
+    .terms-list li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #194ab4ff;
+        font-weight: bold;
+    }
+    
+    /* ===== AGREEMENT CHECKBOX ===== */
+    .agreement-check {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+        border: 1px solid #e5e7eb;
+    }
+    
+    /* ===== ACTION BUTTONS ===== */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-action {
+        flex: 1;
+        padding: 16px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-reject {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 2px solid #fecaca;
+    }
+    
+    .btn-reject:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
+    }
+    
+    .btn-accept {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        color: white;
+        border: none;
+    }
+    
+    .btn-accept:hover {
+        background: linear-gradient(135deg, #1047bdff 0%, #0d3a8cff 100%);
+        color: white;
+    }
+    
+    /* ===== ERROR MESSAGE ===== */
+    .error-message {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    /* ===== SECURITY NOTE ===== */
+    .security-note {
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .security-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .security-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .security-list li {
+        font-size: 13px;
+        color: #4b5563;
+        margin-bottom: 6px;
+        padding-left: 24px;
+        position: relative;
+    }
+    
+    .security-list li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #194ab4ff;
+        font-weight: bold;
+    }
+    
+    /* ===== PAYMENT ALERT ===== */
+    .payment-alert {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 2px solid #2563eb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    /* ===== USER INFO DISPLAY ===== */
+    .user-info-card {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .user-info-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .user-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .user-info-item {
+        background: white;
+        border-radius: 8px;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .user-info-label {
+        font-size: 11px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+    
+    .user-info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+    
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 992px) {
+        .specs-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .hero-header {
+            padding: 25px 20px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .hero-title {
+            font-size: 24px;
+        }
+        
+        .price-amount {
+            font-size: 36px;
+        }
+        
+        .specs-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .section-body {
+            padding: 1.5rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-action {
+            width: 100%;
+        }
+        
+        .user-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .hero-header {
+            padding: 1.5rem;
+        }
+        
+        .specs-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .section-body {
+            padding: 1.25rem;
+        }
+        
+        .price-display-card {
+            padding: 1.5rem;
+        }
+        
+        .price-amount {
+            font-size: 32px;
+        }
+    }
+</style>
+
+<div class="accept-container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    {% if not request %}
+        <!-- Error State -->
+        <div class="error-message">
+            <div class="mb-3">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #dc2626;"></i>
+                <h4 class="mb-2">Request Not Found</h4>
+                <p class="mb-3">The custom car request you're trying to access doesn't exist or has been removed.</p>
+            </div>
+            <a href="{{ url_for('my_custom_requests') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Go to My Requests
+            </a>
+        </div>
+        
+    {% elif request.status != 'PRICE_SET' %}
+        <!-- Invalid Status -->
+        <div class="error-message">
+            <div class="mb-3">
+                <i class="fas fa-exclamation-circle fa-3x mb-3" style="color: #dc2626;"></i>
+                <h4 class="mb-2">Cannot Accept Price</h4>
+                <p class="mb-3">
+                    {% if request.status == 'PENDING' %}
+                        Price has not been set by admin yet.
+                    {% elif request.status == 'USER_ACCEPTED' %}
+                        You have already accepted this price.
+                    {% elif request.status == 'REJECTED' or request.status == 'REJECTED_BY_USER' %}
+                        This request has been rejected.
+                    {% elif request.status == 'APPROVED' %}
+                        This request has been approved.
+                    {% else %}
+                        Invalid request status.
+                    {% endif %}
+                </p>
+            </div>
+            <a href="{{ url_for('my_custom_requests') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Go to My Requests
+            </a>
+        </div>
+        
+    {% else %}
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">Accept Custom Price</h1>
+            <p class="text-white-80 mb-0">Review and confirm your custom car request</p>
+        </div>
+    </div>
+</div>
+        
+        
+        <!-- Price Display -->
+        <div class="price-display-card fade-in">
+            <div class="price-label">Suggested Price by Admin</div>
+            <div class="price-amount">₹{{ "{:,.0f}".format(request.suggested_price) }}</div>
+            <p class="price-note">
+                <i class="fas fa-info-circle me-1"></i>
+                Inclusive of all taxes and custom building charges
+            </p>
+        </div>
+        
+        <!-- Vehicle Summary -->
+        <div class="vehicle-summary-card fade-in" style="animation-delay: 0.2s;">
+            <h3 class="vehicle-title">Your Custom {{ request.body_type }}</h3>
+            
+            <div class="specs-grid">
+                <div class="spec-card">
+                    <div class="spec-label">Body Type</div>
+                    <p class="spec-value">{{ request.body_type }}</p>
+                </div>
+                
+                <div class="spec-card">
+                    <div class="spec-label">Color</div>
+                    <p class="spec-value">{{ request.color }}</p>
+                </div>
+                
+                <div class="spec-card">
+                    <div class="spec-label">Fuel Type</div>
+                    <p class="spec-value">{{ request.fuel_type }}</p>
+                </div>
+                
+                <div class="spec-card">
+                    <div class="spec-label">Engine</div>
+                    <p class="spec-value">
+                        {% if request.engine_cc and request.engine_cc > 0 %}
+                            {{ request.engine_cc }} CC
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="spec-card">
+                    <div class="spec-label">Transmission</div>
+                    <p class="spec-value">{{ request.transmission }}</p>
+                </div>
+                
+                <div class="spec-card">
+                    <div class="spec-label">Seats</div>
+                    <p class="spec-value">{{ request.seats }}</p>
+                </div>
+                
+                <div class="spec-card">
+                    <div class="spec-label">Doors</div>
+                    <p class="spec-value">{{ request.doors or 4 }}</p>
+                </div>
+            </div>
+            
+            <!-- Features Display -->
+            {% if request.features and request.features.strip() %}
+            <div class="features-container">
+                <div class="features-title">Requested Features:</div>
+                <div class="features-grid">
+                    {% set features_list = request.features.split(',') %}
+                    {% for feature in features_list %}
+                        {% if feature.strip() %}
+                        <span class="feature-badge">{{ feature.strip() }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Contact Information Form -->
+        <form method="POST" id="acceptForm">
+            <!-- Delivery Information -->
+            <div class="form-section fade-in" style="animation-delay: 0.3s;">
+                <div class="section-header">
+                    <h4 class="section-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Delivery Information
+                    </h4>
+                </div>
+                <div class="section-body">
+                    <div class="mb-0">
+                        <label class="form-label">Complete Delivery Address</label>
+                        <textarea name="delivery_address" class="form-control" rows="4" required
+                                  placeholder="Enter your complete delivery address including house number, street, city, state, and PIN code"></textarea>
+                        <span class="form-hint">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Vehicle will be delivered to this address. Please ensure accuracy.
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Terms & Conditions -->
+            <div class="form-section fade-in" style="animation-delay: 0.5s;">
+                <div class="section-header">
+                    <h4 class="section-title">
+                        <i class="fas fa-file-contract"></i>
+                        Terms & Conditions
+                    </h4>
+                </div>
+                <div class="section-body">
+                    <!-- Security Features -->
+                    <div class="security-note">
+                        <h5 class="security-title">
+                            <i class="fas fa-shield-alt"></i>
+                            Security Features Included
+                        </h5>
+                        <ul class="security-list">
+                            <li>Secure Payment Processing & Escrow Protection</li>
+                            <li>Vehicle Quality Verification & Inspection</li>
+                            <li>Documentation Assistance & Paperwork Support</li>
+                            <li>24/7 Customer Support & Buyer Protection</li>
+                            <li>Transaction Security & Fraud Prevention</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Terms -->
+                    <div class="terms-section mt-3">
+                        <h5 class="terms-title">
+                            <i class="fas fa-check-circle"></i>
+                            Important Information
+                        </h5>
+                        <ul class="terms-list">
+                            <li>Production typically takes 6-8 weeks from order confirmation</li>
+                            <li>Vehicle comes with standard manufacturer warranty</li>
+                            <li>Delivery charges included in the quoted price</li>
+                            <li>Any changes after acceptance may affect timeline and price</li>
+                            <li>Quality inspection before delivery is mandatory</li>
+                            <li>Cancellation after production starts will incur charges</li>
+                            <li>Payment confirmation is required before production begins</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Agreement Check -->
+                    <div class="agreement-check">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                            <label class="form-check-label" for="terms" style="font-size: 14px;">
+                                <strong>I accept the terms and conditions</strong>
+                                <br>
+                                <span style="color: #6b7280; font-size: 13px;">
+                                    I understand that by accepting this price, I am confirming my order and agreeing to the terms above.
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons fade-in" style="animation-delay: 0.6s;">
+                <a href="{{ url_for('reject_custom_price', request_id=request.id) }}" 
+                   class="btn-action btn-primary btn-reject"
+                   >
+                    <i class="fas fa-times"></i>
+                    Reject Price
+                </a>
+                
+                <button type="submit" class="btn-action btn-accept" id="submitBtn">
+                    <i class="fas fa-check-circle"></i>
+                    Accept & Confirm Order
+                </button>
+            </div>
+        </form>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('acceptForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const termsChecked = document.getElementById('terms').checked;
+            
+            if (!termsChecked) {
+                e.preventDefault();
+                alert('Please accept the terms and conditions to proceed.');
+                return;
+            }
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            
+            // Additional validation
+            const address = document.querySelector('textarea[name="delivery_address"]').value.trim();
+            if (address.length < 10) {
+                e.preventDefault();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i>Accept & Confirm Order';
+                alert('Please enter a valid delivery address (minimum 10 characters).');
+                return;
+            }
+        });
+    }
+    
+    // Address character counter
+    const addressTextarea = document.querySelector('textarea[name="delivery_address"]');
+    if (addressTextarea) {
+        const counter = document.createElement('div');
+        counter.className = 'form-hint text-end';
+        counter.id = 'addressCounter';
+        counter.innerHTML = `0/200 characters`;
+        addressTextarea.parentNode.appendChild(counter);
+        
+        addressTextarea.addEventListener('input', function() {
+            const length = this.value.length;
+            counter.innerHTML = `${length}/200 characters`;
+            counter.style.color = length < 10 ? '#dc2626' : length > 180 ? '#f59e0b' : '#6b7280';
+        });
+    }
+});
+</script>
+{% endblock %}

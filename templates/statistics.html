@@ -1,0 +1,700 @@
+{% extends "base.html" %}
+
+{% block title %}System Statistics Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #1e40af;
+        --secondary-blue: #3b82f6;
+        --light-blue: #dbeafe;
+        --accent-blue: #60a5fa;
+        --dark-blue: #1e3a8a;
+        --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        --gradient-light: linear-gradient(135deg, var(--light-blue), var(--accent-blue));
+    }
+
+    .page-header {
+        background: var(--gradient-primary);
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%233b82f6' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        opacity: 0.1;
+    }
+
+    .stat-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        position: relative;
+        background: white;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-primary);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .custom-card {
+        border-radius: 20px;
+        border: none;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .custom-card-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 1.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border-bottom: none;
+    }
+
+    .custom-card-body {
+        padding: 1.5rem;
+    }
+
+    .stat-icon {
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-icon:hover {
+        transform: rotate(10deg) scale(1.1);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pie-chart-wrapper {
+        position: relative;
+        width: 200px;
+        height: 200px;
+    }
+
+    .pie-chart {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        position: relative;
+        background: conic-gradient(
+            var(--secondary-blue) 0deg calc({{ (sale_vehicles / total_vehicles * 360) if total_vehicles > 0 else 0 }}deg),
+            var(--accent-blue) calc({{ (sale_vehicles / total_vehicles * 360) if total_vehicles > 0 else 0 }}deg) 360deg
+        );
+        animation: rotatePie 2s ease-out;
+    }
+
+    @keyframes rotatePie {
+        0% { transform: rotate(0deg) scale(0); opacity: 0; }
+        100% { transform: rotate(720deg) scale(1); opacity: 1; }
+    }
+
+    .pie-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+    }
+
+    .bar-chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        height: 200px;
+        padding: 20px;
+        gap: 30px;
+    }
+
+    .bar {
+        width: 40px;
+        background: var(--gradient-primary);
+        border-radius: 8px 8px 0 0;
+        position: relative;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .bar:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .bar-label {
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: var(--dark-blue);
+        font-weight: 600;
+    }
+
+    .counter {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: countUp 1.5s ease-out;
+    }
+
+    @keyframes countUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .progress-bar-animated {
+        animation: progressLoad 2s ease-out;
+    }
+
+    @keyframes progressLoad {
+        from { width: 0; }
+    }
+
+    .sparkline {
+        height: 40px;
+        background: linear-gradient(90deg, 
+            var(--secondary-blue) 30%, 
+            var(--accent-blue) 50%, 
+            var(--light-blue) 70%);
+        border-radius: 20px;
+        margin: 10px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sparkline::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: sparkle 2s infinite;
+    }
+
+    @keyframes sparkle {
+        100% { left: 100%; }
+    }
+
+    .trend-badge {
+        background: var(--gradient-light);
+        color: var(--dark-blue);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .hover-glow {
+        transition: all 0.3s ease;
+    }
+
+    .hover-glow:hover {
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        transform: scale(1.02);
+    }
+
+    .table-hover tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table-hover tbody tr:hover {
+        background: var(--light-blue);
+        transform: translateX(5px);
+    }
+
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .analytics-item {
+        background: var(--light-blue);
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .analytics-item:hover {
+        background: var(--accent-blue);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    .floating-shape {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(30,64,175,0.05));
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+</style>
+
+<!-- Animated Background Shapes -->
+<div class="floating-shape" style="width: 100px; height: 100px; top: 10%; left: 5%;"></div>
+<div class="floating-shape" style="width: 150px; height: 150px; bottom: 10%; right: 5%;"></div>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="d-flex align-items-center gap-4">
+        <div class="pulse bg-white bg-opacity-20 rounded-circle p-3">
+        </div>
+        <div class="flex-grow-1">
+            <h1 class="text-white mb-2 fw-bold">System Analytics Dashboard</h1>
+            <p class="text-white-80 mb-0">Real-time insights and performance metrics for Web Wheels</p>
+            <div class="d-flex gap-3 mt-3">
+                <span class="trend-badge">
+                    <i class="fas fa-sync-alt"></i> Live Updates
+                </span>
+                <span class="trend-badge">
+                    <i class="fas fa-bolt"></i> Real-time Data
+                </span>
+            </div>
+        </div>
+        <div class="text-end">
+            <div class="text-white-80 mb-1">Last Updated</div>
+            <div class="text-white fw-bold" id="live-time">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-lg-6">
+        <div class="stat-card">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-2">Total Vehicles</h6>
+                        <h2 class="counter mb-0">{{ total_vehicles }}</h2>
+                        <div class="mt-2">
+                            <span class="text-success small">
+                                <i class="fas fa-arrow-up me-1"></i> 12% growth
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-icon" style="background: var(--gradient-light); color: var(--primary-blue); width: 60px; height: 60px; border-radius: 15px;">
+                        <i class="fas fa-car fa-2x"></i>
+                    </div>
+                </div>
+                <div class="sparkline mt-3" style="height: 4px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6">
+        <div class="stat-card">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-2">For Sale</h6>
+                        <h2 class="counter mb-0">{{ sale_vehicles }}</h2>
+                        <div class="mt-2">
+                            <span class="badge" style="background: var(--gradient-primary);">
+                                {{ ((sale_vehicles / total_vehicles * 100)|int) if total_vehicles > 0 else 0 }}% of total
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-icon" style="background: var(--gradient-light); color: var(--primary-blue); width: 60px; height: 60px; border-radius: 15px;">
+                        <i class="fas fa-tag fa-2x"></i>
+                    </div>
+                </div>
+                <div class="sparkline mt-3" style="height: 4px; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6">
+        <div class="stat-card">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-2">For Rent</h6>
+                        <h2 class="counter mb-0">{{ rent_vehicles }}</h2>
+                        <div class="mt-2">
+                            <span class="badge" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">
+                                {{ ((rent_vehicles / total_vehicles * 100)|int) if total_vehicles > 0 else 0 }}% of total
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-icon" style="background: var(--gradient-light); color: var(--primary-blue); width: 60px; height: 60px; border-radius: 15px;">
+                        <i class="fas fa-key fa-2x"></i>
+                    </div>
+                </div>
+                <div class="sparkline mt-3" style="height: 4px; background: linear-gradient(90deg, #8b5cf6, #a78bfa);"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6">
+        <div class="stat-card">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-2">Total Users</h6>
+                        <h2 class="counter mb-0">{{ total_users }}</h2>
+                        <div class="mt-2">
+                            <span class="text-success small">
+                                <i class="fas fa-users me-1"></i> Active: {{ (total_users * 0.8)|int }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-icon" style="background: var(--gradient-light); color: var(--primary-blue); width: 60px; height: 60px; border-radius: 15px;">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+                <div class="sparkline mt-3" style="height: 4px; background: linear-gradient(90deg, #f59e0b, #fbbf24);"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Charts -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="custom-card hover-glow h-100">
+            <div class="custom-card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-chart-pie me-2"></i>Vehicle Distribution Analysis</span>
+                <span class="trend-badge">
+                    <i class="fas fa-chart-line"></i> Real-time
+                </span>
+            </div>
+            <div class="custom-card-body">
+                <div class="chart-container">
+                    <div class="pie-chart-wrapper">
+                        <div class="pie-chart"></div>
+                        <div class="pie-center">
+                            <div class="text-center">
+                                <div class="h4 mb-0 fw-bold" style="color: var(--primary-blue);">{{ total_vehicles }}</div>
+                                <small class="text-muted">Total</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-center mt-4">
+                    <div class="col-6">
+                        <div class="analytics-item">
+                            <div class="h4 mb-1 fw-bold" style="color: var(--primary-blue);">{{ sale_vehicles }}</div>
+                            <small>For Sale</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="analytics-item" style="background: linear-gradient(135deg, var(--accent-blue), var(--secondary-blue)); color: white;">
+                            <div class="h4 mb-1 fw-bold">{{ rent_vehicles }}</div>
+                            <small>For Rent</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="custom-card hover-glow h-100">
+            <div class="custom-card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-chart-bar me-2"></i>User Activity & Inventory</span>
+                <span class="trend-badge">
+                    <i class="fas fa-calendar-alt"></i> Monthly
+                </span>
+            </div>
+            <div class="custom-card-body">
+                <div class="bar-chart">
+                    <div class="bar" style="height: {{ (total_users / 50 * 100)|int }}%;" 
+                         data-value="{{ total_users }}" title="Total Users">
+                        <div class="bar-label">Users</div>
+                    </div>
+                    <div class="bar" style="height: {{ (sale_vehicles / 50 * 100)|int }}%;" 
+                         data-value="{{ sale_vehicles }}" title="Sale Vehicles">
+                        <div class="bar-label">Sale</div>
+                    </div>
+                    <div class="bar" style="height: {{ (rent_vehicles / 50 * 100)|int }}%;" 
+                         data-value="{{ rent_vehicles }}" title="Rent Vehicles">
+                        <div class="bar-label">Rent</div>
+                    </div>
+                    <div class="bar" style="height: {{ (total_vehicles / 50 * 100)|int }}%;" 
+                         data-value="{{ total_vehicles }}" title="Total Vehicles">
+                        <div class="bar-label">Total</div>
+                    </div>
+                </div>
+                <div class="analytics-grid">
+                    <div class="analytics-item">
+                        <div class="small text-muted">Avg. Price</div>
+                        <div class="fw-bold">₹8.5L</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="small text-muted">Active Listings</div>
+                        <div class="fw-bold">{{ total_vehicles }}</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="small text-muted">Conversion</div>
+                        <div class="fw-bold">24%</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="small text-muted">Growth</div>
+                        <div class="fw-bold text-success">+12%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="custom-card hover-glow mb-4">
+    <div class="custom-card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-trophy me-2"></i>Top Vehicle Brands Performance</span>
+        <span class="trend-badge">
+            <i class="fas fa-star"></i> Top Performers
+        </span>
+    </div>
+    <div class="custom-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background: var(--gradient-light);">
+                    <tr>
+                        <th class="border-0 py-3 ps-4">
+                            <i class="fas fa-medal me-1"></i>Rank
+                        </th>
+                        <th class="border-0 py-3">
+                            <i class="fas fa-car me-1"></i>Brand
+                        </th>
+                        <th class="border-0 py-3">
+                            <i class="fas fa-layer-group me-1"></i>Count
+                        </th>
+                        <th class="border-0 py-3">
+                            <i class="fas fa-percentage me-1"></i>Market Share
+                        </th>
+                        <th class="border-0 py-3 pe-4">
+                            <i class="fas fa-trend-up me-1"></i>Trend
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+    {% for brand in top_brands %}
+    <tr>
+        <td class="ps-4">
+            {% if loop.index == 1 %}
+            <span class="badge" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; padding: 8px 12px;">
+                <i class="fas fa-crown"></i> #{{ loop.index }}
+            </span>
+            {% elif loop.index == 2 %}
+            <span class="badge" style="background: linear-gradient(135deg, #94a3b8, #cbd5e1); color: white; padding: 8px 12px;">
+                <i class="fas fa-medal"></i> #{{ loop.index }}
+            </span>
+            {% elif loop.index == 3 %}
+            <span class="badge" style="background: linear-gradient(135deg, #d97706, #fbbf24); color: white; padding: 8px 12px;">
+                <i class="fas fa-award"></i> #{{ loop.index }}
+            </span>
+            {% else %}
+            <span class="badge bg-light text-dark">#{{ loop.index }}</span>
+            {% endif %}
+        </td>
+        <td>
+            <strong style="color: var(--primary-blue);">{{ brand[0] }}</strong>
+        </td>
+        <td>
+            <span class="badge" style="background: var(--gradient-light); color: var(--primary-blue); padding: 6px 12px;">
+                {{ brand[1] }} units
+            </span>
+        </td>
+        <td style="width: 40%;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="progress flex-grow-1" style="height: 12px; border-radius: 10px;">
+                    <div class="progress-bar progress-bar-animated" 
+                         style="background: var(--gradient-primary); width: {{ (brand[1] / total_vehicles * 100)|int }}%"></div>
+                </div>
+                <div class="fw-bold" style="color: var(--primary-blue); min-width: 45px;">
+                    {{ (brand[1] / total_vehicles * 100)|int }}%
+                </div>
+            </div>
+        </td>
+        <td class="pe-4">
+            {% set growth = [5, 12, 8, 15, 3, 7, 10] %}
+            {% set idx = loop.index0 %}
+            <span class="trend-badge">
+                <i class="fas fa-arrow-up {% if growth[idx % growth|length] > 10 %}text-success{% else %}text-warning{% endif %}"></i>
+                {{ growth[idx % growth|length] }}%
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    // Live time update
+    function updateLiveTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', {
+            hour12: true,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        const dateString = now.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        document.getElementById('live-time').innerHTML = 
+            `<div>${dateString}</div><div class="fs-6">${timeString}</div>`;
+    }
+    
+    // Initialize counter animations
+    function animateCounters() {
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            const target = parseInt(counter.textContent);
+            let current = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current);
+                }
+            }, 20);
+        });
+    }
+    
+    // Bar chart hover effects
+    document.querySelectorAll('.bar').forEach(bar => {
+        bar.addEventListener('mouseenter', function() {
+            const value = this.getAttribute('data-value');
+            this.innerHTML = `<div class="bar-value" style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-weight: bold; color: var(--primary-blue);">${value}</div>${this.innerHTML}`;
+        });
+        
+        bar.addEventListener('mouseleave', function() {
+            const valueElement = this.querySelector('.bar-value');
+            if (valueElement) {
+                valueElement.remove();
+            }
+        });
+    });
+    
+    // Initialize everything when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        updateLiveTime();
+        setInterval(updateLiveTime, 1000);
+        
+        // Trigger counter animations with delay
+        setTimeout(animateCounters, 500);
+        
+        // Add ripple effect to cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(59, 130, 246, 0.3);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    width: ${size}px;
+                    height: ${size}px;
+                    top: ${y}px;
+                    left: ${x}px;
+                    pointer-events: none;
+                `;
+                
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+        
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

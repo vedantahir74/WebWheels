@@ -1,0 +1,2179 @@
+{% extends "base.html" %}
+
+{% block title %}Sell Your Vehicle - VehicleHub{% endblock %}
+
+{% block content %}
+<style>
+    /* ===== MAIN CONTAINER STYLES ===== */
+    .sell-container {
+        min-height: calc(100vh - 150px);
+    }
+    
+    /* ===== PAGE HEADER STYLES ===== */
+    .page-header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(circle at 80% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
+    
+    .page-title {
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        position: relative;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .page-subtitle {
+        opacity: 0.9;
+        font-size: 16px;
+        position: relative;
+        max-width: 600px;
+    }
+    
+    /* ===== FORM CARD STYLES ===== */
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        border: 1px solid #e5e7eb;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .form-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+    }
+    
+    .form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        background: linear-gradient(180deg, #3b82f6, #1e40af);
+    }
+    
+    /* ===== FORM SECTION TITLE STYLES ===== */
+    .form-section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+    }
+    
+    .form-section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, #3b82f6, #1e40af);
+    }
+    
+    .form-section-title svg {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        padding: 8px;
+        border-radius: 10px;
+        color: white;
+    }
+    
+    /* ===== FORM LABEL STYLES ===== */
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .form-label .required {
+        color: #ef4444;
+        font-size: 18px;
+        line-height: 1;
+    }
+    
+    /* ===== FORM INPUT STYLES ===== */
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        padding: 14px 18px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-control:hover, .form-select:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        background: white;
+    }
+    
+    .form-hint {
+        font-size: 13px;
+        color: #64748b;
+        margin-top: 6px;
+        padding-left: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    /* ===== INPUT WITH ICON STYLES ===== */
+    .input-group-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        z-index: 4;
+    }
+    
+    .input-with-icon {
+        padding-left: 48px !important;
+    }
+    
+    /* ===== FEATURE TAGS STYLES ===== */
+    .feature-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+    
+    .feature-tag {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 13px;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .feature-tag:hover {
+        background: #e2e8f0;
+        transform: translateY(-1px);
+    }
+    
+    .feature-tag.active {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        color: white;
+        border-color: #3b82f6;
+    }
+    
+    /* ===== PRICE PREVIEW STYLES ===== */
+    .price-preview {
+        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        border: 2px solid #3b82f6;
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .price-label {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 4px;
+    }
+    
+    .price-value {
+        font-size: 28px;
+        font-weight: 800;
+        color: #1e40af;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .price-detail {
+        font-size: 13px;
+        color: #64748b;
+        margin-top: 8px;
+    }
+    
+    /* ===== STEP INDICATOR STYLES ===== */
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 40px;
+        position: relative;
+    }
+    
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 24px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #93c5fd, #3b82f6);
+        z-index: 1;
+    }
+    
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .step-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #9ca3af;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .step.active .step-circle {
+        background: linear-gradient(135deg, #2563eb, #1e3a8a);
+        border-color: #2563eb;
+        color: white;
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+    }
+    
+    .step.completed .step-circle {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        border-color: #2563eb;
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+    }
+    
+    .step-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #6b7280;
+        text-align: center;
+    }
+    
+    .step.active .step-label {
+        color: #1f2937;
+    }
+    
+    /* ===== FORM STEP STYLES ===== */
+    .form-step {
+        display: none;
+        animation: fadeIn 0.5s ease;
+    }
+    
+    .form-step.active {
+        display: block;
+    }
+    
+    /* ===== IMAGE UPLOAD AREA STYLES ===== */
+    .image-upload-area {
+        border: 3px dashed #d1d5db;
+        border-radius: 20px;
+        padding: 60px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f9fafb;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .image-upload-area:hover {
+        border-color: #3b82f6;
+        background: #f0f9ff;
+        transform: translateY(-2px);
+    }
+    
+    .image-upload-area.dragover {
+        border-color: #3b82f6;
+        background: #e0f2fe;
+    }
+    
+    .upload-icon {
+        font-size: 48px;
+        color: #9ca3af;
+        margin-bottom: 16px;
+    }
+    
+    .image-preview-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+    
+    .image-preview {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        height: 150px;
+    }
+    
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .remove-image {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .remove-image:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+    }
+    
+    /* ===== REVIEW PHOTO GRID STYLES (FIXED) ===== */
+    .review-photo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 12px;
+        margin-top: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 5px;
+    }
+    
+    .review-photo-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f8f9fa;
+        padding: 5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .review-photo-item:hover {
+        transform: scale(1.05);
+    }
+    
+    .review-photo-item img {
+        width: 100%;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 2px solid #dbeafe;
+    }
+    
+    .review-photo-caption {
+        font-size: 11px;
+        color: #6c757d;
+        text-align: center;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+    
+    /* ===== INFO CARD STYLES ===== */
+    .info-card {
+        background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+        border-radius: 20px;
+        padding: 32px;
+        border: 3px solid #2563eb;
+        box-shadow: 0 12px 48px rgba(37, 99, 235, 0.15);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+    
+    .info-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1e40af;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+    }
+    
+    .info-title svg {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        padding: 12px;
+        border-radius: 14px;
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    
+    /* ===== PROGRESS SECTION STYLES ===== */
+    .progress-section {
+        margin-bottom: 32px;
+    }
+    
+    .progress-label {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .progress-bar {
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #3b82f6, #1e40af);
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+    
+    /* ===== TIP CARD STYLES ===== */
+    .tip-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 16px;
+        border-left: 4px solid #3b82f6;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+    
+    .tip-title {
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .tip-content {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.6;
+    }
+    
+    /* ===== BUTTON STYLES ===== */
+    .btn-action {
+        padding: 16px 32px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-back {
+        background: #f3f4f6;
+        color: #374151;
+        border: 2px solid #d1d5db;
+    }
+    
+    .btn-back:hover {
+        background: #e5e7eb;
+        border-color: #9ca3af;
+    }
+    
+    .btn-next, .btn-submit {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        color: white;
+        border: none;
+    }
+    
+    .btn-next:hover, .btn-submit:hover {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: white;
+    }
+    
+    /* ===== CHARACTER COUNTER STYLES ===== */
+    .character-counter {
+        font-size: 12px;
+        color: #9ca3af;
+        text-align: right;
+        margin-top: 4px;
+    }
+    
+    .character-counter.warning {
+        color: #f59e0b;
+    }
+    
+    .character-counter.danger {
+        color: #ef4444;
+    }
+    
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* ===== RESPONSIVE STYLES ===== */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+        }
+        
+        .form-card {
+            padding: 24px;
+        }
+        
+        .step-indicator {
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .step-indicator::before {
+            display: none;
+        }
+    }
+</style>
+
+<div class="sell-container">
+    <!-- PAGE HEADER SECTION -->
+    <div class="page-header fade-in">
+        <h1 class="page-title">Sell Your Vehicle</h1>
+        <p class="page-subtitle">List your vehicle on VehicleHub and reach thousands of potential buyers. Fill in the details below to get started.</p>
+    </div>
+
+    <!-- FLASH MESSAGES SECTION -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- MAIN FORM SECTION -->
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="form-card fade-in">
+                <!-- STEP INDICATOR -->
+                <div class="step-indicator mb-5">
+                    <div class="step active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Basic Details</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Specifications</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Photos & Price</div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">Review & Submit</div>
+                    </div>
+                </div>
+
+                <!-- MAIN FORM - with file upload support -->
+                <form method="POST"
+                      action="{{ url_for('sell_vehicle') }}"
+                      id="sellForm"
+                      enctype="multipart/form-data">
+
+                    <!-- ===== STEP 1: BASIC DETAILS ===== -->
+                    <div class="form-step active" data-step="1">
+                        <h4 class="form-section-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                                <path d="M5 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0M15 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0"/>
+                                <path d="M5 17H3v-4l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2M7 10h10M7 7h10"/>
+                            </svg>
+                            Vehicle Basic Details
+                        </h4>
+                        
+                        <div class="row g-3">
+                            <!-- Brand Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="brand" class="form-label">
+                                        Brand <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/>
+                                        </svg>
+                                        <select id="brand" name="brand" class="form-select input-with-icon" required onchange="updateModels()">
+                                            <option value="">Select Brand</option>
+                                            <option value="Maruti Suzuki">Maruti Suzuki</option>
+                                            <option value="Hyundai">Hyundai</option>
+                                            <option value="Tata">Tata Motors</option>
+                                            <option value="Mahindra">Mahindra</option>
+                                            <option value="Toyota">Toyota</option>
+                                            <option value="Honda">Honda</option>
+                                            <option value="Kia">Kia</option>
+                                            <option value="MG">MG Motors</option>
+                                            <option value="Renault">Renault</option>
+                                            <option value="Nissan">Nissan</option>
+                                            <option value="Volkswagen">Volkswagen</option>
+                                            <option value="Skoda">Skoda</option>
+                                            <option value="Ford">Ford</option>
+                                            <option value="Mercedes-Benz">Mercedes-Benz</option>
+                                            <option value="BMW">BMW</option>
+                                            <option value="Audi">Audi</option>
+                                            <option value="Jeep">Jeep</option>
+                                            <option value="Force Motors">Force Motors</option>
+                                            <option value="Isuzu">Isuzu</option>
+                                            <option value="Lexus">Lexus</option>
+                                            <option value="Jaguar">Jaguar</option>
+                                            <option value="Land Rover">Land Rover</option>
+                                            <option value="Porsche">Porsche</option>
+                                            <option value="Mini">Mini</option>
+                                            <option value="Fiat">Fiat</option>
+                                            <option value="Mitsubishi">Mitsubishi</option>
+                                            <option value="Chevrolet">Chevrolet</option>
+                                            <option value="Datsun">Datsun</option>
+                                            <option value="other">Other Brand</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Model Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="model" class="form-label">
+                                        Model <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                                        </svg>
+                                        <select id="model" name="model" class="form-select input-with-icon" required>
+                                            <option value="">Select Brand First</option>
+                                        </select>
+                                        <input type="text" id="model_other" name="model_other" class="form-control mt-2 d-none" 
+                                               placeholder="Enter model name" style="padding-left: 48px;">
+                                    </div>
+                                    <span class="form-hint">Select your vehicle model</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Variant Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="variant" class="form-label">
+                                        Variant <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2"
+                                            width="18" height="18">
+                                            <path d="M3 3h18v18H3z"/>
+                                        </svg>
+                                        <select id="variant" name="variant"
+                                                class="form-select input-with-icon" required>
+                                            <option value="">Select Model First</option>
+                                        </select>
+                                        <input type="text" id="variant_other"
+                                            name="variant_other"
+                                            class="form-control mt-2 d-none"
+                                            placeholder="Enter variant name"
+                                            style="padding-left: 48px;">
+                                    </div>
+                                    <span class="form-hint">Select your vehicle variant</span>
+                                </div>
+                            </div>
+
+                            <!-- Kilometers Driven -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="km_driven" class="form-label">
+                                        Kilometers Driven <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2"
+                                            width="18" height="18">
+                                            <path d="M12 2v10l6 6"/>
+                                            <circle cx="12" cy="12" r="10"/>
+                                        </svg>
+                                        <input type="number" id="km_driven" name="km_driven"
+                                            class="form-control input-with-icon"
+                                            required min="0" max="1000000"
+                                            placeholder="e.g., 45000">
+                                    </div>
+                                    <span class="form-hint">Total distance driven by the vehicle</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Manufacturing Year -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="year" class="form-label">
+                                        Manufacturing Year <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                            <line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/>
+                                            <line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                        <select id="year" name="year" class="form-select input-with-icon" required">
+                                            <option value="">Select Year</option>
+                                            <option value="2026">2026</option>
+                                            <option value="2025">2025</option>
+                                            <option value="2024">2024</option>
+                                            <option value="2023">2023</option>
+                                            <option value="2022">2022</option>
+                                            <option value="2021">2021</option>
+                                            <option value="2020">2020</option>
+                                            <option value="2019">2019</option>
+                                            <option value="2018">2018</option>
+                                            <option value="2017">2017</option>
+                                            <option value="2016">2016</option>
+                                            <option value="2015">2015</option>
+                                            <option value="2014">2014</option>
+                                            <option value="2013">2013</option>
+                                            <option value="2012">2012</option>
+                                            <option value="2011">2011</option>
+                                            <option value="2010">2010</option>
+                                        </select>
+                                    </div>
+                                    <span class="form-hint">Valid range: 2010 – 2026</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Fuel Type -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="fuel_type" class="form-label">
+                                        Fuel Type <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <path d="M3 22h12M5 22V10l7-8 7 8v12M9 22v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/>
+                                        </svg>
+                                        <select id="fuel_type" name="fuel_type" class="form-select input-with-icon" required>
+                                            <option value="">Select Fuel Type</option>
+                                            <option value="PETROL">Petrol</option>
+                                            <option value="DIESEL">Diesel</option>
+                                            <option value="ELECTRIC">Electric</option>
+                                            <option value="CNG">CNG</option>
+                                            <option value="HYBRID">Hybrid</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Transmission -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="transmission" class="form-label">
+                                        Transmission <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <circle cx="5.5" cy="17.5" r="3.5"/>
+                                            <circle cx="18.5" cy="17.5" r="3.5"/>
+                                            <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+                                        </svg>
+                                        <select id="transmission" name="transmission" class="form-select input-with-icon" required>
+                                            <option value="">Select Transmission</option>
+                                            <option value="MANUAL">Manual</option>
+                                            <option value="AUTOMATIC">Automatic</option>
+                                            <option value="AMT">AMT (Auto Manual)</option>
+                                            <option value="CVT">CVT</option>
+                                            <option value="DCT">DCT (Dual Clutch)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mileage -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="mileage" class="form-label">
+                                        Mileage (km/l or km/kg) <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                                        </svg>
+                                        <input type="number" id="mileage" name="mileage" class="form-control input-with-icon" required 
+                                               min="0" max="50" step="0.1"
+                                               placeholder="e.g., 18.5">
+                                    </div>
+                                    <span class="form-hint">City mileage (Average)</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 1 Navigation Buttons -->
+                        <div class="d-flex justify-content-between mt-5">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-action">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Cancel
+                            </a>
+                            <button type="button" class="btn btn-primary btn-action btn-next" onclick="nextStep()">
+                                Next: Specifications
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ===== STEP 2: SPECIFICATIONS ===== -->
+                    <div class="form-step" data-step="2">
+                        <h4 class="form-section-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                            Vehicle Specifications
+                        </h4>
+                        
+                        <div class="row g-3">
+                            <!-- Body Type -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="body_type" class="form-label">
+                                        Body Type <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <rect x="1" y="3" width="15" height="13"/>
+                                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                            <circle cx="5.5" cy="18.5" r="2.5"/>
+                                            <circle cx="18.5" cy="18.5" r="2.5"/>
+                                        </svg>
+                                        <select id="body_type" name="body_type" class="form-select input-with-icon" required>
+                                            <option value="">Select Body Type</option>
+                                            <option value="HATCHBACK">Hatchback</option>
+                                            <option value="SEDAN">Sedan</option>
+                                            <option value="SUV">SUV</option>
+                                            <option value="MUV">MUV</option>
+                                            <option value="COUPE">Coupe</option>
+                                            <option value="CONVERTIBLE">Convertible</option>
+                                            <option value="WAGON">Wagon</option>
+                                            <option value="PICKUP">Pickup Truck</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Color -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="color" class="form-label">
+                                        Color <span class="required">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <svg class="input-group-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <circle cx="13.5" cy="6.5" r="2.5"/>
+                                            <circle cx="17.5" cy="10.5" r="2.5"/>
+                                            <circle cx="8.5" cy="7.5" r="2.5"/>
+                                            <circle cx="6.5" cy="12.5" r="2.5"/>
+                                            <path d="M12 22c4.97 0 9-4.03 9-9-4.97 0-9 4.03-9 9z"/>
+                                        </svg>
+                                        <select id="color" name="color" class="form-select input-with-icon" required>
+                                            <option value="">Select Color</option>
+                                            <option value="WHITE">White</option>
+                                            <option value="BLACK">Black</option>
+                                            <option value="SILVER">Silver</option>
+                                            <option value="GREY">Grey</option>
+                                            <option value="RED">Red</option>
+                                            <option value="BLUE">Blue</option>
+                                            <option value="BROWN">Brown</option>
+                                            <option value="BEIGE">Beige</option>
+                                            <option value="GREEN">Green</option>
+                                            <option value="YELLOW">Yellow</option>
+                                            <option value="ORANGE">Orange</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Features Selection -->
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label mb-2">Select Features</label>
+                                    <div class="feature-tags" id="featureTags">
+                                        <span class="feature-tag" data-feature="ABS">ABS</span>
+                                        <span class="feature-tag" data-feature="Airbags">Airbags</span>
+                                        <span class="feature-tag" data-feature="Sunroof">Sunroof</span>
+                                        <span class="feature-tag" data-feature="Leather Seats">Leather Seats</span>
+                                        <span class="feature-tag" data-feature="Rear Camera">Rear Camera</span>
+                                        <span class="feature-tag" data-feature="Parking Sensors">Parking Sensors</span>
+                                        <span class="feature-tag" data-feature="Navigation">Navigation</span>
+                                        <span class="feature-tag" data-feature="Climate Control">Climate Control</span>
+                                        <span class="feature-tag" data-feature="Keyless Entry">Keyless Entry</span>
+                                        <span class="feature-tag" data-feature="Start Button">Push Start</span>
+                                        <span class="feature-tag" data-feature="Alloy Wheels">Alloy Wheels</span>
+                                        <span class="feature-tag" data-feature="Fog Lights">Fog Lights</span>
+                                        <span class="feature-tag" data-feature="Touchscreen">Touchscreen</span>
+                                        <span class="feature-tag" data-feature="Apple CarPlay">Apple CarPlay</span>
+                                        <span class="feature-tag" data-feature="Android Auto">Android Auto</span>
+                                    </div>
+                                    <input type="hidden" id="features" name="features" value="">
+                                    <span class="form-hint">Click to select features (optional)</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Additional Features Description -->
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="additional_features" class="form-label">
+                                        Additional Features & Description
+                                    </label>
+                                    <textarea id="additional_features" name="features" class="form-control" rows="4"
+                                              placeholder="Describe your vehicle's condition, maintenance history, special features, etc. (Max 500 characters)"
+                                              maxlength="500"></textarea>
+                                    <div class="character-counter" id="descriptionCounter">0/500 characters</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2 Navigation Buttons -->
+                        <div class="d-flex justify-content-between mt-5">
+                            <button type="button" class="btn btn-outline-secondary btn-action btn-back" onclick="prevStep()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Previous
+                            </button>
+                            <button type="button" class="btn btn-primary btn-action btn-next" onclick="nextStep()">
+                                Next: Price
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ===== STEP 3: PHOTOS & PRICE ===== -->
+                    <div class="form-step" data-step="3">
+                        <h4 class="form-section-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" width="24" height="24">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                            Photos & Price
+                        </h4>
+
+                        <div class="row g-4">
+                            <!-- Price Preview Section -->
+                            <div class="col-12">
+                                <div class="price-preview">
+                                    <div class="price-label">Fair Price Calculation:</div>
+                                    <div class="price-value" id="priceDisplay">
+                                        Click "Calculate Price" to see the fair price
+                                    </div>
+                                    <div class="price-detail" id="priceDetail">
+                                        Price will be calculated based on your vehicle details.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Calculate Price Button -->
+                            <div class="col-12">
+                                <button type="button"
+                                        class="btn btn-primary btn-action"
+                                        id="calculatePriceBtn"
+                                        onclick="calculatePrice()">
+                                    ₹ Calculate Fair Price
+                                </button>
+                            </div>
+
+                            <!-- ===== PHOTO UPLOAD SECTION (FIXED) ===== -->
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Upload Vehicle Photos <span class="required">*</span>
+                                    </label>
+                                    
+                                    <!-- File Input -->
+                                    <input type="file"
+                                           id="vehicle_images"
+                                           name="vehicle_images"
+                                           class="form-control"
+                                           accept="image/*"
+                                           multiple
+                                           required
+                                           onchange="handleImageUpload(this)">
+
+                                    <!-- Image Preview Area -->
+                                    <div id="imagePreview" class="image-preview-container mt-3"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 Navigation Buttons -->
+                        <div class="d-flex justify-content-between mt-5">
+                            <button type="button"
+                                    class="btn btn-outline-secondary btn-action btn-back"
+                                    onclick="prevStep()">
+                                Previous
+                            </button>
+                            <button type="button"
+                                    class="btn btn-primary btn-action btn-next"
+                                    onclick="nextStep()">
+                                Next: Review & Submit
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ===== STEP 4: REVIEW & SUBMIT ===== -->
+                    <div class="form-step" data-step="4">
+                        <h4 class="form-section-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                                <polyline points="9 11 12 14 22 4"/>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                            </svg>
+                            Review & Submit
+                        </h4>
+                        
+                        <!-- Info Alert -->
+                        <div class="alert alert-info mb-4">
+                            <div class="d-flex align-items-center">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 16v-4M12 8h.01"/>
+                                </svg>
+                                <span class="ms-2">Please review all information before submitting. You can go back to edit any details.</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-4">
+                            <!-- Vehicle Summary Card -->
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-4 fw-bold d-flex align-items-center">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2" width="18" height="18" class="me-2">
+                                                <path d="M5 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0"/>
+                                                <path d="M15 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0"/>
+                                                <path d="M5 17H3v-4l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2M7 10h10M7 7h10"/>
+                                            </svg>
+                                            Vehicle Summary
+                                        </h6>
+
+                                        <div class="summary-details">
+                                            <!-- Vehicle Name -->
+                                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                <span class="text-muted">Vehicle</span>
+                                                <span id="reviewVehicle" class="fw-semibold text-end">-</span>
+                                            </div>
+
+                                            <!-- ===== VEHICLE PHOTOS REVIEW SECTION (FIXED) ===== -->
+                                            <div class="mb-3 pb-3 border-bottom">
+                                                <span class="text-muted fw-semibold d-block mb-2">Vehicle Photos</span>
+                                                <div id="reviewPhotos" class="review-photo-grid">
+                                                    <!-- Photos will be dynamically added here by JavaScript -->
+                                                </div>
+                                            </div>
+
+                                            <!-- Year -->
+                                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                <span class="text-muted">Year</span>
+                                                <span id="reviewYear" class="fw-semibold">-</span>
+                                            </div>
+
+                                            <!-- Fuel Type -->
+                                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                <span class="text-muted">Fuel Type</span>
+                                                <span id="reviewFuel" class="fw-semibold">-</span>
+                                            </div>
+
+                                            <!-- Transmission -->
+                                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                <span class="text-muted">Transmission</span>
+                                                <span id="reviewTransmission" class="fw-semibold">-</span>
+                                            </div>
+
+                                            <!-- KM Driven -->
+                                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                <span class="text-muted">KM Driven</span>
+                                                <span id="reviewKmDriven" class="fw-semibold">-</span>
+                                            </div>
+
+                                            <!-- Body Type -->
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="text-muted">Body Type</span>
+                                                <span id="reviewBodyType" class="fw-semibold">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pricing Details Card -->
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-3">
+                                            ₹ Pricing Details
+                                        </h6>
+                                        <div class="summary-details">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">List Price:</span>
+                                                <span id="reviewPrice">-</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Engine CC:</span>
+                                                <span id="reviewEngine">- cc</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Color:</span>
+                                                <span id="reviewColor">-</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Seats:</span>
+                                                <span id="reviewSeats">-</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Features:</span>
+                                                <span id="reviewFeatures">None</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Terms and Conditions Checkboxes -->
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms & Conditions</a> and confirm that all information provided is accurate to the best of my knowledge.
+                                    </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="contact_consent" name="contact_consent" required>
+                                    <label class="form-check-label" for="contact_consent">
+                                        I understand that my vehicle listing needs admin approval before being published.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 4 Navigation Buttons -->
+                        <div class="d-flex justify-content-between mt-5">
+                            <button type="button" class="btn btn-outline-secondary btn-action btn-back" onclick="prevStep()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Previous
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-action btn-submit" id="submitBtn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                    <polyline points="9 11 12 14 22 4"/>
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                </svg>
+                                Submit Listing
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- RIGHT SIDEBAR - SELLING GUIDELINES -->
+        <div class="col-lg-4">
+            <div class="info-card fade-in" style="animation-delay: 0.2s;">
+                <h5 class="info-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4M12 8h.01"/>
+                    </svg>
+                    Selling Guidelines
+                </h5>
+                
+                <!-- Progress Section -->
+                <div class="progress-section">
+                    <div class="progress-label">
+                        <span>Listing Progress</span>
+                        <span id="progressPercentage">25%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+                    </div>
+                </div>
+                
+                <!-- Tips Cards -->
+                <div class="tip-card">
+                    <h6 class="tip-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="16" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12" y2="8"/>
+                        </svg>
+                        Price Setting Tip
+                    </h6>
+                    <p class="tip-content">Research similar vehicles in your area to set a competitive price. Consider factors like mileage, condition, and demand.</p>
+                </div>
+                
+                <div class="tip-card">
+                    <h6 class="tip-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        Photo Guidelines
+                    </h6>
+                    <p class="tip-content">Use natural daylight for photos. Capture all angles: front, back, sides, interior, dashboard, and engine bay.</p>
+                </div>
+                
+                <div class="tip-card">
+                    <h6 class="tip-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <polyline points="9 11 12 14 22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        Approval Process
+                    </h6>
+                    <p class="tip-content">Listings are reviewed within 24-48 hours. Ensure all documents are ready for verification when contacted.</p>
+                </div>
+                
+                <!-- Estimated Time -->
+                <div class="mt-4">
+                    <div class="d-flex align-items-center text-muted mb-2">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        <span class="ms-2">Estimated Approval Time</span>
+                    </div>
+                    <h4 class="text-primary fw-bold">24-48 Hours</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms & Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>VehicleHub Selling Terms</strong></p>
+                <p>1. You must be the legal owner of the vehicle or have authority to sell it.</p>
+                <p>2. All information provided must be accurate and truthful.</p>
+                <p>3. Admin will deduct vehicle price from their balance when approving your listing.</p>
+                <p>4. Vehicle listings require admin approval before being visible to buyers.</p>
+                <p>5. You are responsible for vehicle condition representation.</p>
+                <p>6. VehicleHub acts as a platform and is not responsible for transactions.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== JAVASCRIPT SECTION ===== -->
+<script>
+    // ===== GLOBAL VARIABLES =====
+    let currentStep = 1;               // Current step number (1-4)
+    const totalSteps = 4;               // Total number of steps
+    let selectedFeatures = [];          // Array to store selected features
+    let uploadedPhotos = [];             // Array to store uploaded photo data URLs for review
+
+    // ===== INDIAN CAR MODELS DATABASE =====
+    const indianCarModels = {
+        "Maruti Suzuki": [
+            "Alto", "Alto K10", "S-Presso", "Celerio", "Wagon R", "Ignis", 
+            "Swift", "Dzire", "Baleno", "Ciaz", "Ertiga", "XL6", 
+            "Brezza", "Grand Vitara", "Jimny", "Fronx", "Invicto"
+        ],
+        "Hyundai": [
+            "Santro", "Grand i10 Nios", "i20", "i20 N Line", "Aura", 
+            "Verna", "Creta", "Venue", "Exter", "Alcazar", "Tucson", 
+            "Kona Electric", "Ioniq 5"
+        ],
+        "Tata": [
+            "Tiago", "Tigor", "Altroz", "Punch", "Nexon", "Harrier", 
+            "Safari", "Nexon EV", "Tiago EV", "Tigor EV"
+        ],
+        "Mahindra": [
+            "Bolero", "Scorpio", "Scorpio-N", "XUV300", "XUV400", 
+            "XUV700", "Thar", "Bolero Neo", "Marazzo", "KUV100"
+        ],
+        "Toyota": [
+            "Glanza", "Urban Cruiser Hyryder", "Innova Crysta", 
+            "Innova Hycross", "Fortuner", "Legender", "Camry", "Vellfire"
+        ],
+        "Honda": [
+            "Amaze", "Jazz", "City", "City Hybrid", "WR-V", "Elevate"
+        ],
+        "Kia": [
+            "Seltos", "Sonet", "Carens", "EV6", "Carnival"
+        ],
+        "MG": [
+            "Hector", "Astor", "Gloster", "ZS EV", "Comet EV"
+        ],
+        "Renault": [
+            "Kwid", "Triber", "Kiger"
+        ],
+        "Nissan": [
+            "Magnite", "Kicks"
+        ],
+        "Volkswagen": [
+            "Polo", "Vento", "Taigun", "Virtus", "Tiguan"
+        ],
+        "Skoda": [
+            "Kushaq", "Slavia", "Kodiaq", "Superb"
+        ],
+        "Ford": [
+            "EcoSport", "Endeavour", "Figo", "Aspire", "Freestyle"
+        ],
+        "Mercedes-Benz": [
+            "A-Class", "C-Class", "E-Class", "S-Class", "GLA", "GLC", "GLE", "GLS"
+        ],
+        "BMW": [
+            "2 Series", "3 Series", "5 Series", "7 Series", "X1", "X3", "X5", "X7"
+        ],
+        "Audi": [
+            "A3", "A4", "A6", "A8", "Q3", "Q5", "Q7", "Q8"
+        ],
+        "Jeep": [
+            "Compass", "Meridian", "Wrangler", "Grand Cherokee"
+        ],
+        "Force Motors": [
+            "Gurkha", "One"
+        ],
+        "Isuzu": [
+            "D-Max V-Cross", "MU-X"
+        ]
+    };
+
+    // ===== INDIAN CAR VARIANTS DATABASE =====
+    const indianCarVariants = {
+        "Maruti Suzuki": {
+            "Alto": ["STD", "LXi", "VXi"],
+            "Alto K10": ["LXi", "VXi", "VXi+"],
+            "S-Presso": ["STD", "LXi", "VXi", "VXi+"],
+            "Celerio": ["LXi", "VXi", "ZXi", "ZXi+"],
+            "Wagon R": ["LXi", "VXi", "ZXi", "ZXi+"],
+            "Ignis": ["Sigma", "Delta", "Zeta", "Alpha"],
+            "Swift": ["LXi", "VXi", "ZXi", "ZXi+"],
+            "Dzire": ["LXi", "VXi", "ZXi", "ZXi+"],
+            "Baleno": ["Sigma", "Delta", "Zeta", "Alpha"],
+            "Ciaz": ["Sigma", "Delta", "Zeta", "Alpha"],
+            "Ertiga": ["LXi", "VXi", "ZXi", "ZXi+"],
+            "XL6": ["Zeta", "Alpha", "Alpha+"],
+            "Brezza": ["LXi", "VXi", "ZXi", "ZXi+"],
+            "Grand Vitara": ["Sigma", "Delta", "Zeta", "Alpha"],
+            "Jimny": ["Zeta", "Alpha"],
+            "Fronx": ["Sigma", "Delta", "Zeta", "Alpha"],
+            "Invicto": ["Zeta+", "Alpha+", "Alpha+ Hybrid"]
+        },
+        "Hyundai": {
+            "Santro": ["Era", "Magna", "Sportz"],
+            "Grand i10 Nios": ["Era", "Magna", "Sportz", "Asta"],
+            "i20": ["Magna", "Sportz", "Asta", "Asta(O)"],
+            "i20 N Line": ["N6", "N8"],
+            "Aura": ["E", "S", "SX", "SX(O)"],
+            "Verna": ["EX", "S", "SX", "SX(O)"],
+            "Creta": ["E", "S", "SX", "SX(O)"],
+            "Venue": ["E", "S", "SX", "SX(O)"],
+            "Exter": ["EX", "S", "SX", "SX(O)"],
+            "Alcazar": ["Prestige", "Platinum", "Signature"],
+            "Tucson": ["Platinum", "Signature"],
+            "Kona Electric": ["Premium", "Premium Dual Tone"],
+            "Ioniq 5": ["RWD", "AWD"]
+        },
+        "Tata": {
+            "Tiago": ["XE", "XT", "XZ", "XZ+"],
+            "Tigor": ["XE", "XT", "XZ", "XZ+"],
+            "Altroz": ["XE", "XM", "XZ", "XZ+"],
+            "Punch": ["Pure", "Adventure", "Creative", "Accomplished"],
+            "Nexon": ["Smart", "Pure", "Creative", "Fearless"],
+            "Harrier": ["Smart", "Pure", "Adventure", "Fearless"],
+            "Safari": ["Smart", "Pure", "Adventure", "Fearless"],
+            "Nexon EV": ["Creative", "Fearless", "Empowered"],
+            "Tiago EV": ["XE", "XT", "XZ+"],
+            "Tigor EV": ["XE", "XT", "XZ+"]
+        },
+        "Mahindra": {
+            "Bolero": ["B4", "B6", "B6(O)"],
+            "Scorpio": ["S", "S11"],
+            "Scorpio-N": ["Z2", "Z4", "Z6", "Z8", "Z8L"],
+            "XUV300": ["W4", "W6", "W8"],
+            "XUV400": ["EC", "EL"],
+            "XUV700": ["MX", "AX3", "AX5", "AX7", "AX7L"],
+            "Thar": ["AX", "LX", "LX 4x4"],
+            "Bolero Neo": ["N4", "N8", "N10"],
+            "Marazzo": ["M2", "M4", "M6"],
+            "KUV100": ["K2", "K4", "K6"]
+        },
+        "Toyota": {
+            "Glanza": ["E", "S", "G", "V"],
+            "Urban Cruiser Hyryder": ["E", "S", "G", "V"],
+            "Innova Crysta": ["GX", "VX", "ZX"],
+            "Innova Hycross": ["G", "GX", "VX", "ZX"],
+            "Fortuner": ["4x2", "4x4", "Legender"],
+            "Legender": ["4x2 AT", "4x4 AT"],
+            "Camry": ["Hybrid"],
+            "Vellfire": ["Hi", "VIP"]
+        },
+        "Honda": {
+            "Amaze": ["E", "S", "VX"],
+            "Jazz": ["V", "VX", "ZX"],
+            "City": ["SV", "V", "VX", "ZX"],
+            "City Hybrid": ["V", "ZX"],
+            "WR-V": ["S", "VX"],
+            "Elevate": ["SV", "V", "VX", "ZX"]
+        },
+        "Kia": {
+            "Seltos": ["HTE", "HTK", "HTX", "GTX+", "X-Line"],
+            "Sonet": ["HTE", "HTK", "HTX", "GTX+"],
+            "Carens": ["Premium", "Prestige", "Luxury", "Luxury+"],
+            "EV6": ["GT Line", "GT"],
+            "Carnival": ["Premium", "Limousine"]
+        },
+        "MG": {
+            "Hector": ["Style", "Shine", "Smart", "Sharp"],
+            "Astor": ["Sprint", "Shine", "Sharp", "Savvy"],
+            "Gloster": ["Super", "Sharp", "Savvy"],
+            "ZS EV": ["Excite", "Exclusive"],
+            "Comet EV": ["Pace", "Play", "Plush"]
+        },
+        "Renault": {
+            "Kwid": ["RXE", "RXL", "RXT"],
+            "Triber": ["RXE", "RXL", "RXT"],
+            "Kiger": ["RXE", "RXL", "RXT", "RXZ"]
+        },
+        "Nissan": {
+            "Magnite": ["XE", "XL", "XV", "XV Premium"],
+            "Kicks": ["XL", "XV", "XV Premium"]
+        },
+        "Volkswagen": {
+            "Polo": ["Trendline", "Comfortline", "Highline", "GT"],
+            "Vento": ["Trendline", "Comfortline", "Highline"],
+            "Taigun": ["Comfortline", "Highline", "GT"],
+            "Virtus": ["Comfortline", "Highline", "GT"],
+            "Tiguan": ["Elegance"]
+        },
+        "Skoda": {
+            "Kushaq": ["Active", "Ambition", "Style"],
+            "Slavia": ["Active", "Ambition", "Style"],
+            "Kodiaq": ["Style", "L&K"],
+            "Superb": ["Sportline", "L&K"]
+        },
+        "Ford": {
+            "EcoSport": ["Ambiente", "Trend", "Titanium"],
+            "Endeavour": ["Titanium", "Sport"],
+            "Figo": ["Ambiente", "Trend", "Titanium"],
+            "Aspire": ["Ambiente", "Trend", "Titanium"],
+            "Freestyle": ["Ambiente", "Trend", "Titanium"]
+        },
+        "Mercedes-Benz": {
+            "A-Class": ["A200", "A220d"],
+            "C-Class": ["C200", "C220d"],
+            "E-Class": ["E200", "E350d"],
+            "S-Class": ["S350d", "S450"],
+            "GLA": ["200", "220d"],
+            "GLC": ["300", "220d"],
+            "GLE": ["300d", "450"],
+            "GLS": ["400d", "Maybach"]
+        },
+        "BMW": {
+            "2 Series": ["220i", "220d"],
+            "3 Series": ["330i", "320d"],
+            "5 Series": ["530i", "520d"],
+            "7 Series": ["740i", "740d"],
+            "X1": ["sDrive18i", "sDrive18d"],
+            "X3": ["xDrive30i", "xDrive20d"],
+            "X5": ["xDrive40i", "xDrive30d"],
+            "X7": ["xDrive40i", "xDrive40d"]
+        },
+        "Audi": {
+            "A3": ["Premium", "Technology"],
+            "A4": ["Premium", "Premium Plus"],
+            "A6": ["Premium", "Technology"],
+            "A8": ["L", "L Technology"],
+            "Q3": ["Premium", "Technology"],
+            "Q5": ["Premium Plus", "Technology"],
+            "Q7": ["Premium Plus", "Technology"],
+            "Q8": ["Celebration", "Technology"]
+        },
+        "Jeep": {
+            "Compass": ["Sport", "Longitude", "Limited"],
+            "Meridian": ["Limited", "Limited(O)", "Overland"],
+            "Wrangler": ["Unlimited", "Rubicon"],
+            "Grand Cherokee": ["Limited", "Summit"]
+        },
+        "Force Motors": {
+            "Gurkha": ["3 Door", "5 Door"],
+            "One": ["STD"]
+        },
+        "Isuzu": {
+            "D-Max V-Cross": ["Z", "Z Prestige"],
+            "MU-X": ["4x2", "4x4"]
+        }
+    };
+
+    // ===== MODEL TO BODY TYPE MAPPING =====
+    const modelBodyTypeMap = {
+        "Alto": ["HATCHBACK"],
+        "Alto K10": ["HATCHBACK"],
+        "Swift": ["HATCHBACK"],
+        "Baleno": ["HATCHBACK"],
+        "Dzire": ["SEDAN"],
+        "Ertiga": ["MUV"],
+        "XL6": ["MUV"],
+        "Brezza": ["SUV"],
+        "Grand Vitara": ["SUV"],
+        "Jimny": ["SUV"],
+        "Fronx": ["SUV"],
+        "i20": ["HATCHBACK"],
+        "Verna": ["SEDAN"],
+        "Creta": ["SUV"],
+        "Venue": ["SUV"],
+        "Exter": ["SUV"],
+        "Alcazar": ["SUV"],
+        "Tiago": ["HATCHBACK"],
+        "Tigor": ["SEDAN"],
+        "Altroz": ["HATCHBACK"],
+        "Punch": ["SUV"],
+        "Nexon": ["SUV"],
+        "Harrier": ["SUV"],
+        "Safari": ["SUV"],
+        "Thar": ["SUV"],
+        "Scorpio": ["SUV"],
+        "Scorpio-N": ["SUV"],
+        "XUV700": ["SUV"],
+        "Bolero": ["SUV"],
+        "Marazzo": ["MUV"],
+        "Fortuner": ["SUV"],
+        "Innova Crysta": ["MUV"],
+        "Innova Hycross": ["MUV"],
+        "Camry": ["SEDAN"],
+        "City": ["SEDAN"],
+        "Amaze": ["SEDAN"],
+        "Elevate": ["SUV"],
+        "Seltos": ["SUV"],
+        "Sonet": ["SUV"],
+        "Carens": ["MUV"],
+        "Hector": ["SUV"],
+        "Astor": ["SUV"],
+        "Comet EV": ["HATCHBACK"],
+        "Kwid": ["HATCHBACK"],
+        "Triber": ["MUV"],
+        "Kiger": ["SUV"],
+        "Magnite": ["SUV"],
+        "Polo": ["HATCHBACK"],
+        "Virtus": ["SEDAN"],
+        "Taigun": ["SUV"],
+        "Kushaq": ["SUV"],
+        "Slavia": ["SEDAN"],
+        "EcoSport": ["SUV"],
+        "Figo": ["HATCHBACK"],
+        "Aspire": ["SEDAN"],
+        "A4": ["SEDAN"],
+        "Q5": ["SUV"],
+        "3 Series": ["SEDAN"],
+        "X1": ["SUV"],
+        "C-Class": ["SEDAN"],
+        "GLA": ["SUV"]
+    };
+
+    // ===== FUNCTION: UPDATE MODELS BASED ON SELECTED BRAND =====
+    function updateModels() {
+        const brandSelect = document.getElementById('brand');
+        const modelSelect = document.getElementById('model');
+        const modelOtherInput = document.getElementById('model_other');
+        const selectedBrand = brandSelect.value;
+        
+        // Clear current options
+        modelSelect.innerHTML = '<option value="">Select Model</option>';
+        modelSelect.disabled = false;
+        
+        // Hide other input
+        modelOtherInput.classList.add('d-none');
+        modelOtherInput.required = false;
+        
+        if (selectedBrand === 'other') {
+            // Show text input for other brand
+            modelSelect.disabled = true;
+            modelSelect.innerHTML = '<option value="">Other Brand Selected</option>';
+            modelOtherInput.classList.remove('d-none');
+            modelOtherInput.required = true;
+            modelOtherInput.value = '';
+        } else if (indianCarModels[selectedBrand]) {
+            // Add models for selected brand
+            indianCarModels[selectedBrand].forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+            
+            // Add "Other" option at the end
+            const otherOption = document.createElement('option');
+            otherOption.value = "other";
+            otherOption.textContent = "Other Model";
+            modelSelect.appendChild(otherOption);
+        } else {
+            modelSelect.innerHTML = '<option value="">Brand not found</option>';
+            modelSelect.disabled = true;
+        }
+        
+        // Add event listener for "Other Model" selection
+        modelSelect.onchange = function() {
+            if (this.value === "other") {
+                modelOtherInput.classList.remove('d-none');
+                modelOtherInput.required = true;
+                modelOtherInput.value = '';
+            } else {
+                modelOtherInput.classList.add('d-none');
+                modelOtherInput.required = false;
+                modelOtherInput.value = '';
+            }
+            updateVariants(); 
+            updateBodyTypeByModel();
+        };
+
+        // Clear variant when brand changes
+        document.getElementById('variant').innerHTML =
+            '<option value="">Select Model First</option>';
+    }
+
+    // ===== FUNCTION: UPDATE VARIANTS BASED ON SELECTED MODEL =====
+    function updateVariants() {
+        const brand = document.getElementById("brand").value;
+        const model = document.getElementById("model").value;
+        const variantSelect = document.getElementById("variant");
+        const variantOther = document.getElementById("variant_other");
+
+        variantSelect.innerHTML = '<option value="">Select Variant</option>';
+        variantOther.classList.add("d-none");
+        variantOther.required = false;
+
+        if (indianCarVariants[brand] && indianCarVariants[brand][model]) {
+            indianCarVariants[brand][model].forEach(variant => {
+                const option = document.createElement("option");
+                option.value = variant;
+                option.textContent = variant;
+                variantSelect.appendChild(option);
+            });
+
+            // Add Other option
+            const otherOption = document.createElement("option");
+            otherOption.value = "other";
+            otherOption.textContent = "Other Variant";
+            variantSelect.appendChild(otherOption);
+        }
+        
+        document.getElementById("variant").addEventListener("change", function () {
+            const variantOther = document.getElementById("variant_other");
+            if (this.value === "other") {
+                variantOther.classList.remove("d-none");
+                variantOther.required = true;
+                variantOther.value = "";
+            } else {
+                variantOther.classList.add("d-none");
+                variantOther.required = false;
+                variantOther.value = "";
+            }
+        });
+    }
+
+    // ===== FUNCTION: UPDATE BODY TYPE BASED ON SELECTED MODEL =====
+    function updateBodyTypeByModel() {
+        const model = document.getElementById("model").value;
+        const bodyTypeSelect = document.getElementById("body_type");
+
+        // Reset dropdown
+        bodyTypeSelect.innerHTML = '<option value="">Select Body Type</option>';
+
+        // If no mapping → show all options
+        if (!modelBodyTypeMap[model]) {
+            const allTypes = [
+                "HATCHBACK", "SEDAN", "SUV", "MUV", "COUPE", 
+                "CONVERTIBLE", "WAGON", "PICKUP"
+            ];
+            allTypes.forEach(type => {
+                const opt = document.createElement("option");
+                opt.value = type;
+                opt.textContent = type;
+                bodyTypeSelect.appendChild(opt);
+            });
+            return;
+        }
+
+        // Show only mapped body types
+        modelBodyTypeMap[model].forEach(type => {
+            const opt = document.createElement("option");
+            opt.value = type;
+            opt.textContent = type;
+            bodyTypeSelect.appendChild(opt);
+        });
+    }
+
+    // ===== FUNCTION: HANDLE IMAGE UPLOAD AND PREVIEW (FIXED) =====
+    function handleImageUpload(input) {
+        const files = input.files;
+        const previewContainer = document.getElementById("imagePreview");
+        
+        // Clear previous previews and reset uploadedPhotos array
+        previewContainer.innerHTML = "";
+        uploadedPhotos = [];
+        
+        if (files.length === 0) {
+            return;
+        }
+
+        // Process each selected file
+        Array.from(files).forEach((file, index) => {
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                alert(`File ${file.name} is not an image. Please select only image files.`);
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert(`File ${file.name} is too large. Maximum size is 5MB.`);
+                return;
+            }
+
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // Store the data URL for review step
+                uploadedPhotos.push({
+                    file: file,
+                    dataUrl: e.target.result,
+                    name: file.name
+                });
+                
+                // Create preview element
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'image-preview';
+                
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = `Preview ${index + 1}`;
+                
+                // Add remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-image';
+                removeBtn.innerHTML = '×';
+                removeBtn.type = 'button';
+                removeBtn.onclick = function() {
+                    removeImage(index);
+                };
+                
+                previewDiv.appendChild(img);
+                previewDiv.appendChild(removeBtn);
+                previewContainer.appendChild(previewDiv);
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ===== FUNCTION: REMOVE IMAGE FROM PREVIEW =====
+    function removeImage(index) {
+        // Remove from uploadedPhotos array
+        uploadedPhotos.splice(index, 1);
+        
+        // Update file input (this is tricky with FileList, so we'll recreate it)
+        const fileInput = document.getElementById('vehicle_images');
+        const dt = new DataTransfer();
+        
+        // Add remaining files to new FileList
+        uploadedPhotos.forEach(photo => {
+            dt.items.add(photo.file);
+        });
+        
+        fileInput.files = dt.files;
+        
+        // Refresh preview
+        const previewContainer = document.getElementById("imagePreview");
+        previewContainer.innerHTML = "";
+        
+        // Recreate previews
+        uploadedPhotos.forEach((photo, idx) => {
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'image-preview';
+            
+            const img = document.createElement('img');
+            img.src = photo.dataUrl;
+            img.alt = `Preview ${idx + 1}`;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-image';
+            removeBtn.innerHTML = '×';
+            removeBtn.type = 'button';
+            removeBtn.onclick = function() {
+                removeImage(idx);
+            };
+            
+            previewDiv.appendChild(img);
+            previewDiv.appendChild(removeBtn);
+            previewContainer.appendChild(previewDiv);
+        });
+    }
+
+    // ===== FUNCTION: STEP NAVIGATION - NEXT STEP =====
+    function nextStep() {
+        if (!validateStep(currentStep)) return;
+        
+        document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+        
+        currentStep++;
+        
+        document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+        
+        updateProgress();
+        if (currentStep === 4) updateReview();
+    }
+
+    // ===== FUNCTION: STEP NAVIGATION - PREVIOUS STEP =====
+    function prevStep() {
+        document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+        
+        currentStep--;
+        
+        document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+        
+        updateProgress();
+    }
+
+    // ===== FUNCTION: UPDATE PROGRESS BAR =====
+    function updateProgress() {
+        const progress = (currentStep / totalSteps) * 100;
+        document.getElementById('progressFill').style.width = `${progress}%`;
+        document.getElementById('progressPercentage').textContent = `${Math.round(progress)}%`;
+        
+        // Mark previous steps as completed
+        document.querySelectorAll('.step').forEach((step, index) => {
+            const stepNum = parseInt(step.dataset.step);
+            if (stepNum < currentStep) {
+                step.classList.add('completed');
+                step.classList.remove('active');
+            } else if (stepNum === currentStep) {
+                step.classList.add('active');
+                step.classList.remove('completed');
+            } else {
+                step.classList.remove('active', 'completed');
+            }
+        });
+    }
+
+    // ===== FUNCTION: VALIDATE CURRENT STEP =====
+    function validateStep(step) {
+        let isValid = true;
+        const stepElement = document.querySelector(`.form-step[data-step="${step}"]`);
+        
+        // Basic validation for required fields
+        const requiredFields = stepElement.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        return isValid;
+    }
+
+    // ===== FEATURE SELECTION EVENT LISTENER =====
+    document.querySelectorAll('.feature-tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+            const feature = this.dataset.feature;
+            this.classList.toggle('active');
+            
+            if (this.classList.contains('active')) {
+                selectedFeatures.push(feature);
+            } else {
+                selectedFeatures = selectedFeatures.filter(f => f !== feature);
+            }
+            
+            document.getElementById('features').value = selectedFeatures.join(', ');
+        });
+    });
+
+    // ===== FUNCTION: CALCULATE PRICE =====
+    function calculatePrice() {
+        const formData = new FormData(document.getElementById('sellForm'));
+        fetch('/calculate_price', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('priceDisplay').innerHTML = 'Error: ' + data.error;
+                document.getElementById('priceDetail').innerHTML = 'Please check your inputs.';
+            } else {
+                document.getElementById('priceDisplay').innerHTML = `₹${data.price.toLocaleString('en-IN')}`;
+                document.getElementById('priceDetail').innerHTML = `Condition: ${data.condition}`;
+                document.getElementById('reviewPrice').textContent = `₹${data.price.toLocaleString('en-IN')}`;
+            }
+        })
+        .catch(error => {
+            document.getElementById('priceDisplay').innerHTML = 'Error calculating price.';
+        });
+    }
+
+    // ===== CHARACTER COUNTER FOR DESCRIPTION =====
+    document.getElementById('additional_features').addEventListener('input', function() {
+        const counter = document.getElementById('descriptionCounter');
+        const length = this.value.length;
+        counter.textContent = `${length}/500 characters`;
+        counter.className = 'character-counter';
+        
+        if (length > 450) {
+            counter.classList.add('warning');
+        }
+        if (length > 490) {
+            counter.classList.add('danger');
+        }
+    });
+
+    // ===== FUNCTION: UPDATE REVIEW SUMMARY (FIXED PHOTO DISPLAY) =====
+    function updateReview() {
+        const modelSelect = document.getElementById('model');
+        const modelOtherInput = document.getElementById('model_other');
+        let modelValue = modelSelect.value;
+
+        // Handle "Other Model" selection
+        if (modelSelect.value === "other" && modelOtherInput.value.trim()) {
+            modelValue = modelOtherInput.value.trim();
+        }
+
+        // Handle "Other Variant" selection
+        let variantValue = document.getElementById("variant").value;
+        if (variantValue === "other") {
+            variantValue = document.getElementById("variant_other").value;
+        }
+
+        // ===== UPDATE BASIC DETAILS =====
+        document.getElementById('reviewVehicle').textContent =
+            `${document.getElementById('brand').value} ${modelValue} ${variantValue || ''}`;
+
+        document.getElementById('reviewYear').textContent =
+            document.getElementById('year').value;
+
+        document.getElementById('reviewFuel').textContent =
+            document.getElementById('fuel_type').value;
+
+        document.getElementById('reviewTransmission').textContent =
+            document.getElementById('transmission').value;
+
+        document.getElementById('reviewKmDriven').textContent =
+            `${document.getElementById('km_driven').value} km`;
+
+        document.getElementById('reviewBodyType').textContent =
+            document.getElementById('body_type').value;
+
+        document.getElementById('reviewEngine').textContent =
+            document.getElementById('engine_cc') && document.getElementById('engine_cc').value
+                ? `${document.getElementById('engine_cc').value} cc`
+                : 'Not specified';
+
+        document.getElementById('reviewColor').textContent =
+            document.getElementById('color').value;
+
+        document.getElementById('reviewSeats').textContent =
+            document.getElementById('seats')
+                ? `${document.getElementById('seats').value} Seaters`
+                : "Not specified";
+
+        document.getElementById('reviewFeatures').textContent =
+            selectedFeatures.length > 0 ? selectedFeatures.join(', ') : 'None';
+
+        // ===== FIXED: DISPLAY UPLOADED PHOTOS IN REVIEW STEP =====
+        const reviewPhotos = document.getElementById("reviewPhotos");
+        
+        if (reviewPhotos) {
+            reviewPhotos.innerHTML = "";
+
+            if (uploadedPhotos.length > 0) {
+                // Display each uploaded photo in the review grid
+                uploadedPhotos.forEach((photo, index) => {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'review-photo-item';
+                    
+                    const img = document.createElement('img');
+                    img.src = photo.dataUrl;
+                    img.alt = `Vehicle Photo ${index + 1}`;
+                    
+                    const caption = document.createElement('div');
+                    caption.className = 'review-photo-caption';
+                    caption.textContent = `Photo ${index + 1}`;
+                    
+                    photoItem.appendChild(img);
+                    photoItem.appendChild(caption);
+                    reviewPhotos.appendChild(photoItem);
+                });
+            } else {
+                // Show message if no photos uploaded
+                const noPhotos = document.createElement('div');
+                noPhotos.className = 'alert alert-warning p-2';
+                noPhotos.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>No photos uploaded yet';
+                reviewPhotos.appendChild(noPhotos);
+            }
+        }
+    }
+
+    // ===== FORM SUBMISSION HANDLER =====
+    document.getElementById('sellForm').addEventListener('submit', function(e) {
+        // Handle "Other Model" submission
+        const modelSelect = document.getElementById('model');
+        const modelOtherInput = document.getElementById('model_other');
+
+        if (modelSelect.value === "other" && modelOtherInput.value.trim()) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'model';
+            hiddenInput.value = modelOtherInput.value.trim();
+            this.appendChild(hiddenInput);
+            modelSelect.disabled = true;
+        }
+
+        // Handle "Other Variant" submission
+        const variantSelect = document.getElementById("variant");
+        const variantOtherInput = document.getElementById("variant_other");
+
+        if (variantSelect.value === "other" && variantOtherInput.value.trim()) {
+            const hiddenVariant = document.createElement("input");
+            hiddenVariant.type = "hidden";
+            hiddenVariant.name = "variant";
+            hiddenVariant.value = variantOtherInput.value.trim();
+            this.appendChild(hiddenVariant);
+            variantSelect.disabled = true;
+        }
+
+        // Validate final step
+        if (currentStep !== 4) {
+            e.preventDefault();
+            alert('Please complete all steps first.');
+            return;
+        }
+
+        if (!validateStep(currentStep)) {
+            e.preventDefault();
+            alert('Please fill all required fields correctly.');
+            return;
+        }
+
+        // Validate terms checkboxes
+        const termsChecked = document.getElementById('terms').checked;
+        const consentChecked = document.getElementById('contact_consent').checked;
+
+        if (!termsChecked || !consentChecked) {
+            e.preventDefault();
+            alert('Please accept all terms and conditions');
+            return;
+        }
+
+        // Validate photos uploaded
+        if (uploadedPhotos.length === 0) {
+            e.preventDefault();
+            alert('Please upload at least one photo of your vehicle');
+            return;
+        }
+
+        // Disable submit button to prevent double submission
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <div class="spinner-border spinner-border-sm me-2"></div>
+            Submitting...
+        `;
+    });
+
+    // ===== PAGE LOAD INITIALIZATION =====
+    document.addEventListener('DOMContentLoaded', function () {
+        updateProgress();
+        
+        // Set default year to current year - 1
+        const currentYear = new Date().getFullYear();
+        const yearSelect = document.getElementById('year');
+        if (yearSelect && !yearSelect.value) {
+            yearSelect.value = currentYear - 1;
+        }
+        
+        // Initialize photo array
+        uploadedPhotos = [];
+    });
+</script>
+{% endblock %}

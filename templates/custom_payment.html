@@ -1,0 +1,870 @@
+{% extends "base.html" %}
+
+{% block title %}Custom Payment - VehicleHub{% endblock %}
+
+{% block content %}
+<style>
+    /* Main Container */
+    .payment-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    /* Page Header */
+    .payment-header {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .payment-header::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    
+    .payment-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        left: -30px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+    
+    .payment-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .payment-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Back Button */
+    .back-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 2;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .back-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateX(-3px);
+        color: white;
+    }
+    
+    /* Main Content Grid */
+    .payment-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    @media (min-width: 992px) {
+        .payment-content {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    
+    /* Order Summary Card */
+    .order-summary-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        padding: 1.75rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        height: fit-content;
+    }
+    
+    .summary-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .summary-title i {
+        color: #194ab4ff;
+    }
+    
+    /* Summary Items */
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+    
+    .item-label {
+        font-size: 14px;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .item-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+    
+    .summary-divider {
+        height: 1px;
+        background: #e5e7eb;
+        margin: 16px 0;
+    }
+    
+    .summary-total {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .total-label {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+    
+    .total-amount {
+        font-size: 28px;
+        font-weight: 800;
+        color: #194ab4ff;
+    }
+    
+    /* Vehicle Info */
+    .vehicle-info {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin: 1rem 0;
+    }
+    
+    .vehicle-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+    
+    .vehicle-specs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+    
+    .spec-badge {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 11px;
+        color: #4b5563;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    /* ===== FORM SECTIONS ===== */
+    .form-section {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .section-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 1.25rem 1.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-body {
+        padding: 1.75rem;
+    }
+    
+    /* Form Labels */
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        padding: 12px 16px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #194ab4ff;
+        box-shadow: 0 0 0 3px rgba(25, 74, 180, 0.1);
+    }
+    
+    .form-hint {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+    
+    /* ===== PAYMENT OPTIONS ===== */
+    .payment-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    @media (min-width: 768px) {
+        .payment-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    
+    .payment-option {
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .payment-option:hover {
+        border-color: #194ab4ff;
+        background: #eff6ff;
+        transform: translateY(-3px);
+    }
+    
+    .payment-option.selected {
+        border-color: #194ab4ff;
+        background: #eff6ff;
+        box-shadow: 0 4px 15px rgba(25, 74, 180, 0.15);
+    }
+    
+    .payment-icon {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #194ab4ff, #1047bdff);
+        border-radius: 10px;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .payment-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+    
+    /* ===== PRICE BREAKDOWN ===== */
+    .price-breakdown {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .price-row:last-child {
+        border-bottom: none;
+    }
+    
+    .price-label {
+        font-size: 14px;
+        color: #4b5563;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .price-label .info-icon {
+        color: #6b7280;
+        cursor: help;
+    }
+    
+    .price-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+    
+    /* ===== SERVICE FEE BREAKDOWN ===== */
+    .service-fee-breakdown {
+        background: #eff6ff;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+        border: 1px solid #dbeafe;
+    }
+    
+    .service-fee-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .service-fee-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .service-fee-list li {
+        font-size: 12px;
+        color: #4b5563;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .service-fee-list li:before {
+        content: "✓";
+        color: #10b981;
+        font-weight: bold;
+    }
+    
+    /* ===== SECURITY NOTE ===== */
+    .security-note {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 2px solid #2563eb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    /* ===== PAYMENT FORM CARD ===== */
+    .payment-form-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        padding: 1.75rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .form-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-title i {
+        color: #194ab4ff;
+    }
+    
+    /* ===== SUBMIT BUTTON ===== */
+    .submit-btn {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        border: none;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 18px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 2rem;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(25, 74, 180, 0.3);
+        background: linear-gradient(135deg, #1047bdff 0%, #0d3a8cff 100%);
+    }
+    
+    .submit-btn:active {
+        transform: translateY(-1px);
+    }
+    
+    /* ===== ALERT MESSAGES ===== */
+    .alert {
+        border-radius: 12px;
+        border: none;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .alert i {
+        margin-right: 10px;
+    }
+    
+    /* ===== ANIMATION ===== */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease forwards;
+    }
+    
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .payment-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .payment-title {
+            font-size: 24px;
+        }
+        
+        .total-amount {
+            font-size: 24px;
+        }
+        
+        .payment-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .section-body {
+            padding: 1.5rem;
+        }
+        
+        .payment-form-card {
+            padding: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .payment-header {
+            padding: 1.5rem;
+        }
+        
+        .payment-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .section-body {
+            padding: 1.25rem;
+        }
+        
+        .payment-form-card {
+            padding: 1.25rem;
+        }
+        
+        .order-summary-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="payment-container">
+    
+    <div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">Complete Your Payment</h1>
+            <p class="text-white-80 mb-0">Please review and complete your payment details below</p>
+        </div>
+    </div>
+</div>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} fade-in" style="animation-delay: 0.1s;">
+                    <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST" id="paymentForm">
+        <div class="payment-content">
+            <!-- Left Column - Order Summary & Payment Methods -->
+            <div>
+                <!-- Order Summary -->
+                <div class="order-summary-card fade-in" style="animation-delay: 0.1s;">
+                    <h3 class="summary-title">
+                        <i class="fas fa-receipt"></i>
+                        Order Summary
+                    </h3>
+                    
+                    <!-- Order Details -->
+                    <div class="summary-item">
+                        <span class="item-label">
+                            <i class="fas fa-hashtag"></i>
+                            Order ID
+                        </span>
+                        <span class="item-value">#{{ payment_data.transaction_id }}</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <span class="item-label">
+                            <i class="fas fa-file-invoice"></i>
+                            Invoice Number
+                        </span>
+                        <span class="item-value">{{ payment_data.invoice_no }}</span>
+                    </div>
+                    
+                    <!-- Vehicle Info -->
+                    {% if payment_data.brand or payment_data.vehicle_name %}
+                    <div class="vehicle-info">
+                        <h6 class="vehicle-title">
+                            <i class="fas fa-car me-2"></i>
+                            {% if payment_data.brand and payment_data.model %}
+                                {{ payment_data.brand }} {{ payment_data.model }}
+                            {% elif payment_data.vehicle_name %}
+                                {{ payment_data.vehicle_name }}
+                            {% endif %}
+                        </h6>
+                        {% if payment_data.year or payment_data.fuel_type or payment_data.transmission %}
+                        <div class="vehicle-specs">
+                            {% if payment_data.year %}
+                            <span class="spec-badge">
+                                <i class="fas fa-calendar"></i>
+                                {{ payment_data.year }}
+                            </span>
+                            {% endif %}
+                            {% if payment_data.fuel_type %}
+                            <span class="spec-badge">
+                                <i class="fas fa-gas-pump"></i>
+                                {{ payment_data.fuel_type }}
+                            </span>
+                            {% endif %}
+                            {% if payment_data.transmission %}
+                            <span class="spec-badge">
+                                <i class="fas fa-cog"></i>
+                                {{ payment_data.transmission }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Price Breakdown -->
+                <div class="form-section fade-in" style="animation-delay: 0.2s;">
+                    <div class="section-header">
+                        <h4 class="section-title">
+                            <i class="fas fa-calculator"></i>
+                            Price Breakdown
+                        </h4>
+                    </div>
+                    <div class="section-body">
+                        <div class="price-breakdown">
+                            <!-- Base Price -->
+                            <div class="price-row">
+                                <span class="price-label">
+                                    Vehicle Base Price
+                                    <i class="fas fa-info-circle info-icon" 
+                                       title="Original price of the custom vehicle"></i>
+                                </span>
+                                <span class="price-value">₹{{ "{:,.2f}".format(payment_data.base_price) }}</span>
+                            </div>
+                            <div class="price-row">
+                                <span class="price-label">
+                                    Platform Price
+                                    <i class="fas fa-info-circle info-icon" 
+                                       title="Platform fee for custom vehicle creation"></i>
+                                </span>
+                                <span class="price-value">₹0.00</span>
+                            </div>
+                            
+                            <!-- Total -->
+                            <div class="price-row total-row">
+                                <span class="total-label">Total Amount Payable</span>
+                                <span class="total-value">₹{{ "{:,.2f}".format(payment_data.base_price) }}</span>
+                            </div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Security Note -->
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Payment Methods -->
+            <div>
+                <!-- Payment Method Section -->
+                <div class="form-section fade-in" style="animation-delay: 0.3s;">
+                    <div class="section-header">
+                        <h4 class="section-title">
+                            <i class="fas fa-credit-card"></i>
+                            Select Payment Method
+                        </h4>
+                    </div>
+                    <div class="section-body">
+                        <div class="payment-grid">
+                            <div class="payment-option" onclick="selectPayment('UPI')">
+                                <input type="radio" name="payment_method" value="UPI" class="d-none" checked>
+                                <div class="payment-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <p class="payment-name">UPI</p>
+                            </div>
+                            
+                            <div class="payment-option" onclick="selectPayment('CARD')">
+                                <input type="radio" name="payment_method" value="CARD" class="d-none">
+                                <div class="payment-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <p class="payment-name">Credit/Debit Card</p>
+                            </div>
+                            
+                            <div class="payment-option" onclick="selectPayment('NETBANKING')">
+                                <input type="radio" name="payment_method" value="NETBANKING" class="d-none">
+                                <div class="payment-icon">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <p class="payment-name">Net Banking</p>
+                            </div>
+                            
+                            <div class="payment-option" onclick="selectPayment('COD')">
+                                <input type="radio" name="payment_method" value="COD" class="d-none">
+                                <div class="payment-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <p class="payment-name">Cash on Delivery</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Terms & Conditions -->
+                        <div class="mt-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    <strong>I agree to the Terms & Conditions</strong>
+                                    <br>
+                                    <span style="color: #6b7280; font-size: 13px;">
+                                        By proceeding, you agree to our payment terms and conditions.
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-note">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-shield-alt me-3 fa-lg" style="color: #2563eb;"></i>
+                                <div>
+                                    <h6 class="mb-1" style="color: #1e40af;">100% Secure Payment</h6>
+                                    <p class="mb-0 small" style="color: #4b5563;">
+                                        Your payment is protected with bank-level encryption and secure escrow service.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                
+                
+                
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn fade-in" style="animation-delay: 0.5s;" id="submitBtn">
+                    <i class="fas fa-lock"></i>
+                    Proceed to Pay ₹{{ "{:,.2f}".format(payment_data.base_price) }}
+                </button>
+                
+                <!-- Note -->
+                <div class="text-center mt-3">
+                    <p class="text-muted small">
+                        <i class="fas fa-clock me-1"></i>
+                        Payment confirmation may take 2-3 minutes to process
+                    </p>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Payment method selection
+function selectPayment(method) {
+    // Remove selected class from all options
+    document.querySelectorAll('.payment-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked option
+    event.currentTarget.classList.add('selected');
+    
+    // Update the radio button
+    const radio = event.currentTarget.querySelector('input[type="radio"]');
+    radio.checked = true;
+    
+    // Show/hide payment instructions
+    document.querySelectorAll('.payment-instructions').forEach(instruction => {
+        instruction.style.display = 'none';
+    });
+    
+    const selectedInstruction = document.getElementById(method.toLowerCase() + 'Instructions');
+    if (selectedInstruction) {
+        selectedInstruction.style.display = 'block';
+    }
+}
+
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('paymentForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Initialize first payment option as selected
+    const firstOption = document.querySelector('.payment-option');
+    if (firstOption) {
+        firstOption.classList.add('selected');
+    }
+    
+    // Initialize tooltips
+    const tooltipTriggerList = document.querySelectorAll('[title]');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Add animation delays
+    const fadeElements = document.querySelectorAll('.fade-in');
+    fadeElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.1}s`;
+    });
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const termsChecked = document.getElementById('terms').checked;
+            
+            if (!termsChecked) {
+                e.preventDefault();
+                alert('Please accept the terms and conditions to proceed.');
+                return;
+            }
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            
+            // Get selected payment method
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+            
+            // Show confirmation message based on payment method
+            let confirmMessage = '';
+            switch(paymentMethod) {
+                case 'UPI':
+                    confirmMessage = 'You will be redirected to your UPI app to complete the payment. Continue?';
+                    break;
+                case 'CARD':
+                    confirmMessage = 'You will be redirected to a secure payment gateway to enter card details. Continue?';
+                    break;
+                case 'NETBANKING':
+                    confirmMessage = 'You will be redirected to your bank\'s secure portal. Continue?';
+                    break;
+                case 'COD':
+                    confirmMessage = 'For Cash on Delivery, you\'ll need to make a 10% advance payment. Continue?';
+                    break;
+                default:
+                    confirmMessage = 'Proceed with payment?';
+            }
+            
+            if (!confirm(confirmMessage)) {
+                e.preventDefault();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-lock"></i> Proceed to Pay ₹{{ "{:,.2f}".format(payment_data.total) }}';
+                return;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

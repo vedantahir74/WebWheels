@@ -1,0 +1,470 @@
+{% extends "base.html" %}
+
+{% block title %}My Listings - VehicleHub{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+    }
+    
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .page-subtitle {
+        opacity: 0.9;
+        font-size: 16px;
+    }
+    
+    .listings-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    
+    .listings-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .listings-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+    
+    .listings-count {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table {
+        margin: 0;
+    }
+    
+    .table th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        padding: 16px 20px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .table td {
+        padding: 16px 20px;
+        vertical-align: middle;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .table tbody tr:hover {
+        background: #f9fafb;
+    }
+    
+    .vehicle-name {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 15px;
+    }
+    
+    .vehicle-sub {
+        color: #6b7280;
+        font-size: 13px;
+        margin-top: 2px;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .status-approved {
+        background: #d1fae5;
+        color: #059669;
+    }
+    
+    .status-pending {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+    
+    .status-sold {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .status-rejected {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    
+    .type-badge {
+        padding: 4px 10px;
+        background: #e0e7ff;
+        color: #4f46e5;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+    
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 24px;
+        color: #d1d5db;
+    }
+    
+    .empty-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    
+    .empty-text {
+        color: #6b7280;
+        margin-bottom: 24px;
+    }
+    
+    .view-btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+    
+    .view-btn:hover {
+        background: #2563eb;
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+        }
+        
+        .listings-header {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="text-white mb-1">My Listings</h1>
+            <p class="text-white-80 mb-0">Manage your vehicle listings</p>
+        </div>
+        <a href="{{ url_for('sell_vehicle') }}" class="btn btn-light">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M12 5v14M5 12h14"/>
+            </svg>
+            List Vehicle
+        </a>
+    </div>
+</div>
+
+{% if listings and listings|length > 0 %}
+<div class="listings-card fade-in">
+    <div class="listings-header">
+        <h3 class="listings-title">All Listings</h3>
+        <span class="listings-count">{{ listings|length }} vehicles</span>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Vehicle</th>
+                    <th>Year</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Type</th>
+                    <th>Listed On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listing in listings %}
+                <tr>
+                    <td>
+                        <span class="text-muted">#{{ listing.id }}</span>
+                    </td>
+                    <td>
+                        <div class="vehicle-name">{{ listing.brand }} {{ listing.model }}</div>
+                        <div class="vehicle-sub">{{ listing.color }} • {{ listing.fuel_type }} • {{ listing.transmission }}</div>
+                    </td>
+                    <td>
+                        <span class="fw-medium">{{ listing.year }}</span>
+                    </td>
+                    <td>
+                        <span class="fw-medium text-primary">₹{{ "{:,.0f}".format(listing.price) }}</span>
+                    </td>
+                    <td>
+                        {% if listing.status == 'APPROVED' %}
+                        <span class="status-badge status-approved">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            Approved
+                        </span>
+                        {% elif listing.status == 'PENDING' %}
+                        <span class="status-badge status-pending">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            Pending
+                        </span>
+                        {% elif listing.status == 'SOLD' %}
+                        <span class="status-badge status-sold">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <path d="M20 12v10H4V12"/>
+                                <path d="M2 7h20v5H2z"/>
+                                <path d="M12 22V7"/>
+                                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                            </svg>
+                            Sold
+                        </span>
+                        {% else %}
+                        <span class="status-badge status-rejected">{{ listing.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="type-badge">
+                            {% if listing.vehicle_type == 'SELL' %}
+                            For Sale
+                            {% elif listing.vehicle_type == 'RENT' %}
+                            For Rent
+                            {% else %}
+                            {{ listing.vehicle_type }}
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="text-muted small">{{ listing.created_at[:10] }}</span>
+                    </td>
+                    <td>
+                        <!-- VIEW BUTTON -->
+                        <button class="btn btn-sm view-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#details{{ listing.id }}">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ================= MODALS WITH IMAGES ================= -->
+{% for listing in listings %}
+<div class="modal fade"
+     id="details{{ listing.id }}"
+     tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    {{ listing.brand }} {{ listing.model }} 
+                    {% if listing.variant %}({{ listing.variant }}){% endif %}
+                    - {{ listing.year }}
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                
+                <!-- ===== IMAGES SECTION ===== -->
+                {% if listing.images %}
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-images me-2"></i>Vehicle Photos
+                    </h6>
+                    <div class="row g-2">
+                        {% for img in listing.images.split(',') %}
+                        <div class="col-6 col-md-4">
+                            <img src="{{ url_for('static', filename='uploads/' + img) }}"
+                                 class="img-fluid rounded-3"
+                                 style="width:100%; height:150px; object-fit:cover; border:2px solid #dbeafe;"
+                                 alt="Vehicle photo"
+                                 onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/no-image.jpg') }}';">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <hr>
+                {% else %}
+                <div class="alert alert-secondary mb-4">
+                    <i class="fas fa-camera me-2"></i>No photos uploaded
+                </div>
+                {% endif %}
+
+                <!-- ===== VEHICLE DETAILS ===== -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <th width="40%">Brand:</th>
+                                <td><strong>{{ listing.brand }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Model:</th>
+                                <td>{{ listing.model }}</td>
+                            </tr>
+                            {% if listing.variant %}
+                            <tr>
+                                <th>Variant:</th>
+                                <td>{{ listing.variant }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th>Year:</th>
+                                <td>{{ listing.year }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fuel Type:</th>
+                                <td>{{ listing.fuel_type }}</td>
+                            </tr>
+                            <tr>
+                                <th>Transmission:</th>
+                                <td>{{ listing.transmission or 'Not specified' }}</td>
+                            </tr>
+                            <tr>
+                                <th>KM Driven:</th>
+                                <td>{{ listing.km_driven or '0' }} km</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <th width="40%">Body Type:</th>
+                                <td>{{ listing.body_type or 'Not specified' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Color:</th>
+                                <td>{{ listing.color or 'Not specified' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Engine:</th>
+                                <td>{{ listing.engine_cc or 'Not specified' }} cc</td>
+                            </tr>
+                            <tr>
+                                <th>Seats:</th>
+                                <td>{{ listing.seats or 'Not specified' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Mileage:</th>
+                                <td>{{ listing.mileage or 'Not specified' }} km/l</td>
+                            </tr>
+                            <tr>
+                                <th>Price:</th>
+                                <td><span class="text-primary fw-bold">₹{{ "{:,.2f}".format(listing.price) }}</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== FEATURES ===== -->
+                {% if listing.features %}
+                <div class="mt-3">
+                    <h6 class="fw-bold">Features:</h6>
+                    <div class="p-3 bg-light rounded-3">
+                        {{ listing.features }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ===== STATUS BADGES ===== -->
+                <div class="mt-3 d-flex gap-2">
+                    <span class="badge {% if listing.vehicle_type == 'SELL' %}bg-primary{% else %}bg-info{% endif %} p-2">
+                        {{ listing.vehicle_type }}
+                    </span>
+                    <span class="badge {% if listing.status == 'APPROVED' %}bg-success{% elif listing.status == 'PENDING' %}bg-warning{% elif listing.status == 'SOLD' %}bg-danger{% else %}bg-secondary{% endif %} p-2">
+                        {{ listing.status }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="empty-state fade-in">
+    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <h3 class="empty-title">No Listings Yet</h3>
+    <p class="empty-text">You haven't listed any vehicles for sale or rent.</p>
+    <a href="{{ url_for('sell_vehicle') }}" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M12 5v14M5 12h14"/>
+        </svg>
+        List Your First Vehicle
+    </a>
+</div>
+{% endif %}
+
+<!-- Font Awesome for icons (if not already in base.html) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+{% endblock %}

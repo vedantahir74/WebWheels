@@ -1,0 +1,792 @@
+{% extends "base.html" %}
+
+{% block title %}Advanced Search - Web Wheels{% endblock %}
+
+{% block content %}
+<style>
+    /* Card Styles */
+    .professional-car-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .professional-car-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    .car-card-image {
+        position: relative;
+        height: 180px;
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        transition: transform 0.3s ease;
+    }
+    
+    .car-card-image.has-image {
+        background-size: cover;
+        background-position: center;
+    }
+    
+    .car-card-image.has-image .car-icon-wrapper {
+        opacity: 0;
+        visibility: hidden;
+    }
+    
+    .car-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+    }
+    
+    .badge-sale {
+        background: linear-gradient(135deg, #194ab4ff, #1047bdff);
+        color: white;
+    }
+    
+    .badge-rent {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+    }
+    
+    .car-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        transition: opacity 0.2s ease;
+        z-index: 1;
+    }
+    
+    .car-icon-wrapper i {
+        font-size: 36px;
+        color: white;
+    }
+    
+    .car-card-content {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .car-title-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+    
+    .car-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+        line-height: 1.3;
+    }
+    
+    .car-year-badge {
+        background: #f3f4f6;
+        color: #6b7280;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .car-specs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    
+    .car-spec-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 8px;
+        background: #f9fafb;
+        border-radius: 8px;
+    }
+    
+    .car-spec-item i {
+        color: #3b82f6;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+    
+    .car-spec-item span {
+        font-size: 11px;
+        color: #6b7280;
+        font-weight: 500;
+    }
+    
+    .car-divider {
+        margin: 16px 0;
+        border: none;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .car-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+    
+    .car-price {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .price-label {
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 2px;
+    }
+    
+    .price-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: #194ab4ff;
+    }
+    
+    .car-action-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Filter Accordion Styles */
+    .filter-accordion .accordion-item {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        overflow: hidden;
+    }
+    
+    .filter-accordion .accordion-button {
+        background: #f9fafb;
+        border: none;
+        font-weight: 500;
+        color: #374151;
+        padding: 12px 16px;
+    }
+    
+    .filter-accordion .accordion-button:not(.collapsed) {
+        background: #f9fafb;
+        color: #1f2937;
+        box-shadow: none;
+    }
+    
+    .filter-accordion .accordion-button:focus {
+        box-shadow: none;
+        border-color: #e5e7eb;
+    }
+    
+    .filter-accordion .accordion-body {
+        padding: 16px;
+        background: white;
+    }
+    
+    /* Results Section Header */
+    .results-header {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1.5rem;
+    }
+    
+    @media (min-width: 768px) {
+        .results-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+    
+    /* Carousel/Slider Styles */
+    .vehicles-slider {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        padding: 10px 5px 20px;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f1f5f9;
+    }
+    
+    .vehicles-slider::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .vehicles-slider::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+    
+    .vehicles-slider::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    
+    .vehicles-slider::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    .vehicles-slider .professional-car-card {
+        flex: 0 0 auto;
+        width: 280px;
+        min-width: 280px;
+    }
+    
+    /* Grid View Styles */
+    .vehicle-grid-view {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .car-card-image {
+            height: 160px;
+        }
+        
+        .car-icon-wrapper {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .car-icon-wrapper i {
+            font-size: 32px;
+        }
+        
+        .car-specs {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .car-footer {
+            flex-direction: column;
+            gap: 12px;
+            align-items: stretch;
+        }
+        
+        .car-action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .vehicles-slider .professional-car-card {
+            width: 260px;
+            min-width: 260px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .car-title {
+            font-size: 16px;
+        }
+        
+        .car-price {
+            align-items: center;
+        }
+        
+        .car-action-btn {
+            padding: 10px;
+        }
+        
+        .vehicles-slider .professional-car-card {
+            width: 240px;
+            min-width: 240px;
+        }
+    }
+</style>
+
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">Advanced Vehicle Search</h1>
+            <p class="text-white-80 mb-0">Find your perfect vehicle with our powerful filters</p>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <!-- Filters Sidebar -->
+    <div class="col-lg-4 col-xl-3">
+        <div class="custom-card">
+            <div class="custom-card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-filter me-2"></i>Search Filters</span>
+                <span class="badge bg-primary rounded-pill">{{ vehicles|length }} found</span>
+            </div>
+            <div class="custom-card-body">
+                <form action="{{ url_for('advanced_search') }}" method="GET">
+                    
+                    <!-- Search Query -->
+                    <div class="mb-3">
+                        <label class="form-label fw-500 mb-2">Search Query</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" name="search" class="form-control border-start-0" 
+                                   placeholder="Brand, model, keyword..." value="{{ search_query }}">
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Accordion -->
+                    <div class="accordion filter-accordion" id="filterAccordion">
+                        
+                        <!-- Vehicle Type -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseVehicleType">
+                                    <i class="fas fa-car me-2"></i>Vehicle Type
+                                </button>
+                            </h2>
+                            <div id="collapseVehicleType" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
+                                <div class="accordion-body">
+                                    <select name="vehicle_type" class="form-select">
+                                        <option value="all" {% if vehicle_type_filter == 'all' %}selected{% endif %}>All Vehicles</option>
+                                        <option value="sale" {% if vehicle_type_filter == 'sale' %}selected{% endif %}>For Sale</option>
+                                        <option value="rent" {% if vehicle_type_filter == 'rent' %}selected{% endif %}>For Rent</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Brand & Model -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBrand">
+                                    <i class="fas fa-tag me-2"></i>Brand & Model
+                                </button>
+                            </h2>
+                            <div id="collapseBrand" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
+                                <div class="accordion-body">
+                                    <div class="mb-3">
+                                        <label class="form-label mb-2">Brand</label>
+                                        <select name="brand" class="form-select" id="brandSelect">
+                                            <option value="">All Brands</option>
+                                            {% for brand in brands %}
+                                            <option value="{{ brand }}" {% if selected_brand == brand %}selected{% endif %}>{{ brand }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label mb-2">Model</label>
+                                        <select name="model" class="form-select" id="modelSelect">
+                                            <option value="">All Models</option>
+                                            {% for model in all_models %}
+                                            <option value="{{ model }}" {% if selected_model == model %}selected{% endif %}>{{ model }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Price Range -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrice">
+                                    <i class="fas fa-indian-rupee-sign me-2"></i>Price Range
+                                </button>
+                            </h2>
+                            <div id="collapsePrice" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
+                                <div class="accordion-body">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label small">Min Price</label>
+                                            <input type="number" name="min_price" class="form-control" 
+                                                   placeholder="Min" value="{{ min_price }}">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label small">Max Price</label>
+                                            <input type="number" name="max_price" class="form-control" 
+                                                   placeholder="Max" value="{{ max_price }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Year Range -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseYear">
+                                    <i class="fas fa-calendar-alt me-2"></i>Year Range
+                                </button>
+                            </h2>
+                            <div id="collapseYear" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
+                                <div class="accordion-body">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label small">Min Year</label>
+                                            <select name="min_year" class="form-select">
+                                                <option value="">Any</option>
+                                                {% for year in years %}
+                                                <option value="{{ year }}" {% if min_year == year %}selected{% endif %}>{{ year }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label small">Max Year</label>
+                                            <select name="max_year" class="form-select">
+                                                <option value="">Any</option>
+                                                {% for year in years %}
+                                                <option value="{{ year }}" {% if max_year == year %}selected{% endif %}>{{ year }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Specifications -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSpecs">
+                                    <i class="fas fa-cogs me-2"></i>Specifications
+                                </button>
+                            </h2>
+                            <div id="collapseSpecs" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
+                                <div class="accordion-body">
+                                    <div class="mb-3">
+                                        <label class="form-label mb-2">Body Type</label>
+                                        <select name="body_type" class="form-select">
+                                            <option value="">Any Body Type</option>
+                                            {% for bt in body_types %}
+                                            <option value="{{ bt }}" {% if selected_body_type == bt %}selected{% endif %}>{{ bt }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label mb-2">Fuel Type</label>
+                                        <select name="fuel_type" class="form-select">
+                                            <option value="">Any Fuel Type</option>
+                                            {% for ft in fuel_types %}
+                                            <option value="{{ ft }}" {% if selected_fuel == ft %}selected{% endif %}>{{ ft }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label mb-2">Transmission</label>
+                                        <select name="transmission" class="form-select">
+                                            <option value="">Any Transmission</option>
+                                            {% for trans in transmissions %}
+                                            <option value="{{ trans }}" {% if selected_transmission == trans %}selected{% endif %}>{{ trans }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sort Options -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSort">
+                                    <i class="fas fa-sort me-2"></i>Sort By
+                                </button>
+                            </h2>
+                            <div id="collapseSort" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
+                                <div class="accordion-body">
+                                    <select name="sort" class="form-select">
+                                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+                                        <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+                                        <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                        <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-search me-2"></i>Search Vehicles
+                        </button>
+                        <a href="{{ url_for('advanced_search') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-2"></i>Reset All Filters
+                        </a>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Section -->
+    <div class="col-lg-8 col-xl-9">
+        <!-- Results Header -->
+        <div class="results-header">
+            <div>
+                <h4 class="mb-1">
+                    <i class="fas fa-car text-primary me-2"></i>Search Results
+                </h4>
+                <p class="text-muted mb-0">
+                    {% if vehicles %}
+                        Found {{ vehicles|length }} vehicle{{ 's' if vehicles|length > 1 else '' }} matching your criteria
+                    {% else %}
+                        No vehicles found
+                    {% endif %}
+                </p>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary active" id="btnGridView" onclick="setViewMode('grid')">
+                        <i class="fas fa-th-large"></i> Grid
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="btnSliderView" onclick="setViewMode('slider')">
+                        <i class="fas fa-sliders-h"></i> Slider
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        {% if vehicles %}
+        <!-- Grid View -->
+        <div class="vehicle-grid-view" id="gridView">
+            {% for vehicle in vehicles %}
+            <div class="professional-car-card">
+                <div class="car-card-image {% if vehicle.images %}has-image{% endif %}" 
+                     {% if vehicle.images %}
+                     style="background-image: url('{{ url_for('static', filename='uploads/' + vehicle.images.split(',')[0]) }}');"
+                     {% endif %}>
+                    {% if vehicle.vehicle_type == 'SELL' %}
+                    <span class="car-badge badge-sale">For Sale</span>
+                    {% else %}
+                    <span class="car-badge badge-rent">For Rent</span>
+                    {% endif %}
+                    <div class="car-icon-wrapper">
+                        <i class="fas fa-car"></i>
+                    </div>
+                </div>
+                <div class="car-card-content">
+                    <div class="car-title-section">
+                        <h5 class="car-title">{{ vehicle.brand }} {{ vehicle.model }}</h5>
+                        <span class="car-year-badge">{{ vehicle.year }}</span>
+                    </div>
+                    
+                    <div class="car-specs">
+                        <div class="car-spec-item">
+                            <i class="fas fa-gas-pump"></i>
+                            <span>{{ vehicle.fuel_type }}</span>
+                        </div>
+                        <div class="car-spec-item">
+                            <i class="fas fa-cog"></i>
+                            <span>{{ vehicle.transmission }}</span>
+                        </div>
+                        <div class="car-spec-item">
+                            <i class="fas fa-car-side"></i>
+                            <span>{{ vehicle.body_type or 'Sedan' }}</span>
+                        </div>
+                    </div>
+                    
+                    <hr class="car-divider">
+                    
+                    <div class="car-footer">
+                        <div class="car-price">
+                            {% if vehicle.price > 0 %}
+                                <span class="price-label">Price</span>
+                                <span class="price-value">₹{{ "{:,.0f}".format(vehicle.price) }}</span>
+                            {% else %}
+                                <span class="price-label">Rental</span>
+                                <span class="price-value text-primary">Available</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if vehicle.vehicle_type == 'SELL' %}
+                        <a href="{{ url_for('buy_vehicle_detail', vehicle_id=vehicle.id) }}" class="btn btn-primary car-action-btn">
+                            <i class="fas fa-shopping-cart me-2"></i>View
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('rent_vehicle_detail', vehicle_id=vehicle.id) }}" class="btn btn-primary car-action-btn">
+                            <i class="fas fa-key me-2"></i>Rent
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Slider View -->
+        <div class="vehicles-slider" id="sliderView" style="display: none;">
+            {% for vehicle in vehicles %}
+            <div class="professional-car-card">
+                <div class="car-card-image {% if vehicle.images %}has-image{% endif %}"
+                     {% if vehicle.images %}
+                     style="background-image: url('{{ url_for('static', filename='uploads/' + vehicle.images.split(',')[0]) }}');"
+                     {% endif %}>
+                    {% if vehicle.vehicle_type == 'SELL' %}
+                    <span class="car-badge badge-sale">For Sale</span>
+                    {% else %}
+                    <span class="car-badge badge-rent">For Rent</span>
+                    {% endif %}
+                    <div class="car-icon-wrapper">
+                        <i class="fas fa-car"></i>
+                    </div>
+                </div>
+                <div class="car-card-content">
+                    <div class="car-title-section">
+                        <h5 class="car-title">{{ vehicle.brand }} {{ vehicle.model }}</h5>
+                        <span class="car-year-badge">{{ vehicle.year }}</span>
+                    </div>
+                    
+                    <div class="car-specs">
+                        <div class="car-spec-item">
+                            <i class="fas fa-gas-pump"></i>
+                            <span>{{ vehicle.fuel_type }}</span>
+                        </div>
+                        <div class="car-spec-item">
+                            <i class="fas fa-cog"></i>
+                            <span>{{ vehicle.transmission }}</span>
+                        </div>
+                        <div class="car-spec-item">
+                            <i class="fas fa-car-side"></i>
+                            <span>{{ vehicle.body_type or 'Sedan' }}</span>
+                        </div>
+                    </div>
+                    
+                    <hr class="car-divider">
+                    
+                    <div class="car-footer">
+                        <div class="car-price">
+                            {% if vehicle.price > 0 %}
+                                <span class="price-label">Price</span>
+                                <span class="price-value">₹{{ "{:,.0f}".format(vehicle.price) }}</span>
+                            {% else %}
+                                <span class="price-label">Rental</span>
+                                <span class="price-value text-primary">Available</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if vehicle.vehicle_type == 'SELL' %}
+                        <a href="{{ url_for('buy_vehicle_detail', vehicle_id=vehicle.id) }}" class="btn btn-primary car-action-btn">
+                            <i class="fas fa-shopping-cart me-2"></i>View
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('rent_vehicle_detail', vehicle_id=vehicle.id) }}" class="btn btn-primary car-action-btn">
+                            <i class="fas fa-key me-2"></i>Rent
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="custom-card">
+            <div class="custom-card-body text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                    <h4 class="mb-3">No Vehicles Found</h4>
+                    <p class="text-muted mb-4">Try adjusting your search filters or browse our featured vehicles</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a href="{{ url_for('advanced_search') }}" class="btn btn-primary">
+                            <i class="fas fa-redo me-2"></i>Reset Filters
+                        </a>
+                        <a href="{{ url_for('browse_vehicles') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-car me-2"></i>Browse All
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // View Mode Functions
+    function setViewMode(mode) {
+        const gridView = document.getElementById('gridView');
+        const sliderView = document.getElementById('sliderView');
+        const btnGrid = document.getElementById('btnGridView');
+        const btnSlider = document.getElementById('btnSliderView');
+        
+        // Reset all buttons
+        btnGrid.classList.remove('active');
+        btnSlider.classList.remove('active');
+        
+        if (mode === 'grid') {
+            gridView.style.display = 'grid';
+            sliderView.style.display = 'none';
+            btnGrid.classList.add('active');
+        } else if (mode === 'slider') {
+            gridView.style.display = 'none';
+            sliderView.style.display = 'flex';
+            btnSlider.classList.add('active');
+        }
+    }
+    
+    // Auto-expand filter sections with selected values
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterSections = ['vehicle_type', 'brand', 'model', 'min_price', 'max_price', 
+                              'min_year', 'max_year', 'body_type', 'fuel_type', 'transmission'];
+        
+        filterSections.forEach(section => {
+            const element = document.querySelector(`[name="${section}"]`);
+            if (element && element.value) {
+                const accordionId = getAccordionId(section);
+                const accordion = document.getElementById(accordionId);
+                if (accordion) {
+                    const collapse = new bootstrap.Collapse(accordion);
+                    collapse.show();
+                }
+            }
+        });
+    });
+    
+    function getAccordionId(section) {
+        const accordionMap = {
+            'vehicle_type': 'collapseVehicleType',
+            'brand': 'collapseBrand',
+            'model': 'collapseBrand',
+            'min_price': 'collapsePrice',
+            'max_price': 'collapsePrice',
+            'min_year': 'collapseYear',
+            'max_year': 'collapseYear',
+            'body_type': 'collapseSpecs',
+            'fuel_type': 'collapseSpecs',
+            'transmission': 'collapseSpecs',
+            'sort': 'collapseSort'
+        };
+        return accordionMap[section] || 'collapseSort';
+    }
+</script>
+{% endblock %}

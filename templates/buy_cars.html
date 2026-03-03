@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Buy Cars - VehicleHub{% endblock %}
+
+{% block content %}
+<style>
+    .search-header {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+    }
+    
+    .search-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .search-subtitle {
+        opacity: 0.9;
+        font-size: 16px;
+    }
+    
+    .search-box {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        margin-bottom: 24px;
+    }
+    
+    .cars-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+    }
+    
+    .car-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .car-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    .car-image {
+        height: 160px;
+        background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+    }
+    
+    .car-content {
+        padding: 20px;
+    }
+    
+    .car-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+    
+    .car-subtitle {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+    
+    .car-price {
+        font-size: 22px;
+        font-weight: 700;
+        color: #059669;
+        margin-bottom: 12px;
+    }
+    
+    .car-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .car-detail {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #6b7280;
+        padding: 4px 8px;
+        background: #f3f4f6;
+        border-radius: 6px;
+    }
+    
+    .car-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 60px 20px;
+        grid-column: 1 / -1;
+    }
+    
+    .no-results-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 16px;
+        color: #d1d5db;
+    }
+    
+    .no-results-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    
+    .no-results-text {
+        color: #6b7280;
+        margin-bottom: 24px;
+    }
+    
+    @media (max-width: 768px) {
+        .search-header {
+            padding: 24px;
+        }
+        
+        .search-title {
+            font-size: 24px;
+        }
+        
+        .cars-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .car-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">Buy Vehicles</h1>
+            <p class="text-white-80 mb-0">Browse {{ vehicles|length }} vehicles available for purchase</p>
+        </div>
+    </div>
+</div>
+<!-- Search and Filter Box -->
+<div class="search-box fade-in">
+    <form method="GET" action="{{ url_for('buy_cars') }}">
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" placeholder="Search by brand, model..." 
+                       value="{{ search_query }}">
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Brand</label>
+                <select name="brand" class="form-select">
+                    <option value="">All Brands</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand }}" {% if selected_brand == brand %}selected{% endif %}>
+                            {{ brand }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Model</label>
+                <select name="model" class="form-select">
+                    <option value="">All Models</option>
+                    {% if selected_brand and models_by_brand.get(selected_brand) %}
+                        {% for model in models_by_brand[selected_brand] %}
+                            <option value="{{ model }}" {% if selected_model == model %}selected{% endif %}>
+                                {{ model }}
+                            </option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Body Type</label>
+                <select name="body_type" class="form-select">
+                    <option value="">All Types</option>
+                    <option value="Sedan" {% if selected_body_type == 'Sedan' %}selected{% endif %}>Sedan</option>
+                    <option value="SUV" {% if selected_body_type == 'SUV' %}selected{% endif %}>SUV</option>
+                    <option value="Hatchback" {% if selected_body_type == 'Hatchback' %}selected{% endif %}>Hatchback</option>
+                    <option value="MUV" {% if selected_body_type == 'MUV' %}selected{% endif %}>MUV</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <label class="form-label">Min Price (₹)</label>
+                <input type="number" name="min_price" class="form-control" placeholder="Min" 
+                       value="{{ min_price }}">
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Max Price (₹)</label>
+                <input type="number" name="max_price" class="form-control" placeholder="Max" 
+                       value="{{ max_price }}">
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Fuel Type</label>
+                <select name="fuel_type" class="form-select">
+                    <option value="">All Fuel Types</option>
+                    <option value="PETROL" {% if selected_fuel == 'PETROL' %}selected{% endif %}>Petrol</option>
+                    <option value="DIESEL" {% if selected_fuel == 'DIESEL' %}selected{% endif %}>Diesel</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Sort By</label>
+                <select name="sort" class="form-select" onchange="this.form.submit()">
+                    <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+                    <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('buy_cars') }}" class="btn btn-outline-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <path d="M3 6h18M3 12h18M3 18h18"/>
+                </svg>
+                Reset Filters
+            </a>
+            <button type="submit" class="btn btn-success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                Search Cars
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="results-stats fade-in mb-3" style="animation-delay: 0.1s;">
+    Showing <strong>{{ vehicles|length }}</strong> cars
+    {% if search_query %} matching "<strong>{{ search_query }}</strong>"{% endif %}
+</div>
+
+{% if vehicles %}
+<div class="cars-grid fade-in" style="animation-delay: 0.2s;">
+    {% for vehicle in vehicles %}
+    <div class="car-card">
+        <div class="car-image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="64" height="64">
+                <path d="M5 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0M15 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0"/>
+                <path d="M5 17H3v-4l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2M7 10h10M7 7h10"/>
+            </svg>
+        </div>
+        
+        <div class="car-content">
+            <h3 class="car-title">{{ vehicle.brand }} {{ vehicle.model }}</h3>
+            <p class="car-subtitle">{{ vehicle.year }} • {{ vehicle.fuel_type }} • {{ vehicle.transmission }}</p>
+            
+            <div class="car-price">₹{{ "{:,.0f}".format(vehicle.price) }}</div>
+            
+            <div class="car-details">
+                <span class="car-detail">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                    </svg>
+                    {{ vehicle.color }}
+                </span>
+                <span class="car-detail">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <rect x="2" y="7" width="20" height="10" rx="2"/>
+                        <path d="M6 7V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v3"/>
+                    </svg>
+                    {{ vehicle.seats }} Seats
+                </span>
+                <span class="car-detail">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <path d="M19 8l-7-7-7 7"/>
+                        <path d="M5 22v-10a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v10"/>
+                    </svg>
+                    {{ vehicle.body_type }}
+                </span>
+            </div>
+            
+            <div class="car-actions">
+                <a href="{{ url_for('buy_vehicle_detail', vehicle_id=vehicle.id) }}" class="btn btn-outline-primary" style="flex: 1;">
+                    View Details
+                </a>
+                <a href="{{ url_for('checkout', vehicle_id=vehicle.id) }}" class="btn btn-success" style="flex: 1;">
+                    Buy Now
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="no-results fade-in">
+    <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <h3 class="no-results-title">No cars found</h3>
+    <p class="no-results-text">
+        {% if search_query %}
+        No cars found matching "{{ search_query }}". Try adjusting your search criteria.
+        {% else %}
+        No cars available at the moment. Please check back later.
+        {% endif %}
+    </p>
+    <a href="{{ url_for('custom_car_builder') }}" class="btn btn-primary">
+        Build Custom Car Instead
+    </a>
+</div>
+{% endif %}
+{% endblock %}

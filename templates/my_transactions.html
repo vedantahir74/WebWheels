@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}My Transactions - Web Wheels{% endblock %}
+
+{% block content %}
+
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div>
+                            <h1 class="text-white mb-1">My Transactions</h1>
+                            <p class="text-white-80 mb-0">View your purchase history</p>
+                        </div>
+                    </div>
+                </div>
+
+
+
+{% if transactions %}
+<div class="custom-card mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-hashtag me-1"></i>ID</th>
+                    <th><i class="fas fa-car me-1"></i>Vehicle</th>
+                    <th><i class="fas fa-rupee-sign me-1"></i>Amount</th>
+                    <th><i class="fas fa-tag me-1"></i>Type</th>
+                    <th><i class="fas fa-credit-card me-1"></i>Payment</th>
+                    <th><i class="fas fa-calendar me-1"></i>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td><code>{{ transaction.id }}</code></td>
+                    <td>
+                        <strong>{{ transaction.brand }} {{ transaction.model }}</strong>
+                        <br><small class="text-muted">{{ transaction.year }}</small>
+                    </td>
+                    <td>
+                        <strong class="text-success">₹{{ "{:,.2f}".format(transaction.amount) }}</strong>
+                    </td>
+                    <td>
+                        {% if transaction.transaction_type == 'PURCHASE' %}
+                            <span class="badge bg-success"><i class="fas fa-shopping-cart me-1"></i>Purchase</span>
+                        {% else %}
+                            <span class="badge bg-primary"><i class="fas fa-key me-1"></i>Rental</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ transaction.payment_method or 'N/A' }}</td>
+                    <td><small class="text-muted">{{ transaction.transaction_date[:19] }}</small></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Summary -->
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="stat-number">{{ transactions|length }}</div>
+            <div class="stat-label">Total Transactions</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb; ">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div class="stat-number">₹{{ "{:,.0f}".format(transactions|sum(attribute='amount')) }}</div>
+            <div class="stat-label">Total Spent</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-number">₹{{ "{:,.0f}".format(transactions|sum(attribute='commission_amount')) }}</div>
+            <div class="stat-label">Platform Fees Paid</div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="custom-card">
+    <div class="custom-card-body text-center py-5">
+        <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+        <h4 class="mb-2">No Transactions Yet</h4>
+        <p class="text-muted mb-4">You haven't made any purchases yet.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('browse_vehicles') }}" class="btn btn-primary">
+                <i class="fas fa-car me-2"></i>Buy a Car
+            </a>
+            <a href="{{ url_for('rent_cars') }}" class="btn btn-primary">
+                <i class="fas fa-key me-2"></i>Rent a Car
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="custom-card mt-4">
+    <div class="custom-card-header">
+        <i class="fas fa-info-circle me-2"></i>Transaction Information
+    </div>
+    <div class="custom-card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h6><i class="fas fa-credit-card text-primary me-2"></i>Payment Methods</h6>
+                <p class="small text-muted mb-0">We accept Cards, Net Banking, UPI, and Cash on Delivery.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Balance - Admin{% endblock %}
+
+{% block content %}
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 2rem;">
+    <div class="text-white">
+        <h2 class="mb-1"><i class="fas fa-wallet me-2"></i>Admin Balance</h2>
+        <p class="mb-0 opacity-90">View balance and transaction information</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="custom-card">
+            <div class="custom-card-body text-center">
+                <i class="fas fa-wallet fa-3x text-success mb-3"></i>
+                <h3 class="text-success">₹{{ "{:,.2f}".format(balance) }}</h3>
+                <p class="text-muted mb-0">Available Balance</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="custom-card h-100">
+            <div class="custom-card-body">
+                <h6 class="mb-3"><i class="fas fa-info-circle me-2"></i>Balance Information</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Initial:</strong> ₹1,00,00,000.00</p>
+                        <p class="mb-2"><strong>Deduction:</strong> Vehicle approval deducts amount</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Addition:</strong> 8% commission on purchases</p>
+                        <p class="mb-0">
+                            <strong>Status:</strong>
+                            {% if balance >= 10000000 %}
+                                <span class="badge bg-success">Healthy</span>
+                            {% elif balance >= 5000000 %}
+                                <span class="badge bg-warning text-dark">Moderate</span>
+                            {% else %}
+                                <span class="badge bg-danger">Low</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="custom-card mb-4">
+    <div class="custom-card-header">
+        <i class="fas fa-history me-2"></i>Recent Transactions
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Commission</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge bg-danger"><i class="fas fa-minus me-1"></i>Vehicle Approval</span></td>
+                    <td class="text-danger">-₹7,50,000.00</td>
+                    <td>₹0.00</td>
+                    <td>Approved Maruti Swift for sale</td>
+                </tr>
+                <tr>
+                    <td><span class="badge bg-success"><i class="fas fa-plus me-1"></i>Purchase Commission</span></td>
+                    <td class="text-success">+₹60,000.00</td>
+                    <td>₹60,000.00</td>
+                    <td>8% commission on ₹7.5L purchase</td>
+                </tr>
+                <tr>
+                    <td><span class="badge bg-danger"><i class="fas fa-minus me-1"></i>Vehicle Approval</span></td>
+                    <td class="text-danger">-₹16,50,000.00</td>
+                    <td>₹0.00</td>
+                    <td>Approved Hyundai Creta for sale</td>
+                </tr>
+                <tr>
+                    <td><span class="badge bg-success"><i class="fas fa-plus me-1"></i>Rental Commission</span></td>
+                    <td class="text-success">+₹2,800.00</td>
+                    <td>₹2,800.00</td>
+                    <td>8% commission on ₹35K rental</td>
+                </tr>
+                <tr>
+                    <td><span class="badge bg-danger"><i class="fas fa-minus me-1"></i>Vehicle Approval</span></td>
+                    <td class="text-danger">-₹12,50,000.00</td>
+                    <td>₹0.00</td>
+                    <td>Approved Tata Nexon for sale</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="custom-card">
+    <div class="custom-card-header">
+        <i class="fas fa-cog me-2"></i>System Features
+    </div>
+    <div class="custom-card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-check-circle text-success fa-lg me-2"></i>
+                    <span>Real-time tracking</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-check-circle text-success fa-lg me-2"></i>
+                    <span>Commission reports</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-check-circle text-success fa-lg me-2"></i>
+                    <span>Export to PDF</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-check-circle text-success fa-lg me-2"></i>
+                    <span>Monthly reports</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

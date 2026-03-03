@@ -1,0 +1,570 @@
+{% extends "base.html" %}
+
+{% block title %}Invoice - VehicleHub{% endblock %}
+
+{% block content %}
+<!-- Professional Invoice Design (WebWheels style) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<style>
+    /* Global Styles */
+    body {
+        background-color: #f2f5f9;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: #1e293b;
+    }
+
+    .invoice-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* Card with subtle shadow */
+    .invoice-card {
+        background: #ffffff;
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 32, 64, 0.25);
+        overflow: hidden;
+    }
+
+    /* Header with original gradient */
+    .invoice-header {
+        background: linear-gradient(135deg, #194ab4 0%, #1047bd 100%);
+        color: white;
+        padding: 2rem 2.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Optional overlay pattern for depth */
+    .invoice-header::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    /* Logo placeholder */
+    .logo-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 16px;
+        font-size: 2rem;
+        color: white;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* Company info */
+    .company-info {
+        line-height: 1.5;
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    /* Invoice meta box (white, semi-transparent) */
+    .invoice-meta {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(8px);
+        border-radius: 20px;
+        padding: 1.2rem 1.8rem;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .invoice-meta p {
+        margin-bottom: 0.25rem;
+    }
+
+    /* Status badge */
+    .status-badge {
+        background: rgba(255,255,255,0.25);
+        border-radius: 40px;
+        padding: 0.35rem 1.2rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        letter-spacing: 0.3px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid rgba(255,255,255,0.4);
+        color: white;
+    }
+
+    /* Section titles */
+    .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #194ab4;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #e6edf5;
+        padding-bottom: 0.75rem;
+    }
+
+    /* Info cards for buyer/seller & custom specs */
+    .info-card {
+        background: #f9fcff;
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid #e9f0f8;
+        height: 100%;
+        box-shadow: 0 4px 10px rgba(0,40,80,0.02);
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .info-label {
+        width: 110px;
+        font-weight: 600;
+        color: #2c3e5c;
+    }
+
+    .info-value {
+        color: #1e293b;
+        word-break: break-word;
+    }
+
+    /* Vehicle table - elegant and clean */
+    .vehicle-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .vehicle-table thead th {
+        background: #f0f5fd;
+        color: #194ab4;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 1rem 1.25rem;
+        border: none;
+        white-space: nowrap;
+    }
+
+    .vehicle-table tbody tr {
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        transition: all 0.2s;
+    }
+
+    .vehicle-table td {
+        padding: 1.25rem 1.25rem;
+        border: none;
+        font-size: 1rem;
+        vertical-align: middle;
+    }
+
+    .vehicle-table td:first-child {
+        border-radius: 18px 0 0 18px;
+    }
+
+    .vehicle-table td:last-child {
+        border-radius: 0 18px 18px 0;
+    }
+
+    /* Price breakdown card */
+    .price-card {
+        background: #f9fcff;
+        border-radius: 20px;
+        padding: 1.8rem;
+        border: 1px solid #e9f0f8;
+        width: 100%;
+    }
+
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.6rem 0;
+        font-size: 1.1rem;
+        border-bottom: 1px dashed #d9e5f0;
+    }
+
+    .price-row:last-of-type {
+        border-bottom: none;
+    }
+
+    .price-row.total {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #194ab4;
+        border-top: 2px solid #194ab4;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-bottom: none;
+    }
+
+    .price-row.total .amount {
+        color: #1047bd;
+    }
+
+    /* Email alert custom */
+    .email-alert {
+        background: #e9f2ff;
+        border-left: 6px solid #194ab4;
+        border-radius: 16px;
+        padding: 1rem 1.5rem;
+        color: #1e293b;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 8px rgba(0,50,100,0.05);
+    }
+
+    /* Buttons */
+    .btn-custom {
+        border-radius: 40px;
+        padding: 0.6rem 1.8rem;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.15s;
+    }
+
+    .btn-outline-custom {
+        border: 1px solid #cbd5e1;
+        color: #1e293b;
+        background: transparent;
+    }
+
+    .btn-outline-custom:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+    }
+
+    .btn-primary-custom {
+        background: #194ab4;
+        border: none;
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
+        background: #1047bd;
+        box-shadow: 0 8px 16px -6px rgba(25,74,180,0.3);
+    }
+
+    /* Custom spec grid inside info-card */
+    .spec-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 0.75rem 1rem;
+        margin-top: 0.5rem;
+    }
+    .spec-item {
+        font-size: 0.95rem;
+    }
+    .spec-item strong {
+        color: #2c3e5c;
+        font-weight: 600;
+        display: inline-block;
+        min-width: 70px;
+    }
+
+    /* Print styles */
+    @media print {
+        body {
+            background: white;
+            padding: 0.3in;
+        }
+        .no-print {
+            display: none !important;
+        }
+        .invoice-card {
+            box-shadow: none;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+        }
+        .invoice-header {
+            background: #194ab4 !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .vehicle-table thead th {
+            background: #e5ecf5 !important;
+        }
+        .status-badge {
+            border: 1px solid white;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+        .invoice-header {
+            padding: 1.5rem;
+        }
+        .invoice-meta {
+            padding: 1rem;
+        }
+        .info-row {
+            flex-direction: column;
+        }
+        .info-label {
+            width: auto;
+            margin-bottom: 0.2rem;
+        }
+    }
+</style>
+
+<div class="invoice-wrapper">
+    <div class="invoice-card">
+        <!-- Header with gradient and company info -->
+        <div class="invoice-header">
+            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Logo placeholder -->
+                    <div class="logo-placeholder">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-weight: 700; margin-bottom: 0; letter-spacing: -0.02em;">VehicleHub</h2>
+                    </div>
+                </div>
+                <div class="mt-3 mt-sm-0">
+                    <span class="status-badge">
+                        <i class="fas fa-{{ 'check-circle' if invoice.status == 'Paid' else 'hourglass-half' }}"></i> 
+                        {{ invoice.status | upper }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Invoice meta row (number, date, transaction ID) -->
+            <div class="invoice-meta mt-4 d-flex flex-wrap justify-content-between align-items-center">
+                <div>
+                    <p><strong>Invoice No:</strong> {{ invoice.invoice_number }}</p>
+                    <p class="mb-0"><strong>Transaction ID:</strong> {{ invoice.id }}</p>
+                </div>
+                <div class="text-md-end mt-2 mt-md-0">
+                    <p><strong>Date:</strong> {{ invoice.transaction_date }}</p>
+                    <p class="mb-0"><strong>Due Date:</strong> {{ invoice.transaction_date }} (paid)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email notification (screen only) -->
+        <div class="px-4 pt-4 no-print">
+            {% if email_sent == 'true' %}
+            <div class="email-alert d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>Invoice sent successfully</strong> to {{ invoice.email }}
+                </div>
+                <a href="{{ url_for('custom_invoice', transaction_id=invoice.id, email_sent='true') }}" 
+                   class="btn btn-sm btn-outline-custom">
+                    <i class="fas fa-redo me-1"></i>Resend
+                </a>
+            </div>
+            {% else %}
+            <div class="email-alert d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-envelope me-2 text-primary"></i>
+                    Send invoice to <strong>{{ invoice.email }}</strong>
+                </div>
+                <a href="{{ url_for('custom_invoice', transaction_id=invoice.id, send_email='true') }}" 
+                   class="btn btn-sm btn-primary-custom">
+                    <i class="fas fa-paper-plane me-1"></i>Send Email
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Main content -->
+        <div class="p-4 p-xl-5">
+
+            <!-- Flash messages (if any) -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} d-flex align-items-center mb-4 no-print" style="border-radius: 16px;" role="alert">
+                            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Buyer & Seller info side by side -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h5 class="section-title"><i class="fas fa-user me-2"></i>BUYER DETAILS</h5>
+                        <div class="info-row">
+                            <span class="info-label">Name</span>
+                            <span class="info-value">{{ invoice.full_name }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email</span>
+                            <span class="info-value">{{ invoice.email }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Phone</span>
+                            <span class="info-value">{{ invoice.phone }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Payment</span>
+                            <span class="info-value">{{ invoice.payment_method if invoice.payment_method else 'Pending' }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h5 class="section-title"><i class="fas fa-store me-2"></i>SELLER DETAILS</h5>
+                        <div class="info-row">
+                            <span class="info-label">Name</span>
+                            <span class="info-value">system administrator</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Dealer</span>
+                            <span class="info-value">WebWheels</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Support</span>
+                            <span class="info-value">webwheels7@gmail.com</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle details table (using custom request if available, else generic) -->
+            <h5 class="section-title"><i class="fas fa-car me-2"></i>VEHICLE INFORMATION</h5>
+            <div class="table-responsive mb-4">
+                <table class="vehicle-table">
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Year</th>
+                            <th>Fuel</th>
+                            <th>Transmission</th>
+                            <th class="text-end">Base Price (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>
+                                    {% if custom_request %}
+                                        {{ custom_request.body_type | title }} Custom
+                                    {% else %}
+                                        Custom Order
+                                    {% endif %}
+                                </strong>
+                            </td>
+                            <td>{% if custom_request and custom_request.year %}{{ custom_request.year }}{% else %}2025{% endif %}</td>
+                            <td>{{ custom_request.fuel_type if custom_request else 'Petrol' }}</td>
+                            <td>{{ custom_request.transmission if custom_request else 'Automatic' }}</td>
+                            <td class="text-end fw-semibold">
+                                {% if invoice.base_price is defined %}
+                                    ₹{{ "{:,.2f}".format(invoice.amount) }}
+                                {% else %}
+                                    {% set base_price = invoice.amount - invoice.commission_amount - (invoice.amount * 0.18 / 1.18) %}
+                                    ₹{{ "{:,.2f}".format(invoice.amount) }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Custom Car Specifications (if any) -->
+            {% if custom_request %}
+            <div class="info-card mb-5">
+                <h5 class="section-title"><i class="fas fa-cog me-2"></i>CUSTOM BUILD SPECIFICATIONS</h5>
+                <div class="spec-grid">
+                    <div class="spec-item"><strong>Body Type:</strong> {{ custom_request.body_type }}</div>
+                    <div class="spec-item"><strong>Color:</strong> {{ custom_request.color }}</div>
+                    <div class="spec-item"><strong>Fuel:</strong> {{ custom_request.fuel_type }}</div>
+                    <div class="spec-item"><strong>Transmission:</strong> {{ custom_request.transmission }}</div>
+                    <div class="spec-item"><strong>Engine CC:</strong> {{ custom_request.engine_cc }}</div>
+                    <div class="spec-item"><strong>Seats:</strong> {{ custom_request.seats }}</div>
+                    {% if custom_request.features %}
+                    <div class="spec-item"><strong>Features:</strong> {{ custom_request.features }}</div>
+                    {% endif %}
+                    {% if custom_request.additional_requirements %}
+                    <div class="spec-item"><strong>Additional:</strong> {{ custom_request.additional_requirements }}</div>
+                    {% endif %}
+                    {% if custom_request.delivery_address %}
+                    <div class="spec-item"><strong>Delivery:</strong> {{ custom_request.delivery_address }}</div>
+                    {% endif %}
+                </div>
+                <div class="mt-3">
+                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2" style="border-radius: 40px;">
+                        <i class="fas fa-clipboard-check me-1"></i>Status: {{ custom_request.status }}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Price breakdown and total (aligned right) -->
+            <div class="row justify-content-end">
+                <div class="col-lg-7">
+                    <div class="price-card">
+                        <h6 class="fw-bold mb-3" style="color: #194ab4;">PAYMENT SUMMARY</h6>
+                        {% if invoice.base_price is defined %}
+                            {% set display_base = invoice.base_price %}
+                        {% else %}
+                            {% set display_base = invoice.amount - invoice.commission_amount - (invoice.amount * 0.18 / 1.18) %}
+                        {% endif %}
+                        {% set gst = invoice.amount * 0.18 / 1.18 %}
+                        <div class="price-row">
+                            <span>Base Price</span>
+                            <span class="fw-semibold">₹{{ "{:,.2f}".format(invoice.amount) }}</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Platform Fees</span>
+                            <span class="fw-semibold">₹0.00</span>
+                        </div>
+                        <div class="price-row total">
+                            <span>Total Paid</span>
+                            <span class="amount">₹{{ "{:,.2f}".format(invoice.amount) }}</span>
+                        </div>
+                        <div class="mt-3 text-muted small">
+                            <i class="fas fa-credit-card me-1"></i> Payment via {{ invoice.payment_method if invoice.payment_method else 'N/A' }} · Cleared
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thank you & footer note -->
+            <div class="mt-5 pt-4 text-center" style="border-top: 2px solid #e9f0f8;">
+                <p class="mb-1 fw-semibold" style="color: #194ab4;">Thank you for choosing VehicleHub!</p>
+                <p class="small text-muted">This is a computer-generated invoice, no signature required. For support, contact <a href="webwheels7@gmail.com" class="text-decoration-none">webwheels7@gmail.com</a></p>
+            </div>
+        </div>
+
+        <!-- Action buttons (no-print) -->
+        <div class="p-4 pt-0 d-flex flex-wrap gap-3 justify-content-center no-print">
+            <button onclick="window.print()" class="btn btn-outline-custom btn-custom">
+                <i class="fas fa-print me-2"></i>Print Invoice
+            </button>
+            <a href="{{ url_for('my_custom_requests') }}" class="btn btn-primary-custom btn-custom">
+                <i class="fas fa-car me-2"></i>My Custom Requests
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-custom btn-custom">
+                <i class="fas fa-home me-2"></i>Dashboard
+            </a>
+        </div>
+    </div>
+    <!-- Small print-only spacer -->
+    <div class="text-center text-muted mt-2 small no-print">Invoice generated on {{ invoice.transaction_date }}</div>
+</div>
+
+<script>
+    // (Optional) Re-trigger print dialog if needed – but button already calls window.print
+    document.addEventListener('DOMContentLoaded', function() {
+        // Any extra JS can go here
+    });
+</script>
+{% endblock %}

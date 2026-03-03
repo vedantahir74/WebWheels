@@ -1,0 +1,546 @@
+{% extends "base.html" %}
+
+{% block title %}Book Rental - VehicleHub{% endblock %}
+
+{% block content %}
+<style>
+    .booking-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+        text-align: center;
+    }
+    
+    .booking-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .booking-subtitle {
+        opacity: 0.9;
+        font-size: 16px;
+    }
+    
+    .booking-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .car-summary-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 32px;
+        margin-bottom: 24px;
+    }
+    
+    .car-summary-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .car-icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .car-summary-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+    
+    .car-summary-details {
+        font-size: 14px;
+        color: #6b7280;
+    }
+    
+    .booking-form {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 32px;
+    }
+    
+    .form-section {
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-title svg {
+        color: #10b981;
+    }
+    
+    .rental-type-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .rental-type-option {
+        padding: 20px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .rental-type-option:hover {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.05);
+    }
+    
+    .rental-type-option.selected {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .rental-type-label {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+    
+    .rental-type-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: #10b981;
+    }
+    
+    .date-range-picker {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .date-input {
+        padding: 14px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 15px;
+        width: 100%;
+        cursor: pointer;
+    }
+    
+    .date-input:focus {
+        outline: none;
+        border-color: #10b981;
+    }
+    
+    .duration-display {
+        text-align: center;
+        padding: 20px;
+        background: #f9fafb;
+        border-radius: 12px;
+        margin-top: 16px;
+    }
+    
+    .duration-label {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 4px;
+    }
+    
+    .duration-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #10b981;
+    }
+    
+    .payment-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .payment-option {
+        padding: 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-option:hover {
+        border-color: #10b981;
+    }
+    
+    .payment-option.selected {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .payment-option svg {
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+    
+    .payment-option.selected svg {
+        color: #10b981;
+    }
+    
+    .price-summary-section {
+        background: #1f2937;
+        color: white;
+        border-radius: 12px;
+        padding: 32px;
+        margin-top: 32px;
+    }
+    
+    .price-summary-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #374151;
+    }
+    
+    .price-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 16px;
+        margin-top: 16px;
+        border-top: 2px solid #374151;
+    }
+    
+    .price-total-label {
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .price-total-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #22c55e;
+    }
+    
+    .terms-agreement {
+        margin: 24px 0;
+        padding: 20px;
+        background: #f9fafb;
+        border-radius: 12px;
+    }
+    
+    .terms-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 12px;
+    }
+    
+    .terms-list {
+        font-size: 13px;
+        color: #4b5563;
+        line-height: 1.6;
+        margin-bottom: 16px;
+        padding-left: 20px;
+    }
+    
+    .terms-list li {
+        margin-bottom: 6px;
+    }
+    
+    .booking-actions {
+        display: flex;
+        gap: 16px;
+        margin-top: 32px;
+    }
+    
+    .btn-booking {
+        flex: 1;
+        padding: 16px;
+        font-size: 16px;
+    }
+    
+    @media (max-width: 768px) {
+        .booking-header {
+            padding: 24px;
+        }
+        
+        .booking-title {
+            font-size: 24px;
+        }
+        
+        .date-range-picker {
+            grid-template-columns: 1fr;
+        }
+        
+        .booking-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="booking-header fade-in">
+    <h1 class="booking-title">Book Your Rental</h1>
+    <p class="booking-subtitle">Complete your booking in 3 simple steps</p>
+</div>
+
+<div class="booking-container">
+    <!-- Car Summary -->
+    <div class="car-summary-card fade-in">
+        <div class="car-summary-header">
+            <div class="car-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+                    <path d="M5 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0M15 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0"/>
+                    <path d="M5 17H3v-4l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2M7 10h10M7 7h10"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="car-summary-title">{{ rental.brand }} {{ rental.model }}</h2>
+                <div class="car-summary-details">
+                    {{ rental.year }} • {{ rental.fuel_type }} • {{ rental.transmission }} • {{ rental.seats }} Seats
+                </div>
+                <div style="font-size: 16px; color: #10b981; font-weight: 600; margin-top: 8px;">
+                    Daily Rate: ₹{{ rental.daily_rate }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Booking Form -->
+    <form method="POST" action="{{ url_for('rent_payment_process', rental_id=rental.rental_id) }}" class="booking-form fade-in">
+        <!-- Step 1: Rental Type -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Select Rental Type
+            </h3>
+            
+            <div class="rental-type-grid">
+                <div class="rental-type-option" data-type="hourly" onclick="selectRentalType(this)">
+                    <div class="rental-type-label">Hourly</div>
+                    <div class="rental-type-price">₹{{ rental.hourly_rate }}</div>
+                    <div style="font-size: 12px; color: #6b7280;">Per hour</div>
+                </div>
+                <div class="rental-type-option selected" data-type="daily" onclick="selectRentalType(this)">
+                    <div class="rental-type-label">Daily</div>
+                    <div class="rental-type-price">₹{{ rental.daily_rate }}</div>
+                    <div style="font-size: 12px; color: #6b7280;">Per day</div>
+                </div>
+                <div class="rental-type-option" data-type="weekly" onclick="selectRentalType(this)">
+                    <div class="rental-type-label">Weekly</div>
+                    <div class="rental-type-price">₹{{ rental.weekly_rate }}</div>
+                    <div style="font-size: 12px; color: #6b7280;">Per week</div>
+                </div>
+                <div class="rental-type-option" data-type="monthly" onclick="selectRentalType(this)">
+                    <div class="rental-type-label">Monthly</div>
+                    <div class="rental-type-price">₹{{ rental.monthly_rate }}</div>
+                    <div style="font-size: 12px; color: #6b7280;">Per month</div>
+                </div>
+            </div>
+            <input type="hidden" name="rental_type" id="rentalType" value="daily" required>
+        </div>
+        
+        <!-- Step 2: Dates -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                Select Dates
+            </h3>
+            
+            <div class="date-range-picker">
+                <div>
+                    <label style="display: block; font-size: 14px; color: #374151; margin-bottom: 8px; font-weight: 600;">
+                        Pick-up Date
+                    </label>
+                    <input type="date" name="start_date" class="date-input" 
+                           min="{{ datetime.now().strftime('%Y-%m-%d') }}" 
+                           onchange="calculateDuration()" required>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 14px; color: #374151; margin-bottom: 8px; font-weight: 600;">
+                        Return Date
+                    </label>
+                    <input type="date" name="end_date" class="date-input" 
+                           min="{{ datetime.now().strftime('%Y-%m-%d') }}" 
+                           onchange="calculateDuration()" required>
+                </div>
+            </div>
+            
+            <div class="duration-display">
+                <div class="duration-label">Rental Duration</div>
+                <div class="duration-value" id="durationValue">0 days</div>
+            </div>
+        </div>
+        
+        <!-- Step 3: Payment Method -->
+        <div class="form-section">
+            <h3 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <rect x="1" y="4" width="22" height="16" rx="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+                Payment Method
+            </h3>
+            
+            <div class="payment-options">
+                <div class="payment-option selected" data-method="credit_card" onclick="selectPaymentMethod(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <rect x="1" y="4" width="22" height="16" rx="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    <div style="font-size: 14px; font-weight: 600;">Credit Card</div>
+                </div>
+                <div class="payment-option" data-method="debit_card" onclick="selectPaymentMethod(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <rect x="1" y="4" width="22" height="16" rx="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    <div style="font-size: 14px; font-weight: 600;">Debit Card</div>
+                </div>
+                <div class="payment-option" data-method="upi" onclick="selectPaymentMethod(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <rect x="2" y="4" width="20" height="16" rx="2"/>
+                        <path d="M12 10v8M8 14h8"/>
+                    </svg>
+                    <div style="font-size: 14px; font-weight: 600;">UPI</div>
+                </div>
+                <div class="payment-option" data-method="net_banking" onclick="selectPaymentMethod(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                    </svg>
+                    <div style="font-size: 14px; font-weight: 600;">Net Banking</div>
+                </div>
+            </div>
+            <input type="hidden" name="payment_method" id="paymentMethod" value="credit_card" required>
+        </div>
+        
+        <!-- Price Summary -->
+        <div class="price-summary-section">
+            <h3 class="price-summary-title">Booking Summary</h3>
+            
+            <div class="price-row">
+                <span>Rental Rate (3 days)</span>
+                <span id="rentalAmount">₹{{ rental.daily_rate * 3 }}</span>
+            </div>
+            <div class="price-row">
+                <span>Security Deposit</span>
+                <span>₹{{ rental.security_deposit }}</span>
+            </div>
+            <div class="price-row">
+                <span>Service Fee</span>
+                <span>₹200</span>
+            </div>
+            
+            <div class="price-total">
+                <span class="price-total-label">Total Amount</span>
+                <span class="price-total-value" id="totalAmount">
+                    ₹{{ rental.daily_rate * 3 + rental.security_deposit + 200 }}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Terms & Agreement -->
+        <div class="terms-agreement">
+            <h4 class="terms-title">Terms & Conditions</h4>
+            <ul class="terms-list">
+                <li>Security deposit will be refunded within 7 days after vehicle return and inspection.</li>
+                <li>Late return charges: ₹500 per hour after grace period of 1 hour.</li>
+                <li>Vehicle must be returned in the same condition as received.</li>
+                <li>Fuel is not included. Please return with same fuel level as received.</li>
+                <li>Insurance covers damage to vehicle but not personal belongings.</li>
+                <li>Driver must have valid license and be above 21 years.</li>
+            </ul>
+            
+            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+                <input type="checkbox" required style="margin-top: 4px;">
+                <span style="font-size: 14px; color: #374151;">
+                    I agree to the terms and conditions and understand that I'm responsible for any damages beyond normal wear and tear.
+                </span>
+            </label>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="booking-actions">
+            <a href="{{ url_for('rent_vehicle_detail', vehicle_id=rental.vehicle_id) }}" 
+               class="btn btn-outline-secondary btn-booking">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+            <button type="submit" class="btn btn-success btn-booking">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                Confirm Booking
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function selectRentalType(element) {
+    document.querySelectorAll('.rental-type-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    document.getElementById('rentalType').value = element.dataset.type;
+}
+
+function selectPaymentMethod(element) {
+    document.querySelectorAll('.payment-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    document.getElementById('paymentMethod').value = element.dataset.method;
+}
+
+function calculateDuration() {
+    const startDate = document.querySelector('input[name="start_date"]').value;
+    const endDate = document.querySelector('input[name="end_date"]').value;
+    
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        document.getElementById('durationValue').textContent = diffDays + ' days';
+    }
+}
+</script>
+{% endblock %}

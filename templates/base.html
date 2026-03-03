@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Web Wheels - Vehicle Marketplace{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% block styles %}{% endblock %}
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --light-bg: #f8fafc;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--light-bg);
+            color: #1e293b;
+            min-height: 100vh;
+        }
+        
+        /* Navbar Styles - FIXED from first code */
+        .navbar {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+        }
+        
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            text-decoration: none;
+        }
+        
+        .navbar-brand:hover {
+            color: #fff !important;
+        }
+        
+        /* Logo W Box Style */
+        .logo-w-box {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+            font-family: 'Arial Black', Arial, sans-serif;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .logo-w-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
+        }
+        
+        /* Navbar Toggler */
+        .navbar-toggler {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: none;
+            outline: none;
+        }
+        
+        .navbar-toggler-icon {
+            width: 1.2em;
+            height: 1.2em;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+        
+        /* Navbar Collapse */
+        .navbar-collapse {
+            flex-grow: 0;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .nav-item {
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        .nav-link:hover {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link.active {
+            background: rgba(37, 99, 235, 0.2);
+            color: #60a5fa !important;
+        }
+        
+        /* User Dropdown */
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .user-name {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        /* Login/Register Buttons */
+        .btn-nav-login {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff !important;
+            padding: 0.4rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .btn-nav-login:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-nav-register {
+            background: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: #fff !important;
+            padding: 0.4rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .btn-nav-register:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        /* Dropdown Menu */
+        .dropdown-menu {
+            background: #fff;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            min-width: 200px;
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: #475569;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown-item:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        
+        .dropdown-item i {
+            color: #64748b;
+            width: 20px;
+            margin-right: 0.5rem;
+        }
+        
+        /* Responsive Styles for Navbar */
+        @media (max-width: 1199px) {
+            .navbar-container {
+                padding: 0 1rem;
+            }
+            
+            .nav-link {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.9rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+            
+            .logo-w-box {
+                width: 36px;
+                height: 36px;
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 991px) {
+            .navbar {
+                padding: 0.5rem 0;
+            }
+            
+            .navbar-container {
+                padding: 0 1rem;
+                flex-wrap: wrap;
+            }
+            
+            .navbar-brand {
+                order: 1;
+            }
+            
+            .navbar-toggler {
+                order: 2;
+                margin-left: auto;
+            }
+            
+            .navbar-collapse {
+                order: 3;
+                width: 100%;
+                margin-top: 0.5rem;
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: 0.75rem;
+                padding: 1rem;
+            }
+            
+            .navbar-nav {
+                flex-direction: column;
+                width: 100%;
+                align-items: stretch;
+                gap: 0.25rem;
+            }
+            
+            .nav-item {
+                margin: 0;
+                width: 100%;
+            }
+            
+            .nav-link {
+                padding: 0.75rem 1rem !important;
+                justify-content: flex-start;
+                border-radius: 0.5rem;
+            }
+            
+            .nav-link i {
+                width: 24px;
+                text-align: center;
+            }
+            
+            /* User section in mobile */
+            .navbar-user {
+                flex-direction: column;
+                width: 100%;
+                padding-top: 1rem;
+                margin-top: 1rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .dropdown-menu {
+                position: static !important;
+                transform: none !important;
+                width: 100%;
+                margin-top: 0.5rem;
+                box-shadow: none;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.05);
+            }
+            
+            .dropdown-item {
+                color: rgba(255, 255, 255, 0.9);
+            }
+            
+            .dropdown-item:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #fff;
+            }
+            
+            .btn-nav-login,
+            .btn-nav-register {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+                padding: 0.75rem 1rem;
+                margin: 0.25rem 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            
+            .logo-w-box {
+                width: 32px;
+                height: 32px;
+                font-size: 1.1rem;
+            }
+            
+            .brand-text {
+                font-size: 1.1rem;
+            }
+            
+            .nav-link {
+                font-size: 0.95rem;
+            }
+            
+            .navbar-container {
+                padding: 0 0.75rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar {
+                padding: 0.4rem 0;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            .logo-w-box {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+            
+            .brand-text {
+                font-size: 1rem;
+            }
+            
+            .navbar-collapse {
+                padding: 0.75rem;
+            }
+            
+            .nav-link {
+                padding: 0.65rem 0.75rem !important;
+                font-size: 0.9rem;
+            }
+            
+            .navbar-toggler {
+                padding: 0.3rem 0.6rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            
+            .brand-text {
+                display: none;
+            }
+            
+            .logo-w-box {
+                margin-right: 0;
+            }
+            
+            .nav-link span:not(.user-name) {
+                display: none;
+            }
+            
+            .nav-link i {
+                margin-right: 0;
+                font-size: 1.1rem;
+            }
+            
+            .nav-link {
+                justify-content: center;
+                padding: 0.75rem !important;
+            }
+        }
+        
+        /* Accordion Styles */
+        .accordion-custom {
+            --accordion-border-radius: 10px;
+            --accordion-border-color: #e2e8f0;
+            --accordion-header-bg: #f8fafc;
+            --accordion-header-hover-bg: #f1f5f9;
+            --accordion-header-text: #1e293b;
+            --accordion-body-bg: #fff;
+            --accordion-body-text: #475569;
+        }
+        
+        .accordion-button:not(.collapsed) {
+            background: var(--accordion-header-bg);
+            color: var(--accordion-header-text);
+            box-shadow: none;
+            font-weight: 600;
+        }
+        
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: var(--primary-color);
+        }
+        
+        .accordion-item {
+            border: 1px solid var(--accordion-border-color);
+            border-radius: var(--accordion-border-radius) !important;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+        }
+        
+        .accordion-header {
+            background: var(--accordion-header-bg);
+        }
+        
+        .accordion-header:hover {
+            background: var(--accordion-header-hover-bg);
+        }
+        
+        .accordion-body {
+            background: var(--accordion-body-bg);
+            color: var(--accordion-body-text);
+            padding: 1.25rem;
+            line-height: 1.6;
+        }
+        
+        .accordion-button::after {
+            background-size: 1.25rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-button:not(.collapsed)::after {
+            transform: rotate(180deg);
+        }
+        
+        /* Theme Colors for Accordion */
+        .accordion-primary .accordion-button:not(.collapsed) {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        
+        .accordion-flush .accordion-item {
+            border-radius: 0 !important;
+            border-left: none;
+            border-right: none;
+            margin-bottom: 0;
+        }
+        
+        .accordion-flush .accordion-button {
+            border-radius: 0 !important;
+        }
+        
+        /* Icon Accordion */
+        .accordion-icon .accordion-button::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            width: 24px;
+            height: 24px;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .accordion-icon .accordion-button {
+            padding-left: 3rem;
+        }
+        
+        .accordion-icon .accordion-button i {
+            position: absolute;
+            left: 1rem;
+            color: var(--primary-color);
+        }
+        
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Card Styles */
+        .custom-card {
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-card:hover {
+            box-shadow: var(--card-shadow-hover);
+        }
+        
+        .custom-card-header {
+            background: transparent;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .custom-card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 500;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+            border-color: var(--success-color);
+            font-weight: 500;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-success:hover {
+            background: #16a34a;
+            border-color: #16a34a;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 500;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        /* Form Styles */
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            border: 1px solid #cbd5e1;
+            padding: 0.625rem 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 0.375rem;
+        }
+        
+        /* Alert Styles */
+        .alert {
+            border-radius: 0.75rem;
+            border: none;
+            padding: 1rem 1.25rem;
+        }
+        
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        /* Table Styles */
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        /* Badge Styles */
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+            border-radius: 0.375rem;
+        }
+        
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #94a3b8;
+            padding: 4rem 0 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-desc {
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        .footer-title {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+        
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #60a5fa;
+            padding-left: 5px;
+        }
+        
+        .footer-links a i {
+            color: var(--primary-color);
+            font-size: 0.85rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #94a3b8;
+        }
+        
+        .contact-item i {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            background: rgba(37, 99, 235, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+        
+        .footer-newsletter {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2.5rem 0;
+        }
+        
+        .newsletter-form .input-group {
+            max-width: 400px;
+            float: right;
+        }
+        
+        .newsletter-form .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 0.75rem 1rem;
+        }
+        
+        .newsletter-form .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .newsletter-form .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-color);
+            color: #fff;
+            box-shadow: none;
+        }
+        
+        .newsletter-form .btn-primary {
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+        }
+        
+        @media (max-width: 991px) {
+            .footer {
+                padding: 3rem 0 1.5rem;
+            }
+            
+            .footer-newsletter {
+                text-align: center;
+            }
+            
+            .newsletter-form {
+                margin-top: 1rem;
+            }
+            
+            .newsletter-form .input-group {
+                float: none;
+                max-width: 100%;
+            }
+            
+            .footer-title::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .footer-brand, 
+            .footer-links, 
+            .contact-info {
+                text-align: center;
+            }
+            
+            .footer-social {
+                justify-content: center;
+            }
+            
+            .contact-item {
+                justify-content: center;
+            }
+        }
+        
+        /* Menu Card Styles */
+        .menu-card {
+            background: #fff;
+            border-radius: 1rem;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 2px solid transparent;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            display: block;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: var(--primary-color);
+            color: inherit;
+        }
+        
+        .menu-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.75rem;
+            color: var(--primary-color);
+        }
+        
+        .menu-card h5 {
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .menu-card p {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+        
+        /* Vehicle Card Styles */
+        .vehicle-card {
+            background: #fff;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .vehicle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+        
+        .vehicle-image {
+            height: 180px;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 3rem;
+        }
+        
+        .vehicle-content {
+            padding: 1.25rem;
+        }
+        
+        .vehicle-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .vehicle-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+        
+        .vehicle-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        .vehicle-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        /* Stat Card Styles */
+        .stat-card {
+            background: #fff;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow-hover);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Section Title */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-title i {
+            color: var(--primary-color);
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #fff;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                padding: 2rem 0;
+            }
+            
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(37,99,235,0.15), transparent 35%),
+                radial-gradient(circle at 85% 80%, rgba(59,130,246,0.15), transparent 35%),
+                linear-gradient(135deg, #eef2ff 0%, #e0e7ff 40%, #f5f7ff 100%);
+            background-attachment: fixed;
+            color: #1e293b;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(37,99,235,0.04) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(37,99,235,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: -1;
+        }
+
+        .stat-card,
+        .menu-card,
+        .custom-card,
+        .accordion-item {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(37,99,235,0.08);
+            box-shadow: 0 10px 30px rgba(37,99,235,0.10);
+            transition: all .3s ease;
+        }
+
+        .stat-card:hover,
+        .menu-card:hover,
+        .custom-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 45px rgba(37,99,235,0.18);
+        }
+
+        .page-header {
+            border-radius: 22px;
+            box-shadow: 0 20px 40px rgba(37,99,235,0.25);
+        }
+
+        .accordion-button {
+            background: transparent !important;
+        }
+
+        .text-muted {
+            color: #64748b !important;
+        }
+
+        hr {
+            border-color: rgba(37,99,235,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation - Updated with first code's navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid navbar-container">
+            <!-- Logo with conditional redirect for admin -->
+            <a class="navbar-brand" href="
+                {%- if session.get('role') == 'ADMIN' -%}
+                    {{ url_for('admin_dashboard') }}
+                {%- else -%}
+                    {{ url_for('index') }}
+                {%- endif -%}">
+                <div class="logo-w-box">W</div>
+                <span class="brand-text">WebWheels</span>
+            </a>
+            
+            <!-- Mobile Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                    aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <!-- Navbar Content -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <!-- Show Home, Browse, Advanced Search only if user is NOT admin (or not logged in) -->
+                    {% if session.get('role') != 'ADMIN' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-2"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('browse_vehicles') }}">
+                            <i class="fas fa-search me-2"></i>
+                            <span>Browse</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('advanced_search') }}">
+                            <i class="fas fa-filter me-2"></i>
+                            <span>Advanced Search</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% if 'user_id' in session %}
+                        <!-- Show Dashboard and AI Assistant only for non-admin users -->
+                        {% if session.get('role') != 'ADMIN' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('ai_assistant') }}">
+                                <i class="fas fa-robot me-2"></i>
+                                <span>AI Assistant</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- User Dropdown (shown for both admin and normal users) -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar me-2">
+                                    {{ session.get('username')[0]|upper if session.get('username') else 'U' }}
+                                </div>
+                                <span class="user-name">{{ session.get('username')|truncate(15) }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <!-- Show My Rentals, Transactions, Wishlist only for non-admin users -->
+                                {% if session.get('role') != 'ADMIN' %}
+                                <li><a class="dropdown-item" href="{{ url_for('my_rentals') }}">
+                                    <i class="fas fa-key me-2"></i>My Rentals
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('my_transactions') }}">
+                                    <i class="fas fa-history me-2"></i>Transactions
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('my_wishlist') }}">
+                                    <i class="fas fa-heart me-2"></i>Wishlist
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <!-- Login/Register for non-logged in users (no admin check needed) -->
+                        <li class="nav-item d-flex align-items-center gap-2 mt-2 mt-lg-0">
+                            <a class="nav-link btn-nav-login" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                <span>Login</span>
+                            </a>
+                            <a class="nav-link btn-nav-register" href="{{ url_for('register') }}">
+                                <i class="fas fa-user-plus me-2"></i>
+                                <span>Register</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <!-- Main Footer Row -->
+        <div class="row g-4 align-items-start">
+            <!-- Brand Column (left side) -->
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <div class="logo-w-box me-2">W</div>
+                        <span>WebWheels</span>
+                    </div>
+                    <p class="footer-desc">Your trusted destination for buying, selling, and renting premium vehicles across India.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right side group: Quick Links + Contact Info (no gap) -->
+            <div class="col-lg-8 col-md-6 d-flex justify-content-end">
+                <div class="d-flex gap-0">
+                    <!-- Quick Links -->
+                    <div class="footer-quick-links" style="min-width: 180px;">
+                        <h5 class="footer-title">Quick Links</h5>
+                        <ul class="footer-links">
+                            <li><a href="{{ url_for('browse_vehicles') }}"><i class="fas fa-car"></i> Browse Vehicles</a></li>
+                            <li><a href="{{ url_for('browse_vehicles', type='buy') }}"><i class="fas fa-shopping-cart"></i> Buy Cars</a></li>
+                            <li><a href="{{ url_for('browse_vehicles', type='rent') }}"><i class="fas fa-key"></i> Rent Cars</a></li>
+                            <li><a href="{{ url_for('advanced_search') }}"><i class="fas fa-search"></i> Advanced Search</a></li>
+                        </ul>
+                    </div>
+                    <!-- Contact Info -->
+                    <div class="footer-contact-info" style="min-width: 200px;">
+                        <h5 class="footer-title">Contact Info</h5>
+                        <ul class="footer-links">
+                            <li><i class="fas fa-envelope"></i> webwheels7@gmail.com</li>
+                            <li><i class="fas fa-phone"></i> +91 7211172096</li>
+                            <li><i class="fas fa-map-marker-alt"></i> Ahmedabad, India</li>
+                            <li><i class="fas fa-clock"></i> 24/7 Support Available</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End of row -->
+
+        <!-- Bottom Bar -->
+        <div class="footer-bottom mt-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2026 Web Wheels. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End of container -->
+</footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js 2.9.4 (more compatible) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script>
+        // Handle responsive dropdown behavior from first code
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            const navbarContent = document.getElementById('navbarContent');
+            
+            // Close dropdowns when clicking outside on mobile
+            if (window.innerWidth < 992) {
+                document.addEventListener('click', function(event) {
+                    if (!navbarToggler.contains(event.target) && !navbarContent.contains(event.target)) {
+                        if (navbarContent.classList.contains('show')) {
+                            navbarToggler.click();
+                        }
+                    }
+                });
+            }
+            
+            // Update navbar on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    // Ensure navbar is expanded on desktop
+                    navbarContent.classList.remove('collapse');
+                } else {
+                    // Add collapse class back for mobile
+                    if (!navbarContent.classList.contains('collapse')) {
+                        navbarContent.classList.add('collapse');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

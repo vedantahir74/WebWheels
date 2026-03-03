@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block title %}My Custom Requests - VehicleHub{% endblock %}
+
+{% block content %}
+<style>
+    .requests-header {
+        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+    }
+    
+    .requests-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .requests-subtitle {
+        opacity: 0.9;
+        font-size: 15px;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .status-pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+    
+    .status-price-set {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+    
+    .status-accepted, .status-approved {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+    
+    .status-rejected, .status-rejected_by_user {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .request-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 24px;
+        margin-bottom: 16px;
+        border-left: 4px solid #2563eb;
+        transition: all 0.3s ease;
+    }
+    
+    .request-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+    
+    .request-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+    
+    .request-id {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 500;
+    }
+    
+    .request-date {
+        font-size: 13px;
+        color: #6b7280;
+    }
+    
+    .request-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .detail-item {
+        padding: 12px;
+        background: #f9fafb;
+        border-radius: 8px;
+    }
+    
+    .detail-label {
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+    
+    .detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+    
+    .price-section {
+        background: #1f2937;
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .price-label {
+        font-size: 14px;
+        color: #9ca3af;
+        margin-bottom: 4px;
+    }
+    
+    .price-amount {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2563eb;  /* Changed from green to theme blue */
+        margin-bottom: 16px;
+    }
+    
+    .no-requests {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    
+    .no-requests-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        color: #d1d5db;
+    }
+    
+    .no-requests-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    
+    .no-requests-text {
+        color: #6b7280;
+        margin-bottom: 24px;
+    }
+    
+    .features-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    
+    .feature-tag {
+        background: #dbeafe;
+        color: #1d4ed8;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .requests-header {
+            padding: 24px;
+        }
+        
+        .requests-title {
+            font-size: 24px;
+        }
+        
+        .request-header {
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .request-details {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">My Custom Car Requests</h1>
+            <p class="text-white-80 mb-0">Track your custom car requests and quotes</p>
+        </div>
+    </div>
+</div>
+
+{% if requests %}
+    {% for request in requests %}
+    <div class="request-card fade-in" style="animation-delay: {{ loop.index * 0.1 }}s;">
+        <div class="request-header">
+            <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">
+                    Custom {{ request.body_type }}
+                </h3>
+                <div class="request-id">Request #{{ request.id }}</div>
+                <div class="request-date">
+                    {% if request.created_at %}
+                        {% set date_str = request.created_at|string %}
+                        {% if '-' in date_str and ' ' in date_str %}
+                            {% set date_part = date_str.split()[0] %}
+                            {% set parts = date_part.split('-') %}
+                            {% set month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] %}
+                            {{ parts[2]|int }} {{ month_names[parts[1]|int - 1] }}, {{ parts[0] }}
+                        {% else %}
+                            {{ date_str[:10] }}
+                        {% endif %}
+                    {% else %}
+                        Date not available
+                    {% endif %}
+                </div>
+            </div>
+            <div class="status-badge 
+                {% if request.status == 'PENDING' %}status-pending
+                {% elif request.status == 'PRICE_SET' %}status-price-set
+                {% elif request.status == 'ACCEPTED' or request.status == 'APPROVED' %}status-accepted
+                {% elif request.status == 'REJECTED' or request.status == 'REJECTED_BY_USER' %}status-rejected
+                {% endif %}">
+                {{ request.status|replace('_', ' ')|title }}
+            </div>
+        </div>
+        
+        <div class="request-details">
+            <div class="detail-item">
+                <div class="detail-label">Body Type</div>
+                <div class="detail-value">{{ request.body_type }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Color</div>
+                <div class="detail-value">{{ request.color }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Fuel Type</div>
+                <div class="detail-value">{{ request.fuel_type }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Engine</div>
+                <div class="detail-value">{{ request.engine_cc }} CC</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Transmission</div>
+                <div class="detail-value">{{ request.transmission }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Seats</div>
+                <div class="detail-value">{{ request.seats }} Seats</div>
+            </div>
+        </div>
+        
+        {% if request.features %}
+        <div>
+            <div class="detail-label" style="margin-bottom: 8px;">Features</div>
+            <div class="features-list">
+                {% set features_list = request.features.split(',') if request.features else [] %}
+                {% for feature in features_list %}
+                    {% if feature.strip() %}
+                    <span class="feature-tag">{{ feature.strip() }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if request.additional_requirements %}
+        <div style="margin-top: 16px;">
+            <div class="detail-label">Additional Requirements</div>
+            <p style="color: #4b5563; font-size: 14px; line-height: 1.5; margin-top: 4px;">
+                {{ request.additional_requirements }}
+            </p>
+        </div>
+        {% endif %}
+        
+        {% if request.status == 'PRICE_SET' and request.suggested_price %}
+        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;" >
+            <div class="price-label" style="color: white;">Suggested Price</div>
+            <div class="price-amount" style="color: white;">₹{{ "{:,.0f}".format(request.suggested_price) }}</div>
+            <div style="display: flex; gap: 12px;">
+                
+                <a href="{{ url_for('accept_custom_price', request_id=request.id) }}" 
+                   class="btn btn-light">
+                    Accept & Continue
+                </a>
+                <a href="{{ url_for('reject_custom_price', request_id=request.id) }}" 
+                   class="btn btn-light">
+                    Reject Price
+                </a>
+            </div>
+        </div>
+        {% elif request.status == 'ACCEPTED' or request.status == 'APPROVED' %}
+        <div style="background: rgba(34, 197, 94, 0.1); border-radius: 8px; padding: 16px; margin-top: 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color: #22c55e;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <span style="color: #22c55e; font-weight: 600;" >
+                    {% if request.status == 'ACCEPTED' %}Request Accepted!{% else %}Request Approved!{% endif %}
+                </span>
+            </div>
+            {% if request.suggested_price %}
+            <p style="color: #4b5563; font-size: 14px; margin-top: 8px;">
+                <strong>Price:</strong> ₹{{ "{:,.0f}".format(request.suggested_price) }}
+            </p>
+            {% endif %}
+            {% if request.delivery_address %}
+            <p style="color: #4b5563; font-size: 14px; margin-top: 8px;">
+                <strong>Delivery Address:</strong> {{ request.delivery_address }}
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                {% if request.status == 'PENDING' %}
+                <span style="color: #6b7280; font-size: 13px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align: -3px;">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    Waiting for admin review...
+                </span>
+                {% elif request.status == 'REJECTED' or request.status == 'REJECTED_BY_USER' %}
+                <span style="color: #ef4444; font-size: 13px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align: -3px;">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                    Request was rejected
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="no-requests fade-in">
+    <svg class="no-requests-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <h3 class="no-requests-title">No Custom Requests Yet</h3>
+    <p class="no-requests-text">You haven't created any custom car requests yet.</p>
+    <a href="{{ url_for('custom_car_builder') }}" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Build Custom Car
+    </a>
+</div>
+{% endif %}
+{% endblock %}

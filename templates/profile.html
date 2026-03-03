@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Web Wheels{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div>
+                            <h1 class="text-white mb-1">My Profile</h1>
+                            <p class="text-white-80 mb-0">View and manage your personal information</p>
+                        </div>
+                    </div>
+                </div>
+
+        <div class="custom-card mb-4">
+            <div class="custom-card-header">
+                <i class="fas fa-user me-2"></i>Personal Information
+            </div>
+            <div class="custom-card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Full Name</label>
+                        <p class="fw-bold fs-5 mb-0">{{ user.full_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Username</label>
+                        <p class="fs-5 mb-0">{{ user.username }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Email</label>
+                        <p class="fs-5 mb-0">{{ user.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Phone</label>
+                        <p class="fs-5 mb-0">{{ user.phone }}</p>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted">Address</label>
+                        <p class="fs-5 mb-0">{{ user.address or 'Not set' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Role</label>
+                        <p class="fs-5 mb-0">
+                            <span class="badge bg-primary">{{ user.role }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Member Since</label>
+                        <p class="fs-5 mb-0">{{ user.created_at[:10] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="custom-card mb-4">
+            <div class="custom-card-header">
+                <i class="fas fa-chart-bar me-2"></i>Your Statistics
+            </div>
+            <div class="custom-card-body">
+                <div class="row g-4">
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <div class="stat-number">{{ listings_count or 0 }}</div>
+                            <div class="stat-label">Listings</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon"style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="stat-number">{{ transactions_count or 0 }}</div>
+                            <div class="stat-label">Transactions</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="stat-number">{{ wishlist_count or 0 }}</div>
+                            <div class="stat-label">Wishlist</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="stat-number">{{ ai_queries_count or 0 }}</div>
+                            <div class="stat-label">AI Queries</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="custom-card">
+            <div class="custom-card-header">
+                <i class="fas fa-link me-2"></i>Quick Links
+            </div>
+            <div class="custom-card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('my_rentals') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-key me-2"></i>My Rentals
+                    </a>
+                    <a href="{{ url_for('my_transactions') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-history me-2"></i>Transactions
+                    </a>
+                    <a href="{{ url_for('my_wishlist') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-heart me-2"></i>Wishlist
+                    </a>
+                    <a href="{{ url_for('browse_vehicles') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-search me-2"></i>Browse
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

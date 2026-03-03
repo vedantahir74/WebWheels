@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Rent Cars - Web Wheels{% endblock %}
+
+{% block content %}
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); padding: 2rem;">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="text-white mb-2">
+                <i class="fas fa-key me-2"></i>Rent Premium Cars
+            </h1>
+            <p class="text-white-80 mb-0">Choose from {{ rentals|length }} cars available for rent</p>
+        </div>
+    </div>
+</div>
+
+{% if rentals %}
+<div class="row g-4">
+    {% for rental in rentals %}
+    <div class="col-lg-4 col-md-6">
+        <div class="vehicle-card h-100">
+            <div class="vehicle-image position-relative">
+                {% if rental.is_available %}
+                <span class="position-absolute top-0 start-0 m-3 badge bg-success">
+                    <i class="fas fa-check-circle me-1"></i>Available
+                </span>
+                {% else %}
+                <span class="position-absolute top-0 start-0 m-3 badge bg-danger">
+                    <i class="fas fa-times-circle me-1"></i>Rented
+                </span>
+                {% endif %}
+                <i class="fas fa-car fa-4x"></i>
+            </div>
+            <div class="vehicle-content">
+                <h5 class="vehicle-title">{{ rental.brand }} {{ rental.model }}</h5>
+                <p class="text-muted small mb-2">
+                    <i class="fas fa-calendar me-1"></i>{{ rental.year }} • 
+                    <i class="fas fa-gas-pump me-1"></i>{{ rental.fuel_type }}
+                </p>
+                
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="bg-light rounded p-2 text-center">
+                            <div class="small text-muted">Daily</div>
+                            <div class="fw-bold text-primary">₹{{ rental.daily_rate }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-light rounded p-2 text-center">
+                            <div class="small text-muted">Weekly</div>
+                            <div class="fw-bold text-primary">₹{{ rental.weekly_rate }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-light rounded p-2 text-center">
+                            <div class="small text-muted">Monthly</div class="fw-bold>
+                            <div text-primary">₹{{ rental.monthly_rate }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-light rounded p-2 text-center">
+                            <div class="small text-muted">Deposit</div>
+                            <div class="fw-bold text-warning">₹{{ rental.security_deposit }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="vehicle-meta mb-3">
+                    <span><i class="fas fa-cog me-1"></i>{{ rental.transmission }}</span>
+                    <span><i class="fas fa-users me-1"></i>{{ rental.seats }} Seats</span>
+                    <span><i class="fas fa-car-side me-1"></i>{{ rental.body_type }}</span>
+                </div>
+                
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                         style="width: 32px; height: 32px;">
+                        <small class="text-white">{{ rental.owner_name[0]|upper }}</small>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Owner</small>
+                        <strong>{{ rental.owner_name }}</strong>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('rent_vehicle_detail', vehicle_id=rental.id) }}" class="btn btn-outline-primary flex-grow-1">
+                        <i class="fas fa-info-circle me-1"></i>Details
+                    </a>
+                    {% if rental.is_available %}
+                    <a href="{{ url_for('rent_checkout', rental_id=rental.id) }}" class="btn btn-success flex-grow-1">
+                        <i class="fas fa-calendar-check me-1"></i>Rent Now
+                    </a>
+                    {% else %}
+                    <button class="btn btn-outline-secondary flex-grow-1" disabled>
+                        <i class="fas fa-ban me-1"></i>Unavailable
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="custom-card">
+    <div class="custom-card-body text-center py-5">
+        <i class="fas fa-key fa-4x text-muted mb-3"></i>
+        <h4 class="mb-2">No Rentals Available</h4>
+        <p class="text-muted mb-4">All cars are currently rented out. Please check back later.</p>
+        <a href="{{ url_for('browse_vehicles') }}" class="btn btn-primary">
+            <i class="fas fa-search me-2"></i>Browse All Vehicles
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

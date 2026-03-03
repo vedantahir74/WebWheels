@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block title %}Approve Vehicles - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+    }
+    
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .page-subtitle {
+        opacity: 0.9;
+        font-size: 16px;
+    }
+    
+    .pending-count {
+        background: rgba(255,255,255,0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        margin-top: 12px;
+    }
+    
+    .vehicle-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .vehicle-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    
+    .vehicle-image {
+        height: 160px;
+        background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+    }
+    
+    .vehicle-content {
+        padding: 20px;
+    }
+    
+    .vehicle-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+    
+    .vehicle-subtitle {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 12px;
+    }
+    
+    .specs-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .spec-item {
+        padding: 8px 12px;
+        background: #f9fafb;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #4b5563;
+    }
+    
+    .type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .type-sale {
+        background: #d1fae5;
+        color: #059669;
+    }
+    
+    .type-rent {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+    
+    .price-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #059669;
+    }
+    
+    .seller-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        background: #f9fafb;
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .seller-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .seller-name {
+        font-weight: 600;
+        color: #1f2937;
+    }
+    
+    .seller-label {
+        font-size: 12px;
+        color: #6b7280;
+    }
+    
+    .btn-approve {
+        padding: 12px 24px;
+        font-weight: 600;
+    }
+    
+    .no-vehicles {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    
+    .no-vehicles-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 24px;
+        color: #d1d5db;
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 24px;
+    }
+    
+    .info-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 12px;
+    }
+    
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .info-list li {
+        padding: 6px 0;
+        color: #1e3a8a;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<div class="page-header fade-in">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="page-title">Approve Vehicles</h1>
+            <p class="page-subtitle">Review and approve pending vehicle listings</p>
+            {% if vehicles %}
+            <div class="pending-count">{{ vehicles|length }} vehicles pending approval</div>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-light">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+
+{% if vehicles %}
+<div class="row g-4">
+    {% for vehicle in vehicles %}
+    <div class="col-lg-6">
+        <div class="vehicle-card fade-in" style="animation-delay: {{ loop.index * 0.1 }}s;">
+            <div class="vehicle-image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="64" height="64">
+                    <path d="M5 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0M15 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0"/>
+                    <path d="M5 17H3v-4l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2M7 10h10M7 7h10"/>
+                </svg>
+            </div>
+            
+            <div class="vehicle-content">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h3 class="vehicle-title">{{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.year }})</h3>
+                        <p class="vehicle-subtitle">ID: #{{ vehicle.id }}</p>
+                        <!-- Added Debug Line: Remove after testing -->
+                        <p style="color: red; font-size: 12px;">Debug: vehicle_type = '{{ vehicle.vehicle_type }}'</p>
+                    </div>
+                    <span class="type-badge {% if vehicle.vehicle_type.upper() == 'SELL' %}type-sale{% else %}type-rent{% endif %}">
+                        {% if vehicle.vehicle_type.upper() == 'SELL' %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                            <path d="M20 12v10H4V12"/>
+                            <path d="M2 7h20v5H2z"/>
+                        </svg>
+                        For Sale
+                        {% else %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                            <path d="M5 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0M15 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0"/>
+                            <path d="M5 17H3v-4l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2"/>
+                        </svg>
+                        For Rent
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="color: #6b7280;">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                        </svg>
+                        {{ vehicle.color }}
+                    </div>
+                    <div class="spec-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="color: #6b7280;">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        {{ vehicle.fuel_type }}
+                    </div>
+                    <div class="spec-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="color: #6b7280;">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        {{ vehicle.transmission }}
+                    </div>
+                    <div class="spec-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="color: #6b7280;">
+                            <path d="M19 8l-7-7-7 7"/>
+                            <path d="M5 22v-10a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v10"/>
+                        </svg>
+                        {{ vehicle.body_type }}
+                    </div>
+                </div>
+                
+                {% if vehicle.vehicle_type == 'SELL' %}
+                <div class="mb-3">
+                    <span class="text-muted small">Price</span>
+                    <div class="price-value">₹{{ "{:,.2f}".format(vehicle.price) }}</div>
+                </div>
+                {% endif %}
+                
+                {% if vehicle.features %}
+                <div class="mb-3">
+                    <span class="text-muted small d-block mb-1">Features</span>
+                    <p class="small mb-0">{{ vehicle.features }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="seller-info">
+                    <div class="seller-avatar">{{ vehicle.username[0]|upper }}</div>
+                    <div>
+                        <div class="seller-name">{{ vehicle.username }}</div>
+                        <div class="seller-label">Vehicle Owner</div>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('approve_vehicle', vehicle_id=vehicle.id) }}" 
+                   class="btn btn-success w-100 btn-approve">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Approve Vehicle
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="no-vehicles fade-in">
+    <svg class="no-vehicles-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>
+    <h3 class="mb-3">No Pending Vehicles</h3>
+    <p class="text-muted">All vehicles have been reviewed and approved.</p>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">
+        Back to Dashboard
+    </a>
+</div>
+{% endif %}
+
+<div class="info-card fade-in" style="animation-delay: 0.2s;">
+    <h5 class="info-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        Approval Process Information
+    </h5>
+    <ul class="info-list">
+        <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            For Sale Vehicles: Price deducted from admin balance on approval
+        </li>
+        <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            For Rent Vehicles: No balance deduction required
+        </li>
+        <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Admin gets 8% commission on successful sales/rentals
+        </li>
+        <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Approved vehicles become visible to all users
+        </li>
+    </ul>
+</div>
+{% endblock %}

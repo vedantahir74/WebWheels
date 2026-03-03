@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Card Styles - EXACT SAME as advanced search */
+    .professional-car-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .professional-car-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    .car-card-image {
+        position: relative;
+        height: 140px; /* Reduced height */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+    }
+    
+    /* Fallback gradient when no image */
+    .car-card-image.no-image {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+    }
+    
+    .car-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+    }
+    
+    .badge-sale {
+        background: linear-gradient(135deg, #194ab4ff, #1047bdff);
+        color: white;
+    }
+    
+    .badge-rent {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+    }
+    
+    .car-icon-wrapper {
+        width: 60px; /* Smaller icon */
+        height: 60px; /* Smaller icon */
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        z-index: 2;
+    }
+    
+    .car-icon-wrapper i {
+        font-size: 28px; /* Smaller icon */
+        color: white;
+    }
+    
+    .car-card-content {
+        padding: 15px; /* Reduced padding */
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .car-title-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px; /* Reduced */
+    }
+    
+    .car-title {
+        font-size: 16px; /* Smaller font */
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+        line-height: 1.3;
+    }
+    
+    .car-year-badge {
+        background: #f3f4f6;
+        color: #6b7280;
+        padding: 3px 8px; /* Smaller */
+        border-radius: 12px;
+        font-size: 11px; /* Smaller */
+        font-weight: 500;
+    }
+    
+    .car-specs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px; /* Smaller gap */
+        margin-bottom: 12px; /* Reduced */
+    }
+    
+    .car-spec-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 6px; /* Smaller */
+        background: #f9fafb;
+        border-radius: 6px; /* Smaller */
+    }
+    
+    .car-spec-item i {
+        color: #3b82f6;
+        margin-bottom: 3px; /* Reduced */
+        font-size: 12px; /* Smaller */
+    }
+    
+    .car-spec-item span {
+        font-size: 10px; /* Smaller */
+        color: #6b7280;
+        font-weight: 500;
+    }
+    
+    .car-divider {
+        margin: 12px 0; /* Reduced */
+        border: none;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    /* Price row */
+    .car-price-row {
+        margin-bottom: 10px;
+    }
+    
+    .car-price {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .price-label {
+        font-size: 11px; /* Smaller */
+        color: #6b7280;
+        margin-bottom: 2px;
+    }
+    
+    .price-value {
+        font-size: 16px; /* Smaller */
+        font-weight: 700;
+        color: #194ab4ff;
+    }
+    
+    /* Action buttons row - Buy + Heart in same row */
+    .car-action-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: auto;
+    }
+    
+    .car-action-btn {
+        padding: 6px 12px; /* Smaller */
+        border-radius: 6px; /* Smaller */
+        font-size: 13px; /* Smaller */
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        white-space: nowrap; /* Prevent text wrapping */
+        flex: 1;
+        justify-content: center;
+    }
+    
+    /* Transparent Heart button - Only outline, no fill */
+    .transparent-heart-btn {
+        background: transparent;
+        border: 2px solid #d1d5db;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 6px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 36px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    
+    .transparent-heart-btn:hover {
+        border-color: #ef4444;
+        color: #ef4444;
+        background: transparent;
+    }
+    
+    /* Active/hearted state - still outline but red */
+    .transparent-heart-btn.active {
+        border-color: #ef4444;
+        color: #ef4444;
+        background: transparent;
+    }
+    
+    /* Login heart button */
+    .transparent-heart-btn.login-btn {
+        color: #6b7280;
+        border-color: #d1d5db;
+    }
+    
+    .transparent-heart-btn.login-btn:hover {
+        color: #374151;
+        border-color: #9ca3af;
+        background: transparent;
+    }
+    
+    /* Page header */
+    .page-header {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-btn {
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+    
+    .no-results-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        padding: 3rem;
+        text-align: center;
+    }
+    
+    .no-results-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1rem;
+        color: #cbd5e1;
+    }
+    
+    .login-alert {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.813rem;
+        color: #1e40af;
+        margin-top: 10px;
+        text-align: center;
+    }
+    
+    /* For 4 cards per row on desktop */
+    @media (min-width: 1200px) {
+        .col-xl-3 {
+            flex: 0 0 auto;
+            width: 25%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .car-card-image {
+            height: 120px;
+        }
+        
+        .car-icon-wrapper {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .car-icon-wrapper i {
+            font-size: 24px;
+        }
+        
+        .car-specs {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+        
+        .car-action-row {
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .car-action-btn {
+            width: 100%;
+        }
+        
+        .transparent-heart-btn {
+            width: 100%;
+            height: 36px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .car-title {
+            font-size: 14px;
+        }
+        
+        .car-action-btn {
+            padding: 8px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">Browse Vehicles</h1>
+            <p class="text-white-80 mb-0">Find your perfect vehicle from our collection</p>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a href="{{ url_for('browse_vehicles') }}?type=all" 
+       class="btn {% if vehicle_type == 'all' %}btn-secondary{% else %}btn-outline-secondary{% endif %} filter-btn">
+        <i class="fas fa-th me-1"></i>
+        All
+    </a>
+    <a href="{{ url_for('browse_vehicles') }}?type=sale" 
+       class="btn {% if vehicle_type == 'sale' %}btn-secondary{% else %}btn-outline-secondary{% endif %} filter-btn">
+        <i class="fas fa-shopping-cart me-1"></i>
+        For Sale
+    </a>
+    <a href="{{ url_for('browse_vehicles') }}?type=rent" 
+       class="btn {% if vehicle_type == 'rent' %}btn-secondary{% else %}btn-outline-secondary{% endif %} filter-btn">
+        <i class="fas fa-key me-1"></i>
+        For Rent
+    </a>
+    <div class="ms-auto d-flex align-items-center">
+        <span class="badge bg-secondary rounded-pill py-2 px-3">
+            {{ vehicles|length }} vehicles
+        </span>
+    </div>
+</div>
+
+{# Ensure wishlisted_ids exists (default to empty list if not provided) #}
+{% set wishlisted_ids = wishlisted_ids|default([]) %}
+
+{% if vehicles %}
+<div class="row g-3">
+    {% for vehicle in vehicles %}
+    {% set is_in_wishlist = vehicle.id in wishlisted_ids %}
+    <div class="col-xl-3 col-lg-4 col-md-6">
+        <div class="professional-car-card">
+            <div class="car-card-image {% if not vehicle.images %}no-image{% endif %}" 
+                 {% if vehicle.images %}style="background-image: url('{{ url_for('static', filename='uploads/' + vehicle.images.split(',')[0]) }}');"{% endif %}>
+                <!-- Badge based on vehicle type -->
+                {% if vehicle.vehicle_type == 'SELL' %}
+                <span class="car-badge badge-sale">For Sale</span>
+                {% else %}
+                <span class="car-badge badge-rent">For Rent</span>
+                {% endif %}
+                
+                <!-- Show icon only if no image -->
+                {% if not vehicle.images %}
+                <div class="car-icon-wrapper">
+                    <i class="fas fa-car"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="car-card-content">
+                <div class="car-title-section">
+                    <h5 class="car-title">{{ vehicle.brand }} {{ vehicle.model }}</h5>
+                    <span class="car-year-badge">{{ vehicle.year }}</span>
+                </div>
+                
+                <div class="car-specs">
+                    <div class="car-spec-item">
+                        <i class="fas fa-gas-pump"></i>
+                        <span>{{ vehicle.fuel_type }}</span>
+                    </div>
+                    <div class="car-spec-item">
+                        <i class="fas fa-cog"></i>
+                        <span>{{ vehicle.transmission }}</span>
+                    </div>
+                    <div class="car-spec-item">
+                        <i class="fas fa-car-side"></i>
+                        <span>{{ vehicle.body_type or 'Sedan' }}</span>
+                    </div>
+                </div>
+                
+                <hr class="car-divider">
+                
+                <!-- Row 1: Price Only -->
+                <div class="car-price-row">
+                    <div class="car-price">
+                        {% if vehicle.vehicle_type == 'SELL' and vehicle.price > 0 %}
+                            <span class="price-label">Price</span>
+                            <span class="price-value">₹{{ "{:,.0f}".format(vehicle.price + (vehicle.price * 0.08)) }}</span>
+                        {% else %}
+                            <!-- Rent vehicle - show availability -->
+                            {% if vehicle.rental_available == 1 %}
+                                <span class="price-label">Rental</span>
+                                <span class="price-value text-primary">Available</span>
+                            {% else %}
+                                <span class="price-label">Rental</span>
+                                <span class="price-value text-danger">Not Available</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Row 2: Buy/Rent Button + Transparent Heart Icon -->
+                <div class="car-action-row">
+                    {% if 'user_id' in session %}
+                        {% if vehicle.vehicle_type == 'SELL' %}
+                        <a href="{{ url_for('buy_vehicle_detail', vehicle_id=vehicle.id) }}" class="btn btn-primary car-action-btn">
+                            <i class="fas fa-shopping-cart me-2"></i>Buy
+                        </a>
+                        {% else %}
+                            <!-- Rent vehicle - check availability -->
+                            {% if vehicle.rental_available == 1 %}
+                            <a href="{{ url_for('rent_vehicle_detail', vehicle_id=vehicle.id) }}" class="btn btn-primary car-action-btn">
+                                <i class="fas fa-key me-2"></i>Rent
+                            </a>
+                            {% else %}
+                            <button class="btn btn-secondary car-action-btn" disabled>
+                                <i class="fas fa-key me-2"></i>Not Available
+                            </button>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <button class="transparent-heart-btn {% if is_in_wishlist %}active{% endif %}" 
+                                onclick="addToWishlist({{ vehicle.id }}, this)" 
+                                title="Add to Wishlist">
+                            <i class="{% if is_in_wishlist %}fas{% else %}far{% endif %} fa-heart"></i>
+                        </button>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary car-action-btn">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Buy
+                        </a>
+                        
+                        <a href="{{ url_for('login') }}" class="transparent-heart-btn login-btn" title="Login to add to wishlist">
+                            <i class="far fa-heart"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="no-results-card">
+    <i class="fas fa-search fa-4x text-muted mb-4"></i>
+    <h4 class="mb-3">No Vehicles Found</h4>
+    <p class="text-muted mb-4">Try adjusting your filters or browse our featured vehicles</p>
+    <div class="d-flex flex-wrap justify-content-center gap-3">
+        <a href="{{ url_for('browse_vehicles') }}" class="btn btn-primary">
+            <i class="fas fa-redo me-2"></i>Reset Filters
+        </a>
+        <a href="{{ url_for('advanced_search') }}" class="btn btn-outline-primary">
+            <i class="fas fa-search me-2"></i>Advanced Search
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function addToWishlist(vehicleId, element){
+    fetch(`/api/add-to-wishlist/${vehicleId}`, {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        // If successfully added OR it was already in the wishlist, turn heart red
+        if (data.success || (data.message && data.message.toLowerCase().includes('already'))) {
+            element.innerHTML = '<i class="fas fa-heart"></i>';
+            element.classList.add('active');
+        }
+    })
+    .catch(err => console.log(err));
+}
+</script>
+{% endblock %}

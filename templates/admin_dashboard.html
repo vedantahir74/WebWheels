@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">Admin Dashboard</h1>
+            <p class="text-white-80 mb-0">Welcome back, {{ session.get('full_name') }}! Manage your marketplace.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number">{{ total_users or 0 }}</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-car"></i>
+            </div>
+            <div class="stat-number">{{ total_vehicles or 0 }}</div>
+            <div class="stat-label">Total Vehicles</div>
+        </div>
+    </div>
+     <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div class="stat-number">{{ pending_vehicles or 0 }}</div>
+            <div class="stat-label">Pending Approval</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="stat-number">₹{{ "{:,.0f}".format(admin_balance or 0) }}</div>
+            <div class="stat-label">Admin Balance</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Accordion -->
+<div class="accordion accordion-custom" id="quickActionsAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQuickActions" aria-expanded="true" aria-controls="collapseQuickActions">
+                <i class="fas fa-bolt me-2"></i> Admin Quick Actions
+            </button>
+        </h2>
+        <div id="collapseQuickActions" class="accordion-collapse collapse show" data-bs-parent="#quickActionsAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('admin_all_users') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h6>Users</h6>
+                            <p class="small mb-0">Manage users</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('admin_all_vehicles') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <h6>Vehicles</h6>
+                            <p class="small mb-0">All vehicles</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('admin_pending_vehicles') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h6>Pending</h6>
+                            <p class="small mb-0">Approve vehicles</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('admin_custom_requests') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            <h6>Custom</h6>
+                            <p class="small mb-0">Custom requests</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('admin_all_transactions') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h6>Transactions</h6>
+                            <p class="small mb-0">View all</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('statistics') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h6>system statistics</h6>
+                            <p class="small mb-0">View status</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('admin_add_vehicle') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <h6>Add Vehicle</h6>
+                            <p class="small mb-0">Add new</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Info and Activity -->
+<div class="row g-4 mt-2">
+    <div class="col-lg-4">
+        <div class="custom-card h-100">
+            <div class="custom-card-header">
+                <i class="fas fa-user-shield me-2"></i>Admin Information
+            </div>
+            <div class="custom-card-body">
+                <div class="text-center mb-3">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-user-shield fa-2x text-white"></i>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Full Name</small>
+                    <p class="mb-1 fw-bold">System Administrator</p>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Username</small>
+                    <p class="mb-1">admin</p>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Email</small>
+                    <p class="mb-1">webwheels7@gmail.com</p>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Phone</small>
+                    <p class="mb-1">+91 7211172096</p>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Role</small>
+                    <p class="mb-1"><span class="badge bg-primary">Admin</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="accordion accordion-custom" id="activityAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseActivity" aria-expanded="true" aria-controls="collapseActivity">
+                        <i class="fas fa-chart-pie me-2"></i>Platform Overview
+                    </button>
+                </h2>
+                <div id="collapseActivity" class="accordion-collapse collapse show" data-bs-parent="#activityAccordion">
+                    <div class="accordion-body">
+                        <div class="row g-4">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+                                    <div class="bg-opacity-10 rounded p-2" style="background: linear-gradient(135deg, #dbeafe, #93c5fd);">
+                                        <i class="fas fa-users fa-lg" style="color: #2563eb;"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 text-muted small">Total Users</p>
+                                        <p class="mb-0 fw-bold fs-4">{{ total_users or 0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+                                    <div class="bg-opacity-10 rounded p-2" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                        <i class="fas fa-car fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 text-muted small">Total Vehicles</p>
+                                        <p class="mb-0 fw-bold fs-4">{{ total_vehicles or 0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+                                    <div class="bg-opacity-10 rounded p-2" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                        <i class="fas fa-shopping-cart fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 text-muted small">Transactions</p>
+                                        <p class="mb-0 fw-bold fs-4">{{ total_transactions or 0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+                                    <div class="bg-opacity-10 rounded p-2" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                        <i class="fas fa-clock fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 text-muted small">Pending Approval</p>
+                                        <p class="mb-0 fw-bold fs-4">{{ pending_vehicles or 0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h6 class="mb-3">Quick Admin Links</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ url_for('admin_all_users') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-users me-1"></i>Users
+                            </a>
+                            <a href="{{ url_for('admin_all_vehicles') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-car me-1"></i>Vehicles
+                            </a>
+                            <a href="{{ url_for('admin_pending_vehicles') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-check-circle me-1"></i>Approve
+                            </a>
+                            <a href="{{ url_for('admin_all_transactions') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-list me-1"></i>Transactions
+                            </a>
+                            <a href="{{ url_for('admin_reports') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-chart-line me-1"></i>Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity Section -->
+        <div class="accordion accordion-custom mt-4" id="recentActivityAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRecentActivity" aria-expanded="true" aria-controls="collapseRecentActivity">
+                        <i class="fas fa-history me-2"></i>Recent Activity
+                    </button>
+                </h2>
+                <div id="collapseRecentActivity" class="accordion-collapse collapse show" data-bs-parent="#recentActivityAccordion">
+                    <div class="accordion-body">
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded mb-2">
+                            <div class="bg-opacity-10 rounded p-2" style="background: linear-gradient(135deg, #fef3c7, #fcd34d);">
+                                <i class="fas fa-clock fa-lg" style="color: #d97706;"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-muted small">Pending Approvals</p>
+                                <p class="mb-0 fw-bold">{{ pending_vehicles }} vehicles waiting for approval</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded mb-2">
+                            <div class="bg-opacity-10 rounded p-2" style="background: linear-gradient(135deg, #dbeafe, #93c5fd);">
+                                <i class="fas fa-tools fa-lg" style="color: #2563eb;"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-muted small">Custom Requests</p>
+                                <p class="mb-0 fw-bold">{{ custom_requests|length }} custom car requests</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded">
+                            <div class="bg-opacity-10 rounded p-2" style="background: linear-gradient(135deg, #d1fae5, #6ee7b7);">
+                                <i class="fas fa-user-shield fa-lg" style="color: #059669;"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-muted small">Admin Account</p>
+                                <p class="mb-0 fw-bold">Logged in as {{ session.get('username') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

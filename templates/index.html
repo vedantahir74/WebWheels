@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    /* ===== Global styles from original ===== */
+    .star-rating i {
+        color: #ffc107;
+        margin-right: 2px;
+    }
+    .review-card {
+        border-left: 4px solid #2563eb;
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    .review-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-shadow-hover);
+    }
+    .review-meta {
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+
+    /* Hero section with overlay from second template */
+    .hero-premium {
+        background: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1920&q=80') center/cover;
+        position: relative;
+        padding-top: 80px; /* optional, matches second template */
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.4));
+        z-index: 1;
+    }
+
+    .hero-premium .container {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* AI banner background set to white */
+    .ai-banner {
+        background: white !important;
+        border-left: 5px solid #2563eb;
+    }
+
+    /* Ensure hero text is white */
+    .hero-premium .text-white {
+        color: white !important;
+    }
+
+    /* ===== NEW PROFESSIONAL FEEDBACK STYLES ===== */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        --card-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+        --card-shadow-hover: 0 20px 40px -15px rgba(37,99,235,0.2);
+    }
+
+    /* Feedback form card */
+    .feedback-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        margin: 2rem 0;
+        border: 1px solid rgba(37,99,235,0.1);
+    }
+    .feedback-header {
+        background: var(--primary-gradient);
+        padding: 1.5rem 2rem;
+        color: white;
+    }
+    .feedback-header h3 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+    .feedback-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+    .feedback-body {
+        padding: 2rem;
+    }
+
+    /* Star rating widget */
+    .rating-widget {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+    .rating-widget input {
+        display: none;
+    }
+    .rating-widget label {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .rating-widget label:hover,
+    .rating-widget label:hover ~ label,
+    .rating-widget input:checked ~ label {
+        color: #ffc107;
+    }
+    .rating-widget label:hover {
+        transform: scale(1.1);
+    }
+
+    /* Review cards */
+    .reviews-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    .review-card-modern {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border: 1px solid #eef2f6;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .review-card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(37,99,235,0.1);
+        border-color: rgba(37,99,235,0.2);
+    }
+    .review-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .review-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        flex-shrink: 0;
+    }
+    .review-user h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    .review-user .verified-badge {
+        font-size: 0.75rem;
+        color: #2563eb;
+        background: #eef2ff;
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 30px;
+        margin-top: 0.2rem;
+    }
+    .review-stars {
+        margin: 0.5rem 0 0.75rem;
+    }
+    .review-stars i {
+        color: #ffc107;
+        margin-right: 2px;
+        font-size: 0.9rem;
+    }
+    .review-comment {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #334155;
+        margin-bottom: 1rem;
+        flex: 1;
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 12px;
+        border-left: 3px solid #2563eb;
+    }
+    .review-date {
+        font-size: 0.8rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-top: 1px dashed #e2e8f0;
+        padding-top: 0.75rem;
+    }
+
+    /* Empty state */
+    .empty-reviews {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #f8fafc;
+        border-radius: 30px;
+        border: 2px dashed #cbd5e1;
+        color: #475569;
+    }
+    .empty-reviews i {
+        font-size: 3rem;
+        color: #94a3b8;
+        margin-bottom: 1rem;
+    }
+
+    /* Stats overlap and animations (unchanged) */
+    .stats-overlap { margin-top: -60px; position: relative; z-index: 10; }
+    .stat-item h3 { color: #1e293b; }
+    .animate-up { animation: fadeInUp 0.8s ease backwards; }
+    .animate-up:nth-child(2) { animation-delay: 0.2s; }
+    .animate-up:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .floating-img { animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    @media (max-width: 768px) {
+        .hero-title { font-size: 2.5rem; }
+        .stats-overlap { margin-top: 20px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section with overlay -->
+<section class="hero-premium">
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-7 text-white">
+                <span class="badge rounded-pill bg-primary px-3 py-2 mb-3 animate-up">Premium Automotive Marketplace</span>
+                <h1 class="display-3 fw-bold hero-title animate-up">Drive Your Dreams <br><span class="text-primary-gradient">Home Today.</span></h1>
+                <p class="lead hero-description mb-5 animate-up">Access the most exclusive collection of vehicles for sale and rent. Verified sellers, transparent pricing, and AI-powered recommendations.</p>
+                
+                <div class="search-box-premium p-2 bg-white rounded-3 shadow-lg animate-up">
+                    <form action="{{ url_for('browse_vehicles') }}" method="GET" class="row g-2 align-items-center">
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" name="search" class="form-control border-0" placeholder="Brand, model, or body type...">
+                            </div>
+                        </div>
+                        <div class="col-md-4 border-start d-none d-md-block">
+                            <select name="type" class="form-select border-0">
+                                <option value="all" selected>All Types</option>
+                                <option value="sale">For Sale</option>
+                                <option value="rent">For Rent</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-2" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);">Find Vehicle</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-overlay"></div>
+</section>
+
+<!-- Stats Overlap -->
+<div class="stats-overlap container">
+    <div class="row g-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="col-md-3 border-end">
+            <div class="stat-item p-4 text-center bg-white">
+                <h3 class="fw-bold mb-0">500+</h3>
+                <small class="text-uppercase text-muted fw-semibold">Inventory</small>
+            </div>
+        </div>
+        <div class="col-md-3 border-end">
+            <div class="stat-item p-4 text-center bg-white">
+                <h3 class="fw-bold mb-0">250+</h3>
+                <small class="text-uppercase text-muted fw-semibold">Daily Rentals</small>
+            </div>
+        </div>
+        <div class="col-md-3 border-end">
+            <div class="stat-item p-4 text-center bg-white">
+                <h3 class="fw-bold mb-0">12k</h3>
+                <small class="text-uppercase text-muted fw-semibold">Verified Users</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-item p-4 text-center bg-white">
+                <h3 class="fw-bold mb-0">4.9/5</h3>
+                <small class="text-uppercase text-muted fw-semibold">User Rating</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Banner (white background) -->
+<section class="py-5">
+    <div class="container">
+        <div class="ai-banner p-5 rounded-4 shadow-sm d-flex align-items-center justify-content-between flex-wrap">
+            <div class="col-lg-7">
+                <h2 class="fw-bold"><i class="fas fa-robot text-primary me-2"></i> Stuck? Ask our AI Concierge</h2>
+                <p class="text-muted lead">Struggling to find the perfect car for your budget? Our AI assistant makes it effortless—compare models and uncover exclusive rental deals instantly</p>
+                <a href="{{ url_for('ai_assistant') }}" class="btn btn-dark btn-sm mt-3 px-4">Start Chatting</a>
+            </div>
+            <div class="col-lg-4 text-center d-none d-lg-block">
+                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="AI" class="img-fluid floating-img" style="max-height: 200px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== PROFESSIONAL FEEDBACK SECTION ===== -->
+{% if session.user_id %}
+<!-- Feedback Form (only for logged-in users) -->
+<div class="container py-4">
+    <div class="feedback-card">
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h3 class="text-white mb-1">
+                <i class="fas fa-star me-2"></i>Share Your Experience
+            </h3>
+            <p class="text-white-80 mb-0">Your feedback helps us improve and serve you better.</p>
+        </div>
+    </div>
+</div>
+        
+        <div class="feedback-body">
+            <form action="{{ url_for('submit_feedback') }}" method="post" id="feedbackForm">
+                <div class="mb-4">
+                    <label class="form-label fw-semibold mb-3">Your Rating</label>
+                    <div class="rating-widget">
+                        <input type="radio" name="rating" value="5" id="star5" required>
+                        <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="4" id="star4">
+                        <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="3" id="star3">
+                        <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="2" id="star2">
+                        <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                        <input type="radio" name="rating" value="1" id="star1">
+                        <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="comment" class="form-label fw-semibold">Your Review</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="4" placeholder="Tell us about your experience..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary " style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Customer Reviews Display -->
+<div class="container py-5">
+    <h2 class="section-title mb-4"><i class="fas fa-comments me-2"></i>What Our Customers Say</h2>
+    
+    {% if feedbacks %}
+    <div class="reviews-grid">
+        {% for fb in feedbacks %}
+        <div class="review-card-modern">
+            <div class="review-header">
+                <div class="review-avatar" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);">
+                    {{ (fb.full_name or fb.username)[0]|upper }}
+                </div>
+                <div class="review-user">
+                    <h4>{{ fb.full_name or fb.username }}</h4>
+                    <span class="verified-badge"><i class="fas fa-check-circle me-1"></i>Verified Buyer</span>
+                </div>
+            </div>
+            <div class="review-stars">
+                {% for i in range(1,6) %}
+                    {% if i <= fb.rating %}
+                        <i class="fas fa-star"></i>
+                    {% else %}
+                        <i class="far fa-star"></i>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="review-comment">
+                “{{ fb.comment }}”
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-reviews">
+        <i class="far fa-smile"></i>
+        <h4 class="mt-3">No reviews yet</h4>
+        <p class="text-muted">Be the first to share your experience with WebWheels!</p>
+        {% if not session.user_id %}
+        <a href="{{ url_for('login') }}" class="btn btn-outline-primary mt-3">Login to leave a review</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Keep existing styles (already included above) -->
+<style>
+    /* Additional micro-adjustments */
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        position: relative;
+        padding-bottom: 0.75rem;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: var(--primary-gradient);
+        border-radius: 2px;
+    }
+    .text-primary-gradient {
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .btn-primary {
+        background: var(--primary-gradient);
+        border: none;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #1d4ed8, #6b21a5);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(37,99,235,0.4);
+    }
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+</style>
+{% endblock %}

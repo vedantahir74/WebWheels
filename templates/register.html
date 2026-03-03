@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="custom-card">
+            <div class="custom-card-body p-5">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <i class="fas fa-user-plus fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="mb-1">Create Account</h3>
+                    <p class="text-muted">Join Web Wheels today</p>
+                </div>
+
+                <!-- Flash Messages - ONLY ONE MESSAGE -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% set category, message = messages[0] %}
+                        <!-- <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div> -->
+                    {% endif %}
+                {% endwith %}
+
+                {% if not show_otp %}
+                <!-- Registration Form -->
+                <form method="POST" action="{{ url_for('register') }}" id="registrationForm">
+                    <div class="row g-3">
+                        <!-- Username -->
+                        <div class="col-md-6">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" id="username" name="username" 
+                                       class="form-control {% if error_field == 'username' %}is-invalid{% endif %}"
+                                       placeholder="3-20 characters" 
+                                       value="{{ form_data.get('username', '') }}" required>
+                            </div>
+                            {% if error_field == 'username' %}
+                            <small class="text-danger">Please enter a valid username</small>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" id="email" name="email" 
+                                       class="form-control {% if error_field == 'email' %}is-invalid{% endif %}"
+                                       placeholder="user@example.com" 
+                                       value="{{ form_data.get('email', '') }}" required>
+                            </div>
+                            {% if error_field == 'email' %}
+                            <small class="text-danger">Please enter a valid email</small>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Password -->
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" id="password" name="password" 
+                                       class="form-control {% if error_field in ['password', 'confirm_password'] %}is-invalid{% endif %}"
+                                       placeholder="Min 8 chars" 
+                                       value="{{ form_data.get('password', '') }}" required>
+                            </div>
+                            {% if error_field == 'password' %}
+                            <small class="text-danger">Password must contain uppercase, lowercase, number & special character</small>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Confirm Password -->
+                        <div class="col-md-6">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" id="confirm_password" name="confirm_password" 
+                                       class="form-control {% if error_field == 'confirm_password' %}is-invalid{% endif %}"
+                                       placeholder="Re-enter password" 
+                                       value="{{ form_data.get('confirm_password', '') }}" required>
+                            </div>
+                            {% if error_field == 'confirm_password' %}
+                            <small class="text-danger">Passwords do not match</small>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Full Name -->
+                        <div class="col-md-6">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                <input type="text" id="full_name" name="full_name" 
+                                       class="form-control {% if error_field == 'full_name' %}is-invalid{% endif %}"
+                                       placeholder="Your full name" 
+                                       value="{{ form_data.get('full_name', '') }}" required>
+                            </div>
+                            {% if error_field == 'full_name' %}
+                            <small class="text-danger">Please enter a valid name</small>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                <input type="text" id="phone" name="phone" 
+                                       class="form-control {% if error_field == 'phone' %}is-invalid{% endif %}"
+                                       placeholder="10-digit Indian number" 
+                                       value="{{ form_data.get('phone', '') }}" required>
+                            </div>
+                            {% if error_field == 'phone' %}
+                            <small class="text-danger">Please enter a valid 10-digit Indian phone number</small>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="col-12">
+                            <label for="address" class="form-label">Address (Optional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                <textarea id="address" name="address" class="form-control" rows="2" 
+                                          placeholder="Your address (optional)">{{ form_data.get('address', '') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </div>
+                </form>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="mb-0">Already have an account? 
+                        <a href="{{ url_for('login') }}" class="text-primary text-decoration-none">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login here
+                        </a>
+                    </p>
+                </div>
+                {% endif %}
+                
+                <!-- OTP Verification Form -->
+                {% if show_otp %}
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <i class="fas fa-envelope-open-text fa-3x text-success"></i>
+                    </div>
+                    <h4 class="mb-1">Verify Email</h4>
+                    <p class="text-muted">Enter OTP sent to <strong>{{ email }}</strong></p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('verify_register_otp') }}" class="max-width-400 mx-auto">
+                    <input type="hidden" name="email" value="{{ email }}">
+                    
+                    <div class="mb-3">
+                        <label for="otp" class="form-label">6-digit OTP</label>
+                        <input type="text" id="otp" name="otp"
+                            class="form-control text-center"
+                            placeholder="123456"
+                            maxlength="6"
+                            required
+                            style="letter-spacing: 0.25rem; font-size: 1.1rem; height: 48px;">
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-check me-2"></i>Verify & Create Account
+                        </button>
+                        <a href="{{ url_for('send_register_otp') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-2"></i>Resend OTP
+                        </a>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('register') }}" class="text-primary text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Registration
+                        </a>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not show_otp %}
+<script>
+document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    
+    if (data.password !== data.confirm_password) {
+        alert('Passwords do not match!');
+        e.preventDefault();
+        return;
+    }
+    
+    // Form submit hone do - server validation pe rely karo
+});
+</script>
+{% endif %}
+{% endblock %}

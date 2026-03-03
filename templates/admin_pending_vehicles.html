@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Pending Vehicles - Admin{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header rounded-4 mb-4"
+     style="background: linear-gradient(135deg,#1e40af 0%,#3b82f6 100%);
+            border-radius:16px;padding:2rem;">
+    <h1 class="text-white mb-1">
+        <i class="fas fa-clock me-2"></i>Pending Vehicles
+    </h1>
+    <p class="text-white-80 mb-0">Vehicles waiting for approval</p>
+</div>
+
+{% if vehicles %}
+
+<div class="custom-card">
+<div class="custom-card-body p-0">
+
+<div class="table-responsive">
+
+<table class="table table-hover mb-0">
+
+<thead style="background:linear-gradient(135deg,#dbeafe,#93c5fd);">
+<tr>
+    <th>ID</th>
+    <th>Vehicle</th>
+    <th>Seller</th>
+    <th>Price</th>
+    <th>Type</th>
+    <th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for v in vehicles %}
+<tr>
+    <td><code style="color:#2563eb;">{{ v.id }}</code></td>
+    
+    <td>
+        <strong style="color:#1e40af;">
+            {{ v.brand }} {{ v.model }}
+            {% if v.variant %}
+                <small>({{ v.variant }})</small>
+            {% endif %}
+        </strong>
+        <br>
+        <small class="text-muted">{{ v.year }} • {{ v.fuel_type }}</small>
+    </td>
+    
+    <td>{{ v.username }}</td>
+    
+    <td>
+        <strong style="color:#2563eb;">
+            ₹{{ "{:,.2f}".format(v.price) }}
+        </strong>
+    </td>
+    
+    <td>
+        {% if v.vehicle_type == 'SELL' %}
+            <span class="badge bg-primary">Sale</span>
+        {% else %}
+            <span class="badge bg-info">Rent</span>
+        {% endif %}
+    </td>
+    
+    <td>
+        <!-- VIEW BUTTON -->
+        <button class="btn btn-sm me-1"
+                style="background:#3b82f6;color:white;"
+                data-bs-toggle="modal"
+                data-bs-target="#details{{ v.id }}">
+            <i class="fas fa-eye"></i> View
+        </button>
+
+        <!-- APPROVE -->
+        <a href="{{ url_for('approve_vehicle', vehicle_id=v.id) }}"
+           class="btn btn-sm"
+           style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;">
+           <i class="fas fa-check"></i> Approve
+        </a>
+    </td>
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+
+<!-- ================= MODALS WITH IMAGES ================= -->
+{% for v in vehicles %}
+<div class="modal fade"
+     id="details{{ v.id }}"
+     tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    {{ v.brand }} {{ v.model }} 
+                    {% if v.variant %}({{ v.variant }}){% endif %}
+                    - {{ v.year }}
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                
+                <!-- ===== IMAGES SECTION ===== -->
+                {% if v.images %}
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-images me-2"></i>Vehicle Photo
+                    </h6>
+                    <div class="row g-2">
+                        {% for img in v.images.split(',') %}
+                        <div class="col-6 col-md-4">
+                            <img src="{{ url_for('static', filename='uploads/' + img|string) }}"
+                                 class="img-fluid rounded-3"
+                                 style="width:100%; height:150px; object-fit:cover; border:2px solid #dbeafe;"
+                                 alt="Vehicle photo">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <hr>
+                {% else %}
+                <div class="alert alert-secondary mb-4">
+                    <i class="fas fa-camera me-2"></i>No photos uploaded
+                </div>
+                {% endif %}
+
+                <!-- ===== VEHICLE DETAILS ===== -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <th width="40%">Brand:</th>
+                                <td><strong>{{ v.brand }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Model:</th>
+                                <td>{{ v.model }}</td>
+                            </tr>
+                            {% if v.variant %}
+                            <tr>
+                                <th>Variant:</th>
+                                <td>{{ v.variant }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th>Year:</th>
+                                <td>{{ v.year }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fuel Type:</th>
+                                <td>{{ v.fuel_type }}</td>
+                            </tr>
+                            <tr>
+                                <th>Transmission:</th>
+                                <td>{{ v.transmission or 'Not specified' }}</td>
+                            </tr>
+                            <tr>
+                                <th>KM Driven:</th>
+                                <td>{{ v.km_driven or '0' }} km</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <th width="40%">Body Type:</th>
+                                <td>{{ v.body_type or 'Not specified' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Color:</th>
+                                <td>{{ v.color or 'Not specified' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Engine:</th>
+                                <td>{{ v.engine_cc or 'Not specified' }} cc</td>
+                            </tr>
+                            <tr>
+                                <th>Seats:</th>
+                                <td>{{ v.seats or 'Not specified' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Mileage:</th>
+                                <td>{{ v.mileage or 'Not specified' }} km/l</td>
+                            </tr>
+                            <tr>
+                                <th>Price:</th>
+                                <td><span class="text-primary fw-bold">₹{{ "{:,.2f}".format(v.price) }}</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== FEATURES ===== -->
+                {% if v.features %}
+                <div class="mt-3">
+                    <h6 class="fw-bold">Features:</h6>
+                    <div class="p-3 bg-light rounded-3">
+                        {{ v.features }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ===== STATUS BADGES ===== -->
+                <div class="mt-3 d-flex gap-2">
+                    <span class="badge {% if v.vehicle_type == 'SELL' %}bg-primary{% else %}bg-info{% endif %} p-2">
+                        {{ v.vehicle_type }}
+                    </span>
+                    <span class="badge bg-warning p-2">{{ v.status }}</span>
+                    <span class="badge bg-secondary p-2">Seller: {{ v.username }}</span>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="display: block; border-top: none; padding-top: 0;">
+    <div style="display: flex; gap: 8px; width: 100%;">
+        <a href="{{ url_for('approve_vehicle', vehicle_id=v.id) }}"
+           class="btn btn-primary" style="flex: 1; text-align: center;">
+           <i class="fas fa-check"></i> Approve Vehicle
+        </a>
+        <button type="button" class="btn btn-secondary" style="flex: 1; text-align: center;" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i> Close
+        </button>
+    </div>
+</div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-check-circle fa-4x text-muted mb-3"></i>
+    <h4 class="text-muted">No pending vehicles.</h4>
+    <p class="text-muted">All vehicles have been reviewed.</p>
+</div>
+{% endif %}
+
+{% endblock %}

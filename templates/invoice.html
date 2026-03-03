@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - {{ invoice_no }}</title>
+    <!-- Bootstrap 5 + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Professional Font (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        body {
+            background-color: #f2f5f9;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 2rem 1rem;
+            color: #1e293b;
+        }
+
+        .invoice-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Card with subtle shadow */
+        .invoice-card {
+            background: #ffffff;
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 32, 64, 0.25);
+            overflow: hidden;
+        }
+
+        /* Header with original gradient */
+        .invoice-header {
+            background: linear-gradient(135deg, #194ab4 0%, #1047bd 100%);
+            color: white;
+            padding: 2rem 2.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Optional overlay pattern for depth */
+        .invoice-header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Logo placeholder */
+        .logo-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px;
+            font-size: 2rem;
+            color: white;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Company info */
+        .company-info {
+            line-height: 1.5;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        /* Invoice meta box (white, semi-transparent) */
+        .invoice-meta {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 1.2rem 1.8rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .invoice-meta p {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Status badge */
+        .status-badge {
+            background: rgba(255,255,255,0.25);
+            border-radius: 40px;
+            padding: 0.35rem 1.2rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #194ab4;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e6edf5;
+            padding-bottom: 0.75rem;
+        }
+
+        /* Info cards for buyer/seller */
+        .info-card {
+            background: #f9fcff;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid #e9f0f8;
+            height: 100%;
+            box-shadow: 0 4px 10px rgba(0,40,80,0.02);
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .info-label {
+            width: 90px;
+            font-weight: 600;
+            color: #2c3e5c;
+        }
+
+        .info-value {
+            color: #1e293b;
+        }
+
+        /* Vehicle table - elegant and clean */
+        .vehicle-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .vehicle-table thead th {
+            background: #f0f5fd;
+            color: #194ab4;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 1rem 1.25rem;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .vehicle-table tbody tr {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+
+        .vehicle-table td {
+            padding: 1.25rem 1.25rem;
+            border: none;
+            font-size: 1rem;
+            vertical-align: middle;
+        }
+
+        .vehicle-table td:first-child {
+            border-radius: 18px 0 0 18px;
+        }
+
+        .vehicle-table td:last-child {
+            border-radius: 0 18px 18px 0;
+        }
+
+        /* Price breakdown card */
+        .price-card {
+            background: #f9fcff;
+            border-radius: 20px;
+            padding: 1.8rem;
+            border: 1px solid #e9f0f8;
+            width: 100%;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            font-size: 1.1rem;
+            border-bottom: 1px dashed #d9e5f0;
+        }
+
+        .price-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .price-row.total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #194ab4;
+            border-top: 2px solid #194ab4;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-bottom: none;
+        }
+
+        .price-row.total .amount {
+            color: #1047bd;
+        }
+
+        /* Email alert custom */
+        .email-alert {
+            background: #e9f2ff;
+            border-left: 6px solid #194ab4;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            color: #1e293b;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 8px rgba(0,50,100,0.05);
+        }
+
+        /* Buttons */
+        .btn-custom {
+            border-radius: 40px;
+            padding: 0.6rem 1.8rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.15s;
+        }
+
+        .btn-outline-custom {
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
+            background: transparent;
+        }
+
+        .btn-outline-custom:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .btn-primary-custom {
+            background: #194ab4;
+            border: none;
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            background: #1047bd;
+            box-shadow: 0 8px 16px -6px rgba(25,74,180,0.3);
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0.3in;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .invoice-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                border-radius: 12px;
+            }
+            .invoice-header {
+                background: #194ab4 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .vehicle-table thead th {
+                background: #e5ecf5 !important;
+            }
+            .status-badge {
+                border: 1px solid white;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .invoice-header {
+                padding: 1.5rem;
+            }
+            .invoice-meta {
+                padding: 1rem;
+            }
+            .info-row {
+                flex-direction: column;
+            }
+            .info-label {
+                width: auto;
+                margin-bottom: 0.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-wrapper">
+        <div class="invoice-card">
+            <!-- Header with gradient and company info -->
+            <div class="invoice-header">
+                <div class="d-flex flex-wrap align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Logo placeholder (replace with your logo) -->
+                        <div class="logo-placeholder">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-weight: 700; margin-bottom: 0; letter-spacing: -0.02em;">WebWheels</h2>
+                        </div>
+                    </div>
+                    <div class="mt-3 mt-sm-0">
+                        <span class="status-badge"><i class="fas fa-check-circle"></i> {{ transaction.status | upper }}</span>
+                    </div>
+                </div>
+
+                <!-- Invoice meta row (number, date, transaction ID) -->
+                <div class="invoice-meta mt-4 d-flex flex-wrap justify-content-between align-items-center">
+                    <div>
+                        <p><strong>Invoice No:</strong> {{ invoice_no }}</p>
+                        <p class="mb-0"><strong>Transaction ID:</strong> {{ transaction.id }}</p>
+                    </div>
+                    <div class="text-md-end mt-2 mt-md-0">
+                        <p><strong>Date:</strong> {{ date }}</p>
+                        <p class="mb-0"><strong>Due Date:</strong> {{ date }} (paid)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email notification (screen only) -->
+            <div class="px-4 pt-4 no-print">
+                {% if email_sent == 'true' %}
+                <div class="email-alert d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <strong>Invoice sent successfully</strong> to {{ transaction.buyer_email }}
+                    </div>
+                    <a href="{{ url_for('invoice', tid=transaction.id, invoice_no=invoice_no, send_email='true') }}" 
+                       class="btn btn-sm btn-outline-custom">
+                        <i class="fas fa-redo me-1"></i>Resend
+                    </a>
+                </div>
+                {% else %}
+                <div class="email-alert d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-envelope me-2 text-primary"></i>
+                        Send invoice to <strong>{{ transaction.buyer_email }}</strong>
+                    </div>
+                    <a href="{{ url_for('invoice', tid=transaction.id, invoice_no=invoice_no, send_email='true') }}" 
+                       class="btn btn-sm btn-primary-custom">
+                        <i class="fas fa-paper-plane me-1"></i>Send Email
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Main content -->
+            <div class="p-4 p-xl-5">
+                <!-- Buyer & Seller info side by side -->
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h5 class="section-title"><i class="fas fa-user me-2"></i>BUYER DETAILS</h5>
+                            <div class="info-row">
+                                <span class="info-label">Name</span>
+                                <span class="info-value">{{ transaction.buyer_name }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Email</span>
+                                <span class="info-value">{{ transaction.buyer_email }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Phone</span>
+                                <span class="info-value">{{ transaction.buyer_phone }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Payment</span>
+                                <span class="info-value">{{ transaction.payment_method }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <h5 class="section-title"><i class="fas fa-store me-2"></i>SELLER DETAILS</h5>
+                            <div class="info-row">
+                                <span class="info-label">Name</span>
+                                <span class="info-value">{{ transaction.seller_name }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Dealer</span>
+                                <span class="info-value">WebWheels</span>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle details table -->
+                <h5 class="section-title"><i class="fas fa-car me-2"></i>VEHICLE INFORMATION</h5>
+                <div class="table-responsive mb-5">
+                    <table class="vehicle-table">
+                        <thead>
+                            <tr>
+                                <th>Vehicle</th>
+                                <th>Year</th>
+                                <th>Fuel</th>
+                                <th>Transmission</th>
+                                <th class="text-end">Base Price (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>{{ transaction.brand }} {{ transaction.model }}</strong></td>
+                                <td>{{ transaction.year }}</td>
+                                <td>{{ transaction.fuel_type }}</td>
+                                <td>{{ transaction.transmission }}</td>
+                                <td class="text-end fw-semibold">{{ "{:,.2f}".format(transaction.price) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Price breakdown and total -->
+                <div class="row justify-content-end">
+                    <div class="col-lg-7">
+                        <div class="price-card">
+                            <h6 class="fw-bold mb-3" style="color: #194ab4;">PAYMENT SUMMARY</h6>
+                            <div class="price-row">
+                                <span>Base Price</span>
+                                <span class="fw-semibold">₹{{ "{:,.2f}".format(base_price) }}</span>
+                            </div>
+                            <div class="price-row">
+                                <span>Platform Fees (8%)</span>
+                                <span class="fw-semibold">₹{{ "{:,.2f}".format(commission) }}</span>
+                            </div>
+                            <div class="price-row total">
+                                <span>Total Paid</span>
+                                <span class="amount">₹{{ "{:,.2f}".format(total) }}</span>
+                            </div>
+                            <div class="mt-3 text-muted small">
+                                <i class="fas fa-credit-card me-1"></i> Payment via {{ transaction.payment_method }} · Cleared
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thank you & footer note -->
+                <div class="mt-5 pt-4 text-center" style="border-top: 2px solid #e9f0f8;">
+                    <p class="mb-1 fw-semibold" style="color: #194ab4;">Thank you for your business!</p>
+                    <p class="small text-muted">This is a computer-generated invoice, no signature required. For support, contact <a href="mailto:billing@autodeal.in" class="text-decoration-none">billing@autodeal.in</a></p>
+                </div>
+            </div>
+
+            <!-- Action buttons (no-print) -->
+            <div class="p-4 pt-0 d-flex flex-wrap gap-3 justify-content-center no-print">
+                <button onclick="window.print()" class="btn btn-outline-custom btn-custom">
+                    <i class="fas fa-print me-2"></i>Print Invoice
+                </button>
+                <a href="{{ url_for('browse_vehicles') }}" class="btn btn-primary-custom btn-custom">
+                    <i class="fas fa-shopping-cart me-2"></i>Buy Another Vehicle
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-custom btn-custom">
+                    <i class="fas fa-home me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+        <!-- Small print-only spacer -->
+        <div class="text-center text-muted mt-2 small no-print">Invoice generated on {{ date }}</div>
+    </div>
+</body>
+</html>

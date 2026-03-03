@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="custom-card">
+            <div class="custom-card-body p-5">
+                <!-- Logo/Header -->
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <div style="
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #fff;
+            font-family: 'Arial Black', Arial, sans-serif;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 0 auto; /* Center it horizontally */
+        ">W</div>
+            <!-- <span class="brand-text ms-2">Web Wheels</span> -->
+                    </div>
+                    <h3 class="mb-1">
+                        {% if show_forgot_step == 1 %}Forgot Password
+                        {% elif show_forgot_step == 2 %}Verify OTP
+                        {% elif show_forgot_step == 3 %}Reset Password
+                        {% else %}Welcome Back{% endif %}
+                    </h3>
+                    <p class="text-muted">
+                        {% if show_forgot_step == 1 %}Enter your email to receive OTP
+                        {% elif show_forgot_step == 2 %}Enter OTP sent to {{ email }}
+                        {% elif show_forgot_step == 3 %}Create new password for {{ email }}
+                        {% else %}Login to access your account{% endif %}
+                    </p>
+                </div>
+
+                <!-- Regular Login Form -->
+                {% if not show_forgot_step %}
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="identifier" class="form-label">Username, Email or Phone</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" id="identifier" name="identifier" class="form-control" 
+                                   placeholder="Enter username, email or phone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" id="password" name="password" class="form-control" 
+                                   placeholder="Enter your password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('forgot_password') }}" class="text-primary text-decoration-none">
+                            <i class="fas fa-question-circle me-1"></i>Forgot Password?
+                        </a>
+                    </div>
+                </form>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="mb-2">Don't have an account?</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </a>
+                </div>
+                
+                {% endif %}
+                
+                <!-- Forgot Password Step 1 -->
+                {% if show_forgot_step == 1 %}
+                <form method="POST" action="{{ url_for('forgot_password') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" name="email" class="form-control" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-sm ">
+                            <i class="fas fa-paper-plane me-2"></i>Send OTP
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('login') }}" class="text-primary text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Login
+                        </a>
+                    </div>
+                </form>
+                {% endif %}
+                
+                <!-- Forgot Password Step 2 -->
+                {% if show_forgot_step == 2 %}
+                <form method="POST" action="{{ url_for('verify_forgot_otp') }}">
+                    <input type="hidden" name="email" value="{{ email }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">6-digit OTP</label>
+
+                        <input type="text" name="otp"
+                            class="form-control text-center"
+                            placeholder="Enter OTP"
+                            maxlength="6"
+                            required
+                            style="letter-spacing: 0.2rem; font-size: 1.2rem;">
+
+                        <small class="text-muted">
+                            Enter the code sent to {{ email }}
+                        </small>
+                    </div>
+
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-check me-2"></i>Verify OTP
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('forgot_password') }}" class="text-primary text-decoration-none me-3">
+                            <i class="fas fa-redo me-1"></i>Resend OTP
+                        </a>
+                        <a href="{{ url_for('login') }}" class="text-secondary text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i>Back
+                        </a>
+                    </div>
+                </form>
+                {% endif %}
+                
+                <!-- Forgot Password Step 3 -->
+                {% if show_forgot_step == 3 %}
+                <form method="POST" action="{{ url_for('reset_password') }}">
+                    <input type="hidden" name="email" value="{{ email }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">New Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" name="new_password" class="form-control" 
+                                   placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" name="confirm_password" class="form-control" 
+                                   placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-save me-2"></i>Reset Password
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('login') }}" class="text-primary text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Login
+                        </a>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

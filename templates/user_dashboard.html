@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">Welcome back, {{ session.get('full_name') }}!</h1>
+            <p class="text-white-80 mb-0">Manage your vehicles, rentals, and transactions</p>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-car"></i>
+            </div>
+            <div class="stat-number">{{ listings_count or 0 }}</div>
+            <div class="stat-label">My Listings</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-history"></i>
+            </div>
+            <div class="stat-number">{{ transactions_count or 0 }}</div>
+            <div class="stat-label">Transactions</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="stat-number">{{ wishlist_count or 0 }}</div>
+            <div class="stat-label">Wishlist</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+                        <a href="{{ url_for('profile') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-user-cog"></i>
+                            </div>
+                            <h6>Profile</h6>
+                            <p class="small mb-0">Settings</p>
+                        </a>
+                    
+    </div>
+</div>
+
+<!-- Quick Actions Accordion -->
+<div class="accordion accordion-custom" id="quickActionsAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQuickActions" aria-expanded="true" aria-controls="collapseQuickActions">
+                <i class="fas fa-bolt me-2"></i> Quick Actions
+            </button>
+        </h2>
+        <div id="collapseQuickActions" class="accordion-collapse collapse show" data-bs-parent="#quickActionsAccordion">
+            <div class="accordion-body">
+                <div class="row g-3">
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('browse_vehicles') }}?type=sale" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <h6>Buy</h6>
+                            <p class="small mb-0">Browse vehicles</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('browse_vehicles') }}?type=rent" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <h6>Rent</h6>
+                            <p class="small mb-0">Browse vehicles</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('sell_vehicle') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <h6>Sell</h6>
+                            <p class="small mb-0">Sell Your Vehicle</p>
+                        </a>
+                    </div>
+                        <div class="col-md-4 col-lg-2 col-6">
+                            <a href="{{ url_for('custom_car_builder') }}" class="menu-card h-100">
+                                <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                    <i class="fas fa-tools"></i>
+                                </div>
+                                <h6>Custom Car</h6>
+                                <p class="small mb-0">Build car</p>
+                            </a>
+                        </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('my_custom_requests') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <h6>My Requests</h6>
+                            <p class="small mb-0">View custom requests</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('my_wishlist') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;;">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <h6>Wishlist</h6>
+                            <p class="small mb-0">Saved items</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('my_listings') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <h6>Listing</h6>
+                            <p class="small mb-0">My listings</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('my_transactions') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h6>History</h6>
+                            <p class="small mb-0">Transactions</p>
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-lg-2 col-6">
+                        <a href="{{ url_for('my_rentals') }}" class="menu-card h-100">
+                            <div class="menu-icon" style="background: linear-gradient(135deg, #dbeafe, #93c5fd); color: #2563eb;">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <h6>My Rental</h6>
+                            <p class="small mb-0">View rentals</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

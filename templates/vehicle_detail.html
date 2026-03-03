@@ -1,0 +1,624 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vehicle.brand }} {{ vehicle.model }} - Buy - VehicleHub{% endblock %}
+
+{% block content %}
+<style>
+    /* ===== MAIN CONTAINER ===== */
+    .vehicle-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* ===== HERO HEADER ===== */
+    .hero-header {
+        background: linear-gradient(135deg, #194ab4ff 0%, #1047bdff 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    
+    .hero-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -20%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+    }
+    
+    .hero-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-subtitle {
+        font-size: 13px;
+        opacity: 0.9;
+        font-weight: 400;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* ===== VEHICLE IMAGE SECTION ===== */
+    .vehicle-image-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .vehicle-image-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #194ab4ff, #3b82f6);
+    }
+    
+    .main-image-container {
+        width: 100%;
+        height: 350px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;  /* Light background for empty space */
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .main-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;      /* Fills the container, may crop */
+    }
+    
+    .fallback-svg {
+        width: 120px;
+        height: 120px;
+        color: #194ab4ff;
+        filter: drop-shadow(0 4px 12px rgba(25, 74, 180, 0.2));
+    }
+    
+    .thumbnail-gallery {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+    
+    .thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        cursor: pointer;
+        object-fit: cover;      /* Uniform thumbnails */
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+        background: #f1f5f9;
+    }
+    
+    .thumbnail:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .thumbnail.active {
+        border-color: #194ab4ff;
+        box-shadow: 0 0 0 2px #bfdbfe;
+    }
+    
+    /* ===== PRICE CARD ===== */
+    .price-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        padding: 25px;
+        position: sticky;
+        top: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .price-card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        border-color: #bfdbfe;
+    }
+    
+    .price-amount {
+        font-size: 22px;
+        font-weight: 700;
+        color: #194ab4ff;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #194ab4ff, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .price-note {
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    /* ===== BUTTONS ===== */
+    .btn-main {
+        padding: 12px 20px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .btn-primary-action {
+        background: linear-gradient(135deg, #194ab4ff 0%, #3b82f6 100%);
+        color: white;
+    }
+    
+    .btn-primary-action:hover {
+        background: linear-gradient(135deg, #1047bdff 0%, #2563eb 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(25, 74, 180, 0.3);
+    }
+    
+    .btn-secondary-action {
+        background: white;
+        border: 2px solid #e5e7eb;
+        color: #475569;
+    }
+    
+    .btn-secondary-action:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+        transform: translateY(-2px);
+    }
+    
+    /* ===== INFO SECTIONS ===== */
+    .info-section {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+    
+    .info-section:hover {
+        border-color: #bfdbfe;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+    
+    .info-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #1e293b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+    }
+    
+    .info-title::before {
+        content: '';
+        width: 4px;
+        height: 16px;
+        background: linear-gradient(to bottom, #194ab4ff, #3b82f6);
+        border-radius: 2px;
+        margin-right: 12px;
+    }
+    
+    /* ===== SPEC GRID ===== */
+    .spec-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+    
+    .spec-item {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 12px;
+        padding: 20px 15px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .spec-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #194ab4ff, #3b82f6);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .spec-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        border-color: #bfdbfe;
+    }
+    
+    .spec-item:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .spec-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 8px;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+    
+    .spec-value {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    
+    /* ===== FEATURES ===== */
+    .feature-tag {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 1px solid #bfdbfe;
+        border-radius: 20px;
+        font-size: 11px;
+        color: #194ab4ff;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        margin: 5px;
+    }
+    
+    .feature-tag:hover {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(25, 74, 180, 0.15);
+    }
+    
+    .feature-tag::before {
+        content: '✓';
+        margin-right: 6px;
+        font-weight: bold;
+    }
+    
+    /* ===== SELLER INFO ===== */
+    .seller-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 20px;
+    }
+    
+    .seller-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #194ab4ff, #3b82f6);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+    
+    .seller-details h6 {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 5px;
+    }
+    
+    .seller-details p {
+        font-size: 12px;
+        color: #64748b;
+        margin: 0;
+    }
+    
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 992px) {
+        .spec-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .price-card {
+            position: static;
+            margin-top: 20px;
+        }
+        
+        .hero-header {
+            padding: 25px 20px;
+        }
+        
+        .main-image-container {
+            height: 300px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .spec-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .hero-header {
+            padding: 20px 15px;
+        }
+        
+        .info-section, .price-card {
+            padding: 20px;
+        }
+        
+        .main-image-container {
+            height: 250px;
+        }
+        
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+        }
+    }
+</style>
+
+<div class="">
+    <div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+        <div class="d-flex align-items-center gap-3">
+            <div>
+                <h1 class="text-white mb-1">{{ vehicle.brand }} {{ vehicle.model }}</h1>
+                <p class="text-white-80 mb-0">{{ vehicle.year }} • {{ vehicle.fuel_type }} • {{ vehicle.transmission }} • {{ vehicle.body_type }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT COLUMN -->
+        <div class="col-lg-8">
+            <!-- VEHICLE IMAGE GALLERY -->
+            <div class="vehicle-image-section">
+                {% if vehicle.images %}
+                    {% set image_list = vehicle.images.split(',') %}
+                    <div class="main-image-container">
+                        <img id="mainImage" src="{{ url_for('static', filename='uploads/' + image_list[0]) }}" class="main-image" alt="{{ vehicle.brand }} {{ vehicle.model }}">
+                    </div>
+                    {% if image_list|length > 1 %}
+                    <div class="thumbnail-gallery">
+                        {% for img in image_list %}
+                        <img src="{{ url_for('static', filename='uploads/' + img) }}" 
+                             class="thumbnail {% if loop.first %}active{% endif %}" 
+                             onclick="changeMainImage(this, '{{ url_for('static', filename='uploads/' + img) }}')"
+                             alt="Thumbnail">
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="main-image-container">
+                        <svg class="fallback-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <path d="M5 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0M15 17a2 2 0 1 0 4 0a2 2 0 0 0-4 0"/>
+                            <path d="M5 17H3v-4l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2M7 10h10M7 7h10"/>
+                        </svg>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- SELLER INFO -->
+            {% if vehicle.seller_name %}
+            <div class="seller-info">
+                <div class="seller-avatar">{{ vehicle.seller_name[0]|upper }}</div>
+                <div class="seller-details">
+                    <h6>Seller: {{ vehicle.seller_name }}</h6>
+                    <p>Verified Seller • Contact Available</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- SPECIFICATIONS -->
+            <div class="info-section">
+                <h3 class="info-title">Vehicle Specifications</h3>
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">Color</div>
+                        <div class="spec-value">{{ vehicle.color }}</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Mileage</div>
+                        <div class="spec-value">{{ vehicle.mileage }} km/l</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Body Type</div>
+                        <div class="spec-value">{{ vehicle.body_type }}</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Seating Capacity</div>
+                        <div class="spec-value">{{ vehicle.seats }} Persons</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Transmission</div>
+                        <div class="spec-value">{{ vehicle.transmission }}</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Fuel Type</div>
+                        <div class="spec-value">{{ vehicle.fuel_type }}</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Engine Capacity</div>
+                        <div class="spec-value">{{ vehicle.engine_cc or "N/A" }}</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Vehicle Condition</div>
+                        <div class="spec-value">{{ vehicle.condition or "Excellent" }}</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Registration Year</div>
+                        <div class="spec-value">{{ vehicle.year }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FEATURES -->
+            {% if vehicle.features %}
+            <div class="info-section">
+                <h3 class="info-title">Premium Features</h3>
+                <div class="d-flex flex-wrap">
+                    {% for feature in vehicle.features.split(',') %}
+                        {% if feature.strip() %}
+                            <span class="feature-tag">{{ feature.strip() }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- DESCRIPTION -->
+            {% if vehicle.description %}
+            <div class="info-section">
+                <h3 class="info-title">Vehicle Description</h3>
+                <p style="font-size: 12px; color: #475569; line-height: 1.6;">
+                    {{ vehicle.description }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- RIGHT COLUMN - PRICE & ACTIONS -->
+        <div class="col-lg-4">
+            <div class="price-card">
+                <div class="d-flex align-items-baseline mb-3">
+                    <div class="price-amount">₹{{ "{:,.0f}".format(vehicle.price) }}</div>
+                    <div class="ms-2" style="font-size: 11px; color: #059669; font-weight: 600;">
+                        <span class="badge bg-success bg-opacity-10 text-success py-1 px-2">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Fixed Price
+                        </span>
+                    </div>
+                </div>
+                <div class="price-note">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Base Price:</span>
+                        <span style="font-weight: 600;">₹{{ "{:,.0f}".format(vehicle.price)}}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Platform Fee (8%):</span>
+                        <span style="font-weight: 600;">₹{{ "{:,.0f}".format(vehicle.price * 0.08)}}</span>
+                    </div>
+                    <div class="d-flex justify-content-between" style="color: #194ab4ff; font-weight: 600;">
+                        <span>Total Price:</span>
+                        <span>₹{{ "{:,.0f}".format(vehicle.price + (vehicle.price * 0.08)) }}</span>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('checkout', vehicle_id=vehicle.id) }}" class="btn btn-main btn-primary-action">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                            <path d="M20 12v10H4V12"/>
+                            <path d="M2 7h20v5H2z"/>
+                        </svg>
+                        Proceed to Purchase
+                    </a>
+                    
+                    <button class="btn btn-main btn-secondary-action" onclick="addToWishlist({{ vehicle.id }})">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        Save to Wishlist
+                    </button>
+                    
+                    <a href="{{ url_for('browse_vehicles') }}" class="btn btn-main btn-secondary-action">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Continue Browsing
+                    </a>
+                </div>
+
+                <!-- ADDITIONAL INFO -->
+                <div class="mt-4 pt-3 border-top" style="font-size: 11px; color: #64748b;">
+                    <div class="d-flex align-items-center mb-2">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        <span>Price includes all taxes and registration charges</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <span>Free RC transfer assistance included</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function changeMainImage(thumb, src) {
+    document.getElementById('mainImage').src = src;
+    // Update active thumbnail
+    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+}
+
+function addToWishlist(vehicleId){
+    fetch(`/api/add-to-wishlist/${vehicleId}`, {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch(err => console.log(err));
+}
+</script>
+{% endblock %}

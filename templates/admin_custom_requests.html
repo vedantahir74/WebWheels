@@ -1,0 +1,727 @@
+{% extends "base.html" %}
+{% block title %}Admin - Custom Requests{% endblock %}
+
+{% block content %}
+<style>
+/* Custom requests specific styles */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.status-pending { 
+    background: rgba(37, 99, 235, 0.15); 
+    color: #2563eb;
+    border-color: #2563eb;
+}
+.status-price-set { 
+    background: rgba(59, 130, 246, 0.15); 
+    color: #3b82f6;
+    border-color: #3b82f6;
+}
+.status-accepted { 
+    background: rgba(96, 165, 250, 0.15); 
+    color: #60a5fa;
+    border-color: #60a5fa;
+}
+.status-rejected { 
+    background: rgba(37, 99, 235, 0.15); 
+    color: #2563eb;
+    border-color: #2563eb;
+}
+.status-approved { 
+    background: rgba(37, 99, 235, 0.15); 
+    color: #1e40af;
+    border-color: #1e40af;
+}
+
+.color-circle {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+/* Professional Stats Cards */
+.stats-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    min-height: 140px;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+}
+
+.stats-card-icon {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 2.5rem;
+    opacity: 0.2;
+}
+
+.stats-card-content {
+    padding: 25px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.stats-card-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+
+.stats-card-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    line-height: 1.2;
+}
+
+.stats-card-subtitle {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* Progress bar for pending/approved ratio */
+.progress-container {
+    margin-top: 10px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    height: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: rgba(255,255,255,0.9);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.status-indicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-indicator-pending::before { background: #2563eb; }
+.status-indicator-approved::before { background: #1e40af; }
+.status-indicator-price-set::before { background: #3b82f6; }
+.status-indicator-rejected::before { background: #60a5fa; }
+
+/* Card gradient backgrounds */
+.card-total {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    --gradient-start: #1e40af;
+    --gradient-end: #3b82f6;
+}
+
+.card-pending {
+    background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+    color: white;
+    --gradient-start: #2563eb;
+    --gradient-end: #60a5fa;
+}
+
+.card-price-set {
+    background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 100%);
+    color: white;
+    --gradient-start: #3b82f6;
+    --gradient-end: #93c5fd;
+}
+
+.card-accepted {
+    background: linear-gradient(135deg, #60a5fa 0%, #bfdbfe 100%);
+    color: white;
+    --gradient-start: #60a5fa;
+    --gradient-end: #bfdbfe;
+}
+
+.card-rejected {
+    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+    color: white;
+    --gradient-start: #1d4ed8;
+    --gradient-end: #3b82f6;
+}
+
+.card-approved {
+    background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+    color: #1e40af;
+    --gradient-start: #dbeafe;
+    --gradient-end: #93c5fd;
+}
+
+/* Header improvements */
+.dashboard-header {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: rgba(255,255,255,0.1);
+    transform: rotate(30deg);
+}
+
+.dashboard-header-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Action buttons - updated to match blue theme */
+.action-btn-group .btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.action-btn-group .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Table improvements */
+.table-card {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.table-card .card-header {
+    background: linear-gradient(135deg, #dbeafe, #93c5fd);
+    border-bottom: none;
+    padding: 20px 25px;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 15px 12px;
+}
+
+/* Badge improvements */
+.spec-badge {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: #495057;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stats-card {
+        margin-bottom: 15px;
+    }
+    
+    .stats-card-value {
+        font-size: 1.8rem;
+    }
+    
+    .dashboard-header {
+        padding: 20px;
+    }
+}
+</style>
+
+<div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h1 class="text-white mb-1">Admin Custom Car Requests Dashboard</h1>
+            <p class="text-white-80 mb-0">Manage all custom car requests from users</p>
+        </div>
+    </div>
+</div>
+
+    <!-- Professional Statistics Dashboard -->
+    <div class="row mb-4">
+        <!-- Total Requests (now with percentage line for consistent height) -->
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+            <div class="stats-card card-total">
+                <div class="stats-card-content">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="stats-card-title">Total Requests</div>
+                    <div class="stats-card-value">{{ total_requests }}</div>
+                    <div class="stats-card-subtitle">
+                        All custom car requests
+                        {% if total_requests > 0 %}
+                        <span class="d-block mt-1">100% of total</span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests -->
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+            <div class="stats-card card-pending">
+                <div class="stats-card-content">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stats-card-title">Pending</div>
+                    <div class="stats-card-value">{{ status_counts['PENDING'] }}</div>
+                    <div class="stats-card-subtitle">
+                        Awaiting price quotation
+                        {% if total_requests > 0 %}
+                        <span class="d-block mt-1">
+                            {{ (status_counts['PENDING'] / total_requests * 100)|round|int }}% of total
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width: {% if total_requests > 0 %}{{ (status_counts['PENDING'] / total_requests * 100) }}%{% else %}0%{% endif %}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Set -->
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+            <div class="stats-card card-price-set">
+                <div class="stats-card-content">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div class="stats-card-title">Price Set</div>
+                    <div class="stats-card-value">{{ status_counts['PRICE_SET'] }}</div>
+                    <div class="stats-card-subtitle">
+                        Waiting for user response
+                        {% if total_requests > 0 %}
+                        <span class="d-block mt-1">
+                            {{ (status_counts['PRICE_SET'] / total_requests * 100)|round|int }}% of total
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width: {% if total_requests > 0 %}{{ (status_counts['PRICE_SET'] / total_requests * 100) }}%{% else %}0%{% endif %}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accepted -->
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+            <div class="stats-card card-accepted">
+                <div class="stats-card-content">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stats-card-title">Accepted</div>
+                    <div class="stats-card-value">{{ status_counts['ACCEPTED'] }}</div>
+                    <div class="stats-card-subtitle">
+                        User accepted price
+                        {% if total_requests > 0 %}
+                        <span class="d-block mt-1">
+                            {{ (status_counts['ACCEPTED'] / total_requests * 100)|round|int }}% of total
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width: {% if total_requests > 0 %}{{ (status_counts['ACCEPTED'] / total_requests * 100) }}%{% else %}0%{% endif %}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejected -->
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+            <div class="stats-card card-rejected">
+                <div class="stats-card-content">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stats-card-title">Rejected</div>
+                    <div class="stats-card-value">{{ status_counts['REJECTED'] }}</div>
+                    <div class="stats-card-subtitle">
+                        Requests declined
+                        {% if total_requests > 0 %}
+                        <span class="d-block mt-1">
+                            {{ (status_counts['REJECTED'] / total_requests * 100)|round|int }}% of total
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width: {% if total_requests > 0 %}{{ (status_counts['REJECTED'] / total_requests * 100) }}%{% else %}0%{% endif %}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approved -->
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+            <div class="stats-card card-approved">
+                <div class="stats-card-content">
+                    <div class="stats-card-icon">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="stats-card-title">Approved</div>
+                    <div class="stats-card-value">{{ status_counts['APPROVED'] }}</div>
+                    <div class="stats-card-subtitle">
+                        Ready for production
+                        {% if total_requests > 0 %}
+                        <span class="d-block mt-1 fw-bold">
+                            {{ (status_counts['APPROVED'] / total_requests * 100)|round|int }}% of total
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-container" style="background: rgba(0,0,0,0.1);">
+                        <div class="progress-fill" style="width: {% if total_requests > 0 %}{{ (status_counts['APPROVED'] / total_requests * 100) }}%{% else %}0%{% endif %}; background: #333;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="custom-card">
+                <div class="custom-card-body">
+                    <div class="row">
+                        <div class="col-md-3 d-flex align-items-center">
+                            <div>
+                                <h6 class="mb-1">Conversion Rate</h6>
+                                {% if total_requests > 0 and status_counts['PENDING'] > 0 %}
+                                <h3 class="mb-0" style="color: #2563eb;">
+                                    {{ (status_counts['APPROVED'] / total_requests * 100)|round(1) }}%
+                                </h3>
+                                {% else %}
+                                <h3 class="mb-0 text-muted">0%</h3>
+                                {% endif %}
+                                <small>Pending to Approved</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center">
+                            <div>
+                                <h6 class="mb-1">Avg. Response Time</h6>
+                                <h3 class="mb-0" style="color: #3b82f6;">24h</h3>
+                                <small>Pending requests</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center">
+                            <div>
+                                <h6 class="mb-1">Action Required</h6>
+                                <h3 class="mb-0" style="color: #2563eb;">
+                                    <span class="status-indicator status-indicator-pending">{{ status_counts['PENDING'] }}</span>
+                                </h3>
+                                <small>Requests need attention</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center">
+                            <div>
+                                <h6 class="mb-1">Completed</h6>
+                                <h3 class="mb-0" style="color: #1e40af;">
+                                    <span class="status-indicator status-indicator-approved">{{ status_counts['APPROVED'] }}</span>
+                                </h3>
+                                <small>Ready for production</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Requests Table -->
+      <div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;">
+    <div class="d-flex align-items-center gap-3">
+        <div>
+            <h4 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Custom Requests List
+                        <span class="badge bg-primary ms-2">{{ total_requests }} requests</span>
+            </h4>
+            <p class="text-white-80 mb-0">Showing all custom car requests with current status and actions</p>
+        </div>
+    </div>
+</div>
+        <div class="card-body">
+            {% if custom_requests %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer Details</th>
+                            <th>Specifications</th>
+                            <th>Status</th>
+                            <th>Price</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in custom_requests %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">#{{ req.id }}</div>
+                                <small class="text-muted">Custom</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold mb-1">{{ req.user_name }}</div>
+                                <div class="text-muted small mb-1">
+                                    <i class="fas fa-envelope me-1"></i>{{ req.user_email }}
+                                </div>
+                                {% if req.phone %}
+                                <div class="text-muted small">
+                                    <i class="fas fa-phone me-1"></i>{{ req.phone }}
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="mb-2">
+                                    <span class="spec-badge">
+                                        <i class="fas fa-car me-1"></i>{{ req.body_type }}
+                                    </span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="spec-badge">
+                                        <span class="color-circle" style="background: {{ req.color|lower }};"></span>
+                                        {{ req.color }}
+                                    </span>
+                                    <span class="spec-badge">
+                                        <i class="fas fa-cogs me-1"></i>{{ req.engine_cc }}cc
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="spec-badge">
+                                        <i class="fas fa-gas-pump me-1"></i>{{ req.fuel_type }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ req.status.lower().replace('_', '-') }}">
+                                    {% if req.status == 'PENDING' %}
+                                    <i class="fas fa-clock me-1"></i>
+                                    {% elif req.status == 'PRICE_SET' %}
+                                    <i class="fas fa-tag me-1"></i>
+                                    {% elif req.status == 'ACCEPTED' %}
+                                    <i class="fas fa-check me-1"></i>
+                                    {% elif req.status == 'REJECTED' %}
+                                    <i class="fas fa-times me-1"></i>
+                                    {% elif req.status == 'APPROVED' %}
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    {% endif %}
+                                    {{ req.status.replace('_', ' ').title() }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if req.suggested_price %}
+                                <!-- Changed from text-success to text-primary -->
+                                <div class="fw-bold text-primary fs-5">
+                                    ₹{{ "{:,.0f}".format(req.suggested_price) }}
+                                </div>
+                                <small class="text-muted">Suggested</small>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Not Set
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="fw-bold">
+                                    {% if req.created_at %}
+                                        {% if req.created_at is string %}
+                                            {{ req.created_at[:10] }}
+                                        {% else %}
+                                            {{ req.created_at.strftime('%d %b') }}
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">
+                                    {% if req.created_at %}
+                                        {% if req.created_at is string %}
+                                            {{ req.created_at[11:16] }}
+                                        {% else %}
+                                            {{ req.created_at.strftime('%I:%M %p') }}
+                                        {% endif %}
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    {% if req.status == 'PENDING' %}
+                                    <!-- Changed btn-success to btn-primary, btn-outline-info to btn-outline-primary -->
+                                    <button class="btn btn-primary" 
+                                            onclick="setPrice({{ req.id }}, '{{ req.user_name }}', '{{ req.body_type }}')"
+                                            title="Set Price for this request">
+                                        <i class="fas fa-tag me-1"></i>Price
+                                    </button>
+                                    {% elif req.status == 'PRICE_SET' %}
+                                    <div class="mt-2">
+                                        <button class="btn btn-outline-primary btn-sm"
+                                                onclick="rejectRequest({{ req.id }})">
+                                            <i class="fas fa-times me-1"></i>Reject
+                                        </button>
+
+                                    </div>
+                                    {% else %}
+                                    <!-- Changed btn-info to btn-primary -->
+                                    <button class="btn btn-primary"
+                                            onclick="viewRequestDetails({{ req.id }})"
+                                            title="View request details">
+                                        <i class="fas fa-info-circle me-1"></i>Details
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-car-custom fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted mb-3">No Custom Requests Found</h4>
+                <p class="text-muted mb-0">When users create custom car requests, they will appear here.</p>
+                <p class="text-muted">Monitor the dashboard for new requests.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Price Modal -->
+<div class="modal fade" id="priceModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- Modal header with gradient background instead of bg-success -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border-bottom: none;">
+                <h5 class="modal-title">
+                    <i class="fas fa-tag me-2"></i>Set Custom Car Price
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Set a competitive price for this custom car request
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3">Request Details</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Customer:</strong> <span id="modalCustomerName"></span></p>
+                                <p class="mb-1"><strong>Body Type:</strong> <span id="modalBodyType"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('set_custom_price', request_id=0) }}" id="priceForm">
+                    <input type="hidden" name="request_id" id="modalRequestId">
+                    
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Custom Car Price (₹)</label>
+                        <input type="number" class="form-control" id="price" name="price" 
+                               min="100000" max="10000000" step="10000" required
+                               placeholder="Enter custom car price">
+                        <div class="form-text">Enter the total price including all customizations</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <!-- Changed btn-success to btn-primary -->
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-check me-1"></i>Set Price
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript functions -->
+<script>
+// Price Modal functions
+function setPrice(requestId, customerName, bodyType) {
+    document.getElementById('modalRequestId').value = requestId;
+    document.getElementById('modalCustomerName').textContent = customerName;
+    document.getElementById('modalBodyType').textContent = bodyType;
+    document.getElementById('priceForm').action = "{{ url_for('set_custom_price', request_id=0) }}".replace('0', requestId);
+    
+    var modal = new bootstrap.Modal(document.getElementById('priceModal'));
+    modal.show();
+}
+
+function viewRequestDetails(requestId) {
+    alert('View details for request #' + requestId + '\n\nThis feature can be expanded to show full request details in a modal.');
+}
+
+function rejectRequest(requestId) {
+    if(confirm('Are you sure you want to reject this request? This will notify the user.')) {
+        window.location.href = "{{ url_for('reject_custom_price', request_id=0) }}".replace('0', requestId);
+    }
+}
+</script>
+{% endblock %}

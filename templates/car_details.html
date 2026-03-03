@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}{{ car.brand }} {{ car.model }} - Web Wheels{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Left Column - Gallery -->
+    <div class="col-lg-5">
+        <div class="custom-card sticky-top" style="top: 100px;">
+            <div class="vehicle-image" style="height: 300px; border-radius: 1rem 1rem 0 0;">
+                <i class="fas fa-car fa-5x text-muted"></i>
+            </div>
+            <div class="custom-card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 text-success">₹{{ "{:,.0f}".format(car.price) }}</h4>
+                    <span class="badge bg-primary">{{ car.year }}</span>
+                </div>
+                <p class="text-muted mb-3">{{ car.brand }} {{ car.model }}</p>
+                
+                <div class="row g-2 text-center">
+                    <div class="col-4">
+                        <div class="bg-light rounded p-2">
+                            <i class="fas fa-gas-pump d-block text-muted mb-1"></i>
+                            <small>{{ car.fuel_type }}</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="bg-light rounded p-2">
+                            <i class="fas fa-cog d-block text-muted mb-1"></i>
+                            <small>{{ car.transmission }}</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="bg-light rounded p-2">
+                            <i class="fas fa-palette d-block text-muted mb-1"></i>
+                            <small>{{ car.color }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column - Details -->
+    <div class="col-lg-7">
+        <div class="page-header rounded-4 mb-4" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); padding: 1.5rem;">
+            <a href="{{ url_for('browse_vehicles') }}" class="btn btn-light btn-sm mb-3">
+                <i class="fas fa-arrow-left me-2"></i>Back
+            </a>
+            <h2 class="text-white mb-1">{{ car.brand }} {{ car.model }}</h2>
+            <p class="text-white-80 mb-0">{{ car.year }} • {{ car.fuel_type }} • {{ car.transmission }}</p>
+        </div>
+
+        <div class="custom-card mb-4">
+            <div class="custom-card-header">
+                <i class="fas fa-list me-2"></i>Vehicle Specifications
+            </div>
+            <div class="custom-card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Brand</span>
+                            <strong>{{ car.brand }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Model</span>
+                            <strong>{{ car.model }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Year</span>
+                            <strong>{{ car.year }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Fuel Type</span>
+                            <strong>{{ car.fuel_type }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Transmission</span>
+                            <strong>{{ car.transmission }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Body Type</span>
+                            <strong>{{ car.body_type }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Color</span>
+                            <strong>{{ car.color }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Seats</span>
+                            <strong>{{ car.seats }} Seaters</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Mileage</span>
+                            <strong>{{ car.mileage }} km/l</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Engine</span>
+                            <strong>{{ car.engine_cc }} CC</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if car.features %}
+        <div class="custom-card mb-4">
+            <div class="custom-card-header">
+                <i class="fas fa-star me-2"></i>Features
+            </div>
+            <div class="custom-card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    {% for feature in car.features.split(',') %}
+                    <span class="badge bg-light text-dark border">
+                        <i class="fas fa-check text-success me-1"></i>{{ feature.strip() }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="custom-card mb-4">
+            <div class="custom-card-header">
+                <i class="fas fa-calculator me-2"></i>Price Breakdown
+            </div>
+            <div class="custom-card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Base Price</span>
+                    <span>₹{{ "{:,.0f}".format(car.price) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Commission (8%)</span>
+                    <span>₹{{ "{:,.0f}".format(car.price * 0.08) }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong class="h5 mb-0">Total Price</strong>
+                    <strong class="h5 text-success mb-0">₹{{ "{:,.0f}".format(car.price * 1.26) }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3">
+            <a href="{{ url_for('checkout', vehicle_id=car.id) }}" class="btn btn-success btn-sm flex-grow-1">
+                <i class="fas fa-shopping-cart me-2"></i>Buy Now
+            </a>
+            <button class="btn btn-outline-primary btn-sm" onclick="addToWishlist({{ car.id }})">
+                <i class="fas fa-heart"></i>
+            </button>
+        </div>
+
+        <div class="alert alert-info mt-4 mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Price includes all taxes, registration, and documentation charges.
+        </div>
+    </div>
+</div>
+
+<script>
+async function addToWishlist(vehicleId) {
+    try {
+        const response = await fetch(`/api/add-to-wishlist/${vehicleId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        alert(data.message);
+    } catch (error) {
+        alert('Error adding to wishlist');
+    }
+}
+</script>
+{% endblock %}
